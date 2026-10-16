@@ -43,6 +43,13 @@
       "when": 1792170068448,
       "tag": "0005_crm_setup_leads_deals",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792170623646,
+      "tag": "0006_deals_close_date_custom_forms",
+      "breakpoints": true
     }
   ]
 }

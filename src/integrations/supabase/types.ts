@@ -287,6 +287,56 @@ export type Database = {
           },
         ]
       }
+      custom_forms: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          fields: Json
+          id: string
+          is_active: boolean
+          is_system: boolean
+          module: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          fields?: Json
+          id?: string
+          is_active?: boolean
+          is_system?: boolean
+          module?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          fields?: Json
+          id?: string
+          is_active?: boolean
+          is_system?: boolean
+          module?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_forms_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           amount: number
@@ -295,6 +345,7 @@ export type Database = {
           contract_type_id: string | null
           created_at: string
           created_by: string | null
+          expected_close_date: string | null
           id: string
           lead_id: string | null
           pipeline_id: string | null
@@ -310,6 +361,7 @@ export type Database = {
           contract_type_id?: string | null
           created_at?: string
           created_by?: string | null
+          expected_close_date?: string | null
           id?: string
           lead_id?: string | null
           pipeline_id?: string | null
@@ -325,6 +377,7 @@ export type Database = {
           contract_type_id?: string | null
           created_at?: string
           created_by?: string | null
+          expected_close_date?: string | null
           id?: string
           lead_id?: string | null
           pipeline_id?: string | null
@@ -417,6 +470,7 @@ export type Database = {
           customer_name: string
           email: string
           form_answers: Json
+          form_id: string | null
           id: string
           interest_level: string
           meta_account_id: string | null
@@ -430,6 +484,7 @@ export type Database = {
           meta_page_id: string | null
           phone: string
           pipeline_id: string | null
+          region: string
           requirements: string
           source_id: string | null
           stage_id: string | null
@@ -446,6 +501,7 @@ export type Database = {
           customer_name?: string
           email?: string
           form_answers?: Json
+          form_id?: string | null
           id?: string
           interest_level?: string
           meta_account_id?: string | null
@@ -459,6 +515,7 @@ export type Database = {
           meta_page_id?: string | null
           phone?: string
           pipeline_id?: string | null
+          region?: string
           requirements?: string
           source_id?: string | null
           stage_id?: string | null
@@ -475,6 +532,7 @@ export type Database = {
           customer_name?: string
           email?: string
           form_answers?: Json
+          form_id?: string | null
           id?: string
           interest_level?: string
           meta_account_id?: string | null
@@ -488,6 +546,7 @@ export type Database = {
           meta_page_id?: string | null
           phone?: string
           pipeline_id?: string | null
+          region?: string
           requirements?: string
           source_id?: string | null
           stage_id?: string | null

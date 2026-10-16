@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { leadColumnCatalog } from "@/lib/crm-config";
+import { LeadImportDialog } from "@/components/admin/LeadImportDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/crm/leads")({
   head: () => ({ meta: [
@@ -69,6 +70,7 @@ function LeadsPage() {
   const [quick, setQuick] = useState(true);
   const [form, setForm] = useState<typeof blank | null>(null);
   const [open, setOpen] = useState<Lead | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const name = (list: Named[] | undefined, id: string | null) => list?.find((x) => x.id === id)?.name ?? "—";
   const filtered = useMemo(() => (data?.leads ?? []).filter((l) => inTab(l.created_at, tab) &&
@@ -117,7 +119,7 @@ function LeadsPage() {
       <Breadcrumb label={`All Leads (${data?.leads.length ?? 0})`} />
       <PageHeader title={`${label === "All" ? "All" : label + "'s"} Leads (${filtered.length})`} subtitle="Manage all leads in the system">
         <SearchInput placeholder="Search leads..." value={q} onChange={setQ} className="w-72" />
-        <ToolbarButton onClick={() => toast.info("CSV import is not available yet.")}><Upload className="size-4" />Import</ToolbarButton>
+        <ToolbarButton onClick={() => setImporting(true)}><Upload className="size-4" />Import</ToolbarButton>
         <ToolbarButton onClick={exportCsv}><Download className="size-4" />Export</ToolbarButton>
         <label className="inline-flex h-10 items-center gap-2 rounded-md border bg-card px-3 text-[15px] font-semibold">
           <Zap className="size-4 text-admin-orange" />Quick Mode<Switch checked={quick} onCheckedChange={setQuick} />
@@ -170,6 +172,7 @@ function LeadsPage() {
         </DialogContent>
       </Dialog>
 
+      {data && <LeadImportDialog open={importing} onClose={() => setImporting(false)} sources={data.sources} companies={data.companies} stageId={data.stages.find((s) => s.is_active)?.id ?? null} pipelineId={data.defaultPipeline} existing={data.leads.map((l: Lead) => ({ phone: l.phone ?? "", email: l.email ?? "" }))} />}
       <LeadDrawer lead={open} onClose={() => setOpen(null)} data={data} />
     </div>
   );
