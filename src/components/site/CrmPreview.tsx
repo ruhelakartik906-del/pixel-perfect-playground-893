@@ -24,10 +24,10 @@ const statusCls: Record<string, string> = {
 };
 
 export function CrmPreview() {
-  const [sel, setSel] = useState(leads[0].id);
+  const [sel, setSel] = useState(leads[0]!.id);
   const [q, setQ] = useState("");
   const list = useMemo(() => leads.filter((l) => (l.name + l.business).toLowerCase().includes(q.toLowerCase())), [q]);
-  const lead = leads.find((l) => l.id === sel)!;
+  const lead = leads.find((l) => l.id === sel) ?? leads[0]!;
 
   return (
     <section id="overview" className="bg-surface py-24">
