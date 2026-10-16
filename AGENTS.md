@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Public marketing sections live in `src/components/site/`; header/footer are mounted in `__root.tsx` — why: shared across all public routes (CRM workspace will need its own layout without them).
+- Lead quota assignment logic lives in `src/lib/routing.ts` with tests in `src/test/routing.test.ts` — why: single source for the per-rule quota/overflow rule.
