@@ -3,6 +3,7 @@ import { ArrowRight, Database, GitBranch, Megaphone, RotateCcw, Send, UserCheck,
 import { Button } from "@/components/ui/button";
 import { SectionHeading, DemoTag } from "./SectionHeading";
 import { cn } from "@/lib/utils";
+import { assigneeFor, type RoutingStep } from "@/lib/routing";
 
 const flow = [
   { icon: Megaphone, label: "Meta Ads" },
@@ -12,21 +13,13 @@ const flow = [
   { icon: UserCheck, label: "Assigned Employee" },
 ];
 
-type Step = { user: string; limit: number | null };
+type Step = RoutingStep;
+const assignee = assigneeFor;
 const rules: Record<string, { name: string; steps: Step[] }> = {
   A: { name: "Video Ad A", steps: [{ user: "User A", limit: 5 }, { user: "User D", limit: null }] },
   B: { name: "Video Ad B", steps: [{ user: "User C", limit: null }] },
   C: { name: "Video Ad C", steps: [{ user: "User B", limit: 10 }, { user: "User E", limit: 10 }, { user: "User F", limit: null }] },
 };
-
-function assignee(steps: Step[], n: number) {
-  let used = 0;
-  for (const s of steps) {
-    if (s.limit === null || n <= used + s.limit) return s.user;
-    used += s.limit;
-  }
-  return steps[steps.length - 1].user;
-}
 
 export function Distribution() {
   const [counts, setCounts] = useState<Record<string, number>>({ A: 0, B: 0, C: 0 });
