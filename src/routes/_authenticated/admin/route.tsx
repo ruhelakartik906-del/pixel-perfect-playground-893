@@ -8,18 +8,28 @@ import { titleForPath } from "@/components/admin/nav";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { AccessDenied, RoutePending } from "@/components/auth/RouteStates";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) throw redirect({ to: "/login" });
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: u.user.id, _role: "super_admin" });
-    if (!isAdmin) throw redirect({ to: "/dashboard" });
-    return { adminEmail: u.user.email ?? "", adminName: (u.user.user_metadata?.['full_name'] as string | undefined) ?? "Admin" };
+    if (!u.user) throw redirect({ to: "/login", search: { redirect: location.href } });
+    const { data: isAdmin, error } = await supabase.rpc("has_role", { _user_id: u.user.id, _role: "super_admin" });
+    return {
+      isAdmin: !error && isAdmin === true,
+      adminEmail: u.user.email ?? "",
+      adminName: (u.user.user_metadata?.['full_name'] as string | undefined) ?? "Admin",
+    };
   },
-  component: AdminLayout,
+  pendingComponent: RoutePending,
+  component: AdminGate,
 });
+
+function AdminGate() {
+  const { isAdmin } = Route.useRouteContext();
+  return isAdmin ? <AdminLayout /> : <AccessDenied />;
+}
 
 function AdminLayout() {
   const { adminEmail, adminName } = Route.useRouteContext();
