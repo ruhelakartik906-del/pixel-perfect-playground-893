@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      automation_executions: {
+        Row: {
+          created_at: string
+          detail: string
+          id: string
+          status: string
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string
+          id?: string
+          status: string
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string
+          id?: string
+          status?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_executions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "automation_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_workflows: {
+        Row: {
+          actions: Json
+          conditions: Json
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          is_default: boolean
+          name: string
+          status: string
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          status?: string
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          status?: string
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           company: string
