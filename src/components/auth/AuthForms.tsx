@@ -35,7 +35,7 @@ async function statusPathForCurrentUser() {
   return workspacePathForStatus(data?.account_status);
 }
 
-function PasswordInput({ id, value, onChange, autoComplete, error }: { id: string; value: string; onChange: (value: string) => void; autoComplete: string; error?: string }) {
+function PasswordInput({ id, value, onChange, autoComplete, error }: { id: string; value: string; onChange: (value: string) => void; autoComplete: string; error?: string | undefined }) {
   const [visible, setVisible] = useState(false);
   return (
     <div>
