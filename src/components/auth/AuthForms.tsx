@@ -37,10 +37,13 @@ async function statusPathForCurrentUser() {
     supabase.from("profiles").select("account_status").eq("id", userData.user.id).maybeSingle(),
   ]);
   if (error) throw error;
-  if (isAdmin === true) return safeRedirect() ?? "/admin";
+  if (isAdmin === true) {
+    const target = safeRedirect();
+    return target && target.startsWith("/admin") && target !== "/admin" ? target : "/admin/dashboard";
+  }
   const path = workspacePathForStatus(data?.account_status);
   const target = safeRedirect();
-  return path === "/dashboard" && target && !target.startsWith("/admin") ? target : path;
+  return path === "/dashboard" && target && !target.startsWith("/admin") && !target.startsWith("/setup-admin") ? target : path;
 }
 
 function PasswordInput({ id, value, onChange, autoComplete, error }: { id: string; value: string; onChange: (value: string) => void; autoComplete: string; error?: string | undefined }) {
