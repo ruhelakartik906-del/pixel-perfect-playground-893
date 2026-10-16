@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { BarChart3, CalendarCheck, CheckCircle2, ClipboardList, Loader2, LogOut, Megaphone, PhoneCall, ShieldCheck, Users } from "lucide-react";
 
@@ -41,6 +42,7 @@ const stats = [
 
 function Dashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -68,6 +70,8 @@ function Dashboard() {
   }, [navigate]);
 
   const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
   };
