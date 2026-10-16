@@ -12,4 +12,6 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Pre-bundle heavy libs so Vite never re-optimizes mid-session (that reload caused a duplicate-router blank screen).
+  vite: { optimizeDeps: { include: ["recharts", "xlsx", "jspdf", "jspdf-autotable"] } },
 });
