@@ -65,7 +65,7 @@ export function LoginForm() {
   const navigate = useNavigate();
   const [form, setForm] = useState<LoginForm>({ email: "", password: "", remember: true });
   const [errors, setErrors] = useState<Partial<Record<keyof LoginForm, string>>>({});
-  const [loading, setLoading] = useState<"email" | "google" | "lovable" | null>(null);
+  const [loading, setLoading] = useState<"email" | "google" | null>(null);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -90,7 +90,7 @@ export function LoginForm() {
     }
   };
 
-  const social = async (provider: "google" | "lovable") => {
+  const social = async (provider: "google") => {
     setLoading(provider);
     const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
     if (result.error) {
@@ -116,10 +116,7 @@ export function LoginForm() {
         {loading === "email" ? <><Loader2 className="animate-spin" /> Signing in…</> : <><LockKeyhole /> Login</>}
       </Button>
       <div className="relative py-1"><Separator /><span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs font-semibold uppercase text-muted-foreground">or</span></div>
-      <div className="grid gap-2 sm:grid-cols-2">
-        <Button type="button" variant="pill" size="xl" disabled={loading !== null} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Google</Button>
-        <Button type="button" variant="pill" size="xl" disabled={loading !== null} onClick={() => social("lovable")}>{loading === "lovable" ? <Loader2 className="animate-spin" /> : <LockKeyhole />} Lovable</Button>
-      </div>
+      <Button type="button" variant="pill" size="xl" className="w-full" disabled={loading !== null} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
     </form>
   );
 }
