@@ -45,12 +45,12 @@ export function Distribution() {
 
         <div className="mt-14 flex flex-col items-stretch gap-3 md:flex-row md:items-center md:justify-between">
           {flow.map(({ icon: Icon, label }, i) => (
-            <div key={label} className="flex flex-1 items-center gap-3 md:flex-col md:gap-0">
+            <div key={label} className="flex flex-1 items-center gap-3">
               <div className="flex flex-1 items-center gap-3 rounded-2xl border bg-card p-4 shadow-card md:w-full md:flex-col md:text-center">
                 <span className="grid size-11 place-items-center rounded-xl bg-icon-gradient text-primary-foreground"><Icon className="size-5" /></span>
                 <span className="text-sm font-bold md:mt-2">{label}</span>
               </div>
-              {i < flow.length - 1 && <ArrowRight className="hidden size-5 shrink-0 text-primary md:absolute md:hidden" />}
+              {i < flow.length - 1 && <ArrowRight className="hidden size-5 shrink-0 text-primary md:block" />}
             </div>
           ))}
         </div>

@@ -1,24 +1,37 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Hero } from "@/components/site/Hero";
+import { Features } from "@/components/site/Features";
+import { CrmPreview } from "@/components/site/CrmPreview";
+import { Distribution } from "@/components/site/Distribution";
+import { Analytics } from "@/components/site/Analytics";
+import { Benefits, CtaBand, Faq, HowItWorks } from "@/components/site/MoreSections";
+import { ContactSection } from "@/components/site/ContactForm";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Routiva CRM — Turn Every Ad Lead Into Business" },
+      { name: "description", content: "Capture Facebook and Instagram leads, auto-assign them with per-ad quotas, and manage every enquiry in one CRM." },
+      { property: "og:title", content: "Routiva CRM — Turn Every Ad Lead Into Business" },
+      { property: "og:description", content: "Meta lead capture, smart ad-based routing and team follow-ups in one CRM." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <>
+      <Hero />
+      <Features />
+      <CrmPreview />
+      <Distribution />
+      <Analytics />
+      <HowItWorks />
+      <Benefits />
+      <Faq />
+      <ContactSection />
+      <CtaBand />
+    </>
   );
 }
