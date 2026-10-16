@@ -30,6 +30,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
+import { Route as AuthenticatedAdminCrmAutomationRouteImport } from './routes/_authenticated/admin/crm/automation'
 import { Route as AuthenticatedAdminCrmLeadsRouteImport } from './routes/_authenticated/admin/crm/leads'
 import { Route as AuthenticatedAdminRoutingIndexRouteImport } from './routes/_authenticated/admin/routing/index'
 
@@ -138,6 +139,12 @@ const AuthenticatedAdminDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminCrmAutomationRoute =
+  AuthenticatedAdminCrmAutomationRouteImport.update({
+    id: '/crm/automation',
+    path: '/crm/automation',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCrmLeadsRoute =
   AuthenticatedAdminCrmLeadsRouteImport.update({
     id: '/crm/leads',
@@ -172,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -195,6 +203,7 @@ export interface FileRoutesByTo {
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
   '/_authenticated/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin/'
+    | '/admin/crm/automation'
     | '/admin/crm/leads'
     | '/admin/routing/'
   fileRoutesByTo: FileRoutesByTo
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin'
+    | '/admin/crm/automation'
     | '/admin/crm/leads'
     | '/admin/routing'
   id:
@@ -295,6 +307,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/crm/automation'
     | '/_authenticated/admin/crm/leads'
     | '/_authenticated/admin/routing/'
   fileRoutesById: FileRoutesById
@@ -467,6 +480,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/crm/automation': {
+      id: '/_authenticated/admin/crm/automation'
+      path: '/crm/automation'
+      fullPath: '/admin/crm/automation'
+      preLoaderRoute: typeof AuthenticatedAdminCrmAutomationRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/crm/leads': {
       id: '/_authenticated/admin/crm/leads'
       path: '/crm/leads'
@@ -488,6 +508,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSplatRoute: typeof AuthenticatedAdminSplatRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCrmAutomationRoute: typeof AuthenticatedAdminCrmAutomationRoute
   AuthenticatedAdminCrmLeadsRoute: typeof AuthenticatedAdminCrmLeadsRoute
   AuthenticatedAdminRoutingIndexRoute: typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -497,6 +518,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSplatRoute: AuthenticatedAdminSplatRoute,
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminCrmAutomationRoute: AuthenticatedAdminCrmAutomationRoute,
     AuthenticatedAdminCrmLeadsRoute: AuthenticatedAdminCrmLeadsRoute,
     AuthenticatedAdminRoutingIndexRoute: AuthenticatedAdminRoutingIndexRoute,
   }
