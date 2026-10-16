@@ -110,7 +110,7 @@ function ConfigTable({ section, title, data }: { section: Exclude<Section, "list
   const run = async (p: Promise<{ error: { message: string } | null }>, ok: string) => {
     const { error } = await p;
     if (error) return toast.error(error.message.includes("row-level") ? "You don't have permission for this action." : error.message);
-    toast.success(ok); refresh();
+    if (ok) toast.success(ok); refresh();
   };
 
   const save = async () => {

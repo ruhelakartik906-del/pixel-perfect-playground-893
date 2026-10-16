@@ -31,6 +31,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
 import { Route as AuthenticatedAdminCrmAutomationRouteImport } from './routes/_authenticated/admin/crm/automation'
+import { Route as AuthenticatedAdminCrmCrmSystemSetupRouteImport } from './routes/_authenticated/admin/crm/crm-system-setup'
 import { Route as AuthenticatedAdminCrmLeadsRouteImport } from './routes/_authenticated/admin/crm/leads'
 import { Route as AuthenticatedAdminRoutingIndexRouteImport } from './routes/_authenticated/admin/routing/index'
 
@@ -145,6 +146,12 @@ const AuthenticatedAdminCrmAutomationRoute =
     path: '/crm/automation',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminCrmCrmSystemSetupRoute =
+  AuthenticatedAdminCrmCrmSystemSetupRouteImport.update({
+    id: '/crm/crm-system-setup',
+    path: '/crm/crm-system-setup',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCrmLeadsRoute =
   AuthenticatedAdminCrmLeadsRouteImport.update({
     id: '/crm/leads',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
+  '/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
+  '/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -231,6 +240,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
+  '/_authenticated/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/_authenticated/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/'
     | '/admin/crm/automation'
+    | '/admin/crm/crm-system-setup'
     | '/admin/crm/leads'
     | '/admin/routing/'
   fileRoutesByTo: FileRoutesByTo
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin'
     | '/admin/crm/automation'
+    | '/admin/crm/crm-system-setup'
     | '/admin/crm/leads'
     | '/admin/routing'
   id:
@@ -308,6 +320,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/crm/automation'
+    | '/_authenticated/admin/crm/crm-system-setup'
     | '/_authenticated/admin/crm/leads'
     | '/_authenticated/admin/routing/'
   fileRoutesById: FileRoutesById
@@ -487,6 +500,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCrmAutomationRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/crm/crm-system-setup': {
+      id: '/_authenticated/admin/crm/crm-system-setup'
+      path: '/crm/crm-system-setup'
+      fullPath: '/admin/crm/crm-system-setup'
+      preLoaderRoute: typeof AuthenticatedAdminCrmCrmSystemSetupRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/crm/leads': {
       id: '/_authenticated/admin/crm/leads'
       path: '/crm/leads'
@@ -509,6 +529,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCrmAutomationRoute: typeof AuthenticatedAdminCrmAutomationRoute
+  AuthenticatedAdminCrmCrmSystemSetupRoute: typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   AuthenticatedAdminCrmLeadsRoute: typeof AuthenticatedAdminCrmLeadsRoute
   AuthenticatedAdminRoutingIndexRoute: typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -519,6 +540,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminCrmAutomationRoute: AuthenticatedAdminCrmAutomationRoute,
+    AuthenticatedAdminCrmCrmSystemSetupRoute:
+      AuthenticatedAdminCrmCrmSystemSetupRoute,
     AuthenticatedAdminCrmLeadsRoute: AuthenticatedAdminCrmLeadsRoute,
     AuthenticatedAdminRoutingIndexRoute: AuthenticatedAdminRoutingIndexRoute,
   }
