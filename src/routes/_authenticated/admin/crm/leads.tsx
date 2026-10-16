@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/admin/crm/leads")({
 
 const db = supabase as unknown as { from: (t: string) => any };
 const QK = ["admin-leads"];
-type Lead = Record<string, any> & { id: string; created_at: string };
+type Lead = any;
 type Named = { id: string; name: string; color?: string; is_active?: boolean };
 type Tab = "today" | "yesterday" | "week" | "month" | "all";
 
