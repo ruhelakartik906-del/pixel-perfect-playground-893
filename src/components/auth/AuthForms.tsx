@@ -23,16 +23,24 @@ function collectErrors<T extends Record<string, unknown>>(error: z.ZodError<T>) 
   return errors;
 }
 
+function safeRedirect(): string | null {
+  if (typeof window === "undefined") return null;
+  const r = new URLSearchParams(window.location.search).get("redirect");
+  return r && r.startsWith("/") && !r.startsWith("//") ? r : null;
+}
+
 async function statusPathForCurrentUser() {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) return "/login";
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("account_status")
-    .eq("id", userData.user.id)
-    .maybeSingle();
+  const [{ data: isAdmin }, { data, error }] = await Promise.all([
+    supabase.rpc("has_role", { _user_id: userData.user.id, _role: "super_admin" }),
+    supabase.from("profiles").select("account_status").eq("id", userData.user.id).maybeSingle(),
+  ]);
   if (error) throw error;
-  return workspacePathForStatus(data?.account_status);
+  if (isAdmin === true) return safeRedirect() ?? "/admin";
+  const path = workspacePathForStatus(data?.account_status);
+  const target = safeRedirect();
+  return path === "/dashboard" && target && !target.startsWith("/admin") ? target : path;
 }
 
 function PasswordInput({ id, value, onChange, autoComplete, error }: { id: string; value: string; onChange: (value: string) => void; autoComplete: string; error?: string | undefined }) {
