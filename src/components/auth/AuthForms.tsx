@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail, UserPlus } from "lucide-react";
 import { toast } from "sonner";
@@ -69,7 +69,7 @@ export function LoginForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof LoginForm, string>>>({});
   const [loading, setLoading] = useState<"email" | "google" | "lovable" | null>(null);
 
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const result = loginSchema.safeParse(form);
     if (!result.success) {
@@ -131,7 +131,7 @@ export function RegisterForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterForm, string>>>({});
   const [state, setState] = useState<"idle" | "submitting" | "sent">("idle");
 
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const result = registerSchema.safeParse(form);
     if (!result.success) {
@@ -198,7 +198,7 @@ export function ForgotPasswordForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof ForgotPasswordForm, string>>>({});
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const result = forgotPasswordSchema.safeParse(form);
     if (!result.success) {
@@ -225,7 +225,7 @@ export function ResetPasswordForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordForm, string>>>({});
   const [loading, setLoading] = useState(false);
   const recovery = useMemo(() => typeof window !== "undefined" && window.location.hash.includes("type=recovery"), []);
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const result = resetPasswordSchema.safeParse(form);
     if (!result.success) {

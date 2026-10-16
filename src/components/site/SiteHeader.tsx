@@ -1,11 +1,13 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import {
-  BarChart3, CalendarCheck, ChevronDown, HelpCircle, Info, LayoutDashboard, Mail, Megaphone, Menu, Plug, Shuffle, X,
+  BarChart3, CalendarCheck, ChevronDown, HelpCircle, Info, LayoutDashboard, LogOut, Mail, Megaphone, Menu, Plug, Shuffle, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const productLinks = [
   { label: "CRM Overview", hash: "overview", icon: LayoutDashboard, desc: "One workspace for every enquiry" },
@@ -63,7 +65,28 @@ function MenuItem({ icon: Icon, label, desc }: { icon: typeof Menu; label: strin
 
 export function SiteHeader() {
   const [mobile, setMobile] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
   const navCls = "rounded-full px-3 py-1.5 text-[15px] font-medium text-muted-foreground transition-colors hover:text-primary";
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.user));
+    });
+    return () => { active = false; };
+  }, [location.pathname]);
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    setSignedIn(false);
+    navigate({ to: "/login", replace: true });
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 lg:px-8">
@@ -83,8 +106,17 @@ export function SiteHeader() {
           </Dropdown>
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
-          <Button asChild variant="ghost" className="rounded-full font-semibold"><Link to="/login">Login</Link></Button>
-          <Button asChild variant="hero" size="xl" className="h-11"><Link to="/register">Get Started</Link></Button>
+          {signedIn ? (
+            <>
+              <Button asChild variant="ghost" className="rounded-full font-semibold"><Link to="/dashboard">Dashboard</Link></Button>
+              <Button variant="hero" size="xl" className="h-11" onClick={signOut}><LogOut /> Logout</Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" className="rounded-full font-semibold"><Link to="/login">Login</Link></Button>
+              <Button asChild variant="hero" size="xl" className="h-11"><Link to="/register">Get Started</Link></Button>
+            </>
+          )}
         </div>
         <button className="grid size-10 place-items-center rounded-full border lg:hidden" onClick={() => setMobile(true)} aria-label="Open menu">
           <Menu className="size-5" />
@@ -107,8 +139,17 @@ export function SiteHeader() {
               <p className="eyebrow mt-3 px-3">Resources</p>
               {resourceLinks.map((l) => <Link key={l.to} to={l.to}><MenuItem {...l} /></Link>)}
               <div className="mt-6 grid gap-2">
-                <Button asChild variant="pill" size="xl"><Link to="/login">Login</Link></Button>
-                <Button asChild variant="hero" size="xl"><Link to="/register">Get Started</Link></Button>
+                {signedIn ? (
+                  <>
+                    <Button asChild variant="pill" size="xl"><Link to="/dashboard">Dashboard</Link></Button>
+                    <Button variant="hero" size="xl" onClick={signOut}><LogOut /> Logout</Button>
+                  </>
+                ) : (
+                  <>
+                    <Button asChild variant="pill" size="xl"><Link to="/login">Login</Link></Button>
+                    <Button asChild variant="hero" size="xl"><Link to="/register">Get Started</Link></Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
