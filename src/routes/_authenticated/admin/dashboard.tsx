@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, DataTable, EmptyState, KpiCard } from "@/components/admin/ui";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/admin/")({
+export const Route = createFileRoute("/_authenticated/admin/dashboard")({
   head: () => ({ meta: [
     { title: "Admin Dashboard — Routiva CRM" },
     { name: "description", content: "Master admin overview of customers, leads, deals and revenue." },
