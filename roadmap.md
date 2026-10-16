@@ -1,8 +1,7 @@
-# Admin Part 2 roadmap
-- [x] CRM Automation (/admin/crm/automation) with saved workflows
-- [ ] Automation executor (runs actions) — needs leads/tasks/WhatsApp backends
-- [ ] CRM System Setup (pipelines, stages, sources, tags, categories, contract types, list view)
-- [ ] Leads/deals storage (needed for real Reports & Analytics)
-- [ ] Reports Manager + exports
-- [ ] Advanced Analytics
-- [ ] Custom Form Builder
+# Admin roadmap
+- [x] CRM Automation, System Setup, Leads/Deals storage, Reports, Analytics, Custom Forms, Lead import
+- [x] Functional audit of CRM modules (Oct 16)
+- [ ] Automation executor (runs actions) — needs tasks/WhatsApp/email backends
+- [ ] Employee/company isolation test — needs an employee account
+- [ ] Sales pages (Products, Customers, Invoices, Credit Notes) — not built
+- [ ] Meta/Make.com intake, automatic routing, follow-ups, attendance — not built
