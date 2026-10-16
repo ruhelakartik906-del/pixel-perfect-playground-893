@@ -29,6 +29,13 @@
       "when": 1792153175221,
       "tag": "0003_simplify_profile_update_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792169534860,
+      "tag": "0004_automation_workflows",
+      "breakpoints": true
     }
   ]
 }
