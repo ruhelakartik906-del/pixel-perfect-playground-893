@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   ssr: false,
   beforeLoad: async ({ location }) => {
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) throw redirect({ to: "/login", search: { redirect: location.href } });
+    if (!u.user) throw redirect({ to: "/admin/login" });
     const { data: isAdmin, error } = await supabase.rpc("has_role", { _user_id: u.user.id, _role: "super_admin" });
     return {
       isAdmin: !error && isAdmin === true,
@@ -44,7 +44,7 @@ function AdminLayout() {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/login", replace: true });
+    navigate({ to: "/admin/login", replace: true });
   };
 
   return (
