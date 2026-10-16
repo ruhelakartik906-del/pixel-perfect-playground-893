@@ -8,6 +8,27 @@
       "when": 1792151816504,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792153048717,
+      "tag": "0001_create_profiles_for_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792153134854,
+      "tag": "0002_restrict_profile_self_updates",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792153175221,
+      "tag": "0003_simplify_profile_update_policy",
+      "breakpoints": true
     }
   ]
 }
