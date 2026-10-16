@@ -75,7 +75,8 @@ function DealsPage() {
     if (!Number.isFinite(amount) || amount < 0) { toast.error("Enter a valid deal value in INR"); return; }
     const payload = {
       title: form.title.trim().slice(0, 200), amount, status: form.status,
-      stage_id: form.stage_id || null, lead_id: form.lead_id || null, expected_close_date: form.expected_close_date || null,
+      // A deal with no stage would vanish from the Kanban board, so fall back to the first active stage.
+      stage_id: form.stage_id || data?.dealStages.find((s) => s.is_active)?.id || null, lead_id: form.lead_id || null, expected_close_date: form.expected_close_date || null,
       assigned_to: form.assigned_to || null, company_id: form.company_id || null, contract_type_id: form.contract_type_id || null,
     };
     const res = form.id ? await db.from("deals").update(payload).eq("id", form.id)
