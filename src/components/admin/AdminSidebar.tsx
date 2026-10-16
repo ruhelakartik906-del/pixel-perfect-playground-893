@@ -34,7 +34,7 @@ export function AdminSidebar({ collapsed, onToggle, onLogout, onNavigate }: {
           );
           const Icon = grp.icon;
           if (single) return (
-            <Link key={grp.label} to="/admin/$" params={{ _splat: grp.items[0].path }} onClick={onNavigate} className={rowCls} title={grp.label}>
+            <Link key={grp.label} to="/admin/$" params={{ _splat: grp.items[0]?.path ?? "" }} onClick={onNavigate} className={rowCls} title={grp.label}>
               <Icon className="size-5 shrink-0" />{!collapsed && <span>{grp.label}</span>}
             </Link>
           );

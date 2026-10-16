@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
     if (!u.user) throw redirect({ to: "/login" });
     const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: u.user.id, _role: "super_admin" });
     if (!isAdmin) throw redirect({ to: "/dashboard" });
-    return { adminEmail: u.user.email ?? "", adminName: (u.user.user_metadata?.full_name as string | undefined) ?? "Admin" };
+    return { adminEmail: u.user.email ?? "", adminName: (u.user.user_metadata?.['full_name'] as string | undefined) ?? "Admin" };
   },
   component: AdminLayout,
 });

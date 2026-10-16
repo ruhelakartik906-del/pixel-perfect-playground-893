@@ -4,7 +4,7 @@ import {
 } from "lucide-react";
 
 export type NavLeaf = { label: string; path: string };
-export type NavGroup = { label: string; icon: LucideIcon; badge?: string; items: NavLeaf[] };
+export type NavGroup = { label: string; icon: LucideIcon; badge?: string | undefined; items: NavLeaf[] };
 
 const g = (label: string, icon: LucideIcon, base: string, items: string[], badge?: string): NavGroup => ({
   label, icon, badge,
@@ -28,7 +28,7 @@ export const adminNav: NavGroup[] = [
 ];
 
 // Routing Overview is the group landing page.
-adminNav[1].items.unshift({ label: "Routing Overview", path: "routing" });
+adminNav[1]!.items.unshift({ label: "Routing Overview", path: "routing" });
 
 export function titleForPath(splat: string) {
   for (const grp of adminNav) for (const it of grp.items) if (it.path === splat) return it.label;
