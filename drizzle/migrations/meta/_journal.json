@@ -36,6 +36,13 @@
       "when": 1792169534860,
       "tag": "0004_automation_workflows",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792170068448,
+      "tag": "0005_crm_setup_leads_deals",
+      "breakpoints": true
     }
   ]
 }
