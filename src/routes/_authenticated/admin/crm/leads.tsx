@@ -94,17 +94,17 @@ function LeadsPage() {
 
   const save = async () => {
     if (!form) return;
-    if (!form.customer_name.trim() || !form.phone.trim()) return toast.error("Customer name and contact number are required");
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return toast.error("Enter a valid email");
+    if (!form.customer_name.trim() || !form.phone.trim()) { toast.error("Customer name and contact number are required"); return; }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { toast.error("Enter a valid email"); return; }
     const payload = Object.fromEntries(Object.entries(form).map(([k, v]) => [k, k.endsWith("_id") || k === "assigned_to" ? (v || null) : v.trim()]));
     const { data: u } = await supabase.auth.getUser();
     const { error } = await db.from("leads").insert({ ...payload, pipeline_id: data?.defaultPipeline, created_by: u.user?.id, form_answers: {} });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Lead created"); setForm(null); qc.invalidateQueries({ queryKey: QK });
   };
 
   const exportCsv = () => {
-    if (!filtered.length) return toast.info("No leads to export");
+    if (!filtered.length) { toast.info("No leads to export"); return; }
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const text = (l: Lead, id: string) => { const v = cell(l, id); return typeof v === "string" ? v : id === "stage" ? name(data!.stages, l.stage_id) : id === "assignee" ? name(data!.people, l.assigned_to) : l[id]; };
     const csv = [cols.map((c) => esc(c.label)).join(","), ...filtered.map((l) => cols.map((c) => esc(text(l, c.id))).join(","))].join("\n");
@@ -183,7 +183,7 @@ function LeadDrawer({ lead, onClose, data }: { lead: Lead | null; onClose: () =>
   } });
   const update = async (patch: Record<string, unknown>) => {
     const { error } = await db.from("leads").update(patch).eq("id", lead!.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Lead updated"); qc.invalidateQueries({ queryKey: QK }); qc.invalidateQueries({ queryKey: ["lead-acts", lead!.id] });
   };
   const answers = Object.entries((lead?.form_answers ?? {}) as Record<string, unknown>);

@@ -109,17 +109,17 @@ function ConfigTable({ section, title, data }: { section: Exclude<Section, "list
   const refresh = () => qc.invalidateQueries({ queryKey: QK });
   const run = async (p: Promise<{ error: { message: string } | null }>, ok: string) => {
     const { error } = await p;
-    if (error) return toast.error(error.message.includes("row-level") ? "You don't have permission for this action." : error.message);
+    if (error) { toast.error(error.message.includes("row-level") ? "You don't have permission for this action." : error.message); return; }
     if (ok) toast.success(ok); refresh();
   };
 
   const save = async () => {
     const name = edit?.name?.trim();
-    if (!name) return toast.error("Name is required");
-    if (name.length > 80) return toast.error("Name must be 80 characters or fewer");
-    if (rows.some((r) => r.name.toLowerCase() === name.toLowerCase() && r.id !== edit!.id)) return toast.error("That name already exists");
-    if (stageKind && !pipelineId) return toast.error("Create a pipeline first");
-    const payload: Record<string, unknown> = { name, is_active: edit!.is_active ?? true };
+    if (!name) { toast.error("Name is required"); return; }
+    if (name.length > 80) { toast.error("Name must be 80 characters or fewer"); return; }
+    if (rows.some((r) => r.name.toLowerCase() === name.toLowerCase() && r.id !== edit!.id)) { toast.error("That name already exists"); return; }
+    if (stageKind && !pipelineId) { toast.error("Create a pipeline first"); return; }
+    const payload: any = { name, is_active: edit!.is_active ?? true };
     if (!isPipeline) payload.color = edit!.color ?? "#2684FF";
     if (edit!.id) await run(db.from(table).update(payload).eq("id", edit!.id), `${title} updated`);
     else {
@@ -247,12 +247,12 @@ function ListViewSettings({ views }: { views: { module: string; columns: string[
   const move = (id: string, d: -1 | 1) => {
     const i = cols.indexOf(id), j = i + d;
     if (i < 0 || j < 0 || j >= cols.length) return;
-    const n = [...cols]; [n[i], n[j]] = [n[j], n[i]]; setCols(n);
+    const n = [...cols]; const t = n[i]!; n[i] = n[j]!; n[j] = t; setCols(n);
   };
   const save = async () => {
-    if (cols.length === 0) return toast.error("Keep at least one column visible");
+    if (cols.length === 0) { toast.error("Keep at least one column visible"); return; }
     const { error } = await db.from("crm_list_views").upsert({ module, columns: cols, updated_at: new Date().toISOString() });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("List view saved"); qc.invalidateQueries({ queryKey: QK }); qc.invalidateQueries({ queryKey: ["admin-leads"] });
   };
 

@@ -19,7 +19,7 @@ export function moveItem<T extends { position: number }>(items: T[], index: numb
   const target = index + delta;
   if (target < 0 || target >= items.length) return items;
   const next = [...items];
-  [next[index], next[target]] = [next[target], next[index]];
+  const tmp = next[index]!; next[index] = next[target]!; next[target] = tmp;
   return next.map((it, i) => ({ ...it, position: i }));
 }
 
