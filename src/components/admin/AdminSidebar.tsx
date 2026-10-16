@@ -22,7 +22,7 @@ export function AdminSidebar({ collapsed, onToggle, onLogout, onNavigate }: {
           </button>
         )}
       </div>
-      <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto overscroll-contain scrollbar-none px-4 py-4">
         {adminNav.map((grp) => {
           const single = grp.items.length === 1;
           const isActive = grp.label === activeGroup;

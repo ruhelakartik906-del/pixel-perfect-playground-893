@@ -190,3 +190,8 @@
 @utility animate-fade-up {
   animation: fade-up 0.7s ease-out both;
 }
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
