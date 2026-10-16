@@ -52,7 +52,7 @@ export function Distribution() {
           <div className="rounded-3xl border bg-card p-6 shadow-card">
             <div className="flex items-center justify-between"><h3 className="text-lg font-bold">Try it: simulate incoming leads</h3><DemoTag /></div>
             <div className="mt-5 space-y-4">
-              {Object.entries(rules).map(([k, r]) => {
+              {(Object.keys(rules) as ("A" | "B" | "C")[]).map((k) => { const r = rules[k];
                 let used = 0;
                 return (
                   <div key={k} className="rounded-2xl border bg-surface p-4">

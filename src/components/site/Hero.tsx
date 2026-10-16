@@ -61,7 +61,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="absolute -left-6 top-16 hidden w-56 rounded-2xl border bg-card p-4 shadow-float animate-float sm:block">
+          <div className="absolute -left-10 top-48 hidden w-56 rounded-2xl border bg-card p-4 shadow-float animate-float sm:block">
             <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary"><Megaphone className="size-3.5" /> New Meta lead</p>
             <p className="mt-2 text-sm font-semibold">Ananya Rao — Bloom Interiors</p>
             <p className="text-xs text-muted-foreground">Campaign: Spring Video Ad</p>
