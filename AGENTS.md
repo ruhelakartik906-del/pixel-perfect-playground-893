@@ -11,3 +11,4 @@
 
 - Public marketing sections live in `src/components/site/`; header/footer are mounted in `__root.tsx` — why: shared across all public routes (CRM workspace will need its own layout without them).
 - Lead quota assignment logic lives in `src/lib/routing.ts` with tests in `src/test/routing.test.ts` — why: single source for the per-rule quota/overflow rule.
+- Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.

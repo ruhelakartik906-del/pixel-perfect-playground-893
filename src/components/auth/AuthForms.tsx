@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail, UserPlus } from "lucide-react";
 import { toast } from "sonner";
@@ -14,14 +14,12 @@ import { lovable } from "@/integrations/lovable";
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ForgotPasswordForm, type LoginForm, type RegisterForm, type ResetPasswordForm } from "@/lib/auth-validation";
 import { workspacePathForStatus } from "@/lib/account-status";
 
-function collectErrors<T extends Record<string, unknown>>(result: z.SafeParseReturnType<T, T>) {
+function collectErrors<T extends Record<string, unknown>>(error: z.ZodError<T>) {
   const errors: Partial<Record<keyof T, string>> = {};
-  if (!result.success) {
-    result.error.issues.forEach((issue) => {
-      const key = issue.path[0] as keyof T;
-      errors[key] = issue.message;
-    });
-  }
+  error.issues.forEach((issue) => {
+    const key = issue.path[0] as keyof T;
+    errors[key] = issue.message;
+  });
   return errors;
 }
 
@@ -73,7 +71,7 @@ export function LoginForm() {
     event.preventDefault();
     const result = loginSchema.safeParse(form);
     if (!result.success) {
-      setErrors(collectErrors(result));
+      setErrors(collectErrors(result.error));
       return;
     }
     setErrors({});
@@ -135,7 +133,7 @@ export function RegisterForm() {
     event.preventDefault();
     const result = registerSchema.safeParse(form);
     if (!result.success) {
-      setErrors(collectErrors(result));
+      setErrors(collectErrors(result.error));
       return;
     }
     setErrors({});
@@ -202,7 +200,7 @@ export function ForgotPasswordForm() {
     event.preventDefault();
     const result = forgotPasswordSchema.safeParse(form);
     if (!result.success) {
-      setErrors(collectErrors(result));
+      setErrors(collectErrors(result.error));
       return;
     }
     setErrors({});
@@ -224,12 +222,16 @@ export function ResetPasswordForm() {
   const [form, setForm] = useState<ResetPasswordForm>({ password: "", confirmPassword: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordForm, string>>>({});
   const [loading, setLoading] = useState(false);
-  const recovery = useMemo(() => typeof window !== "undefined" && window.location.hash.includes("type=recovery"), []);
+  const [recovery, setRecovery] = useState(false);
+
+  useEffect(() => {
+    setRecovery(window.location.hash.includes("type=recovery"));
+  }, []);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const result = resetPasswordSchema.safeParse(form);
     if (!result.success) {
-      setErrors(collectErrors(result));
+      setErrors(collectErrors(result.error));
       return;
     }
     setErrors({});
