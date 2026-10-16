@@ -123,7 +123,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const location = useLocation();
-  const inWorkspace = location.pathname.startsWith("/dashboard");
+  const inWorkspace = location.pathname.startsWith("/dashboard") || location.pathname.startsWith("/admin");
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
