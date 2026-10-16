@@ -15,6 +15,13 @@
       "when": 1792153048717,
       "tag": "0001_create_profiles_for_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792153134854,
+      "tag": "0002_restrict_profile_self_updates",
+      "breakpoints": true
     }
   ]
 }
