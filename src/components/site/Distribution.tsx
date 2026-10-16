@@ -15,17 +15,17 @@ const flow = [
 
 type Step = RoutingStep;
 const assignee = assigneeFor;
-const rules: Record<string, { name: string; steps: Step[] }> = {
+const rules: Record<"A" | "B" | "C", { name: string; steps: Step[] }> = {
   A: { name: "Video Ad A", steps: [{ user: "User A", limit: 5 }, { user: "User D", limit: null }] },
   B: { name: "Video Ad B", steps: [{ user: "User C", limit: null }] },
   C: { name: "Video Ad C", steps: [{ user: "User B", limit: 10 }, { user: "User E", limit: 10 }, { user: "User F", limit: null }] },
 };
 
 export function Distribution() {
-  const [counts, setCounts] = useState<Record<string, number>>({ A: 0, B: 0, C: 0 });
+  const [counts, setCounts] = useState<Record<"A" | "B" | "C", number>>({ A: 0, B: 0, C: 0 });
   const [log, setLog] = useState<{ ad: string; n: number; user: string }[]>([]);
 
-  const send = (k: string) => {
+  const send = (k: "A" | "B" | "C") => {
     const n = counts[k] + 1;
     setCounts({ ...counts, [k]: n });
     setLog((l) => [{ ad: rules[k].name, n, user: assignee(rules[k].steps, n) }, ...l].slice(0, 6));

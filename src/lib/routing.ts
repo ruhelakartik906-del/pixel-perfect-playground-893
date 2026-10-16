@@ -7,5 +7,5 @@ export function assigneeFor(steps: RoutingStep[], n: number) {
     if (s.limit === null || n <= used + s.limit) return s.user;
     used += s.limit;
   }
-  return steps[steps.length - 1].user;
+  return steps[steps.length - 1]?.user ?? "";
 }
