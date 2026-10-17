@@ -222,6 +222,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
       if (self) {
         p.self = true;
         delete p.employee_id;
+        p.status = 'pending';
       }
     }
     return p;
@@ -511,7 +512,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
         )}
         {!self &&
           !["attendance", "leave", "payroll", "meeting"].includes(module) &&
-          true && (
+          (
             <DropdownMenuItem className="text-admin-red" onClick={() => ask(r, "delete")}>
               <Trash2 className="size-4" />
               {module === "document" ? "Delete / retain audit" : "Delete"}
@@ -797,7 +798,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               className="grid max-h-[72vh] gap-4 overflow-y-auto sm:grid-cols-2"
             >
               {cfg.fields
-                .filter((f) => !(self && f.key === "employee_id"))
+                .filter((f) => !(self && ["employee_id", "status"].includes(f.key)))
                 .map((f) => {
                   const value = getValue(form, f.key);
                   const opts = f.source
