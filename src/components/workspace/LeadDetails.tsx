@@ -7,7 +7,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { formEntries, contactLinks, leadDetailsSchema } from '@/lib/user-crm';
+import { formEntries, contactLinks, leadDetailsSchema, userLeadActionSchema } from '@/lib/user-crm';
+import type { z } from 'zod';
 import { updateUserLead, type UserCrmData } from '@/lib/user-crm.functions';
 import { userCrmQuery } from '@/lib/user-crm-query';
 import { saveCrmWork } from '@/lib/crm-work.functions';
@@ -20,7 +21,7 @@ export function LeadDetails({ lead, data, close }: { lead: Lead; data: UserCrmDa
   const [form, setForm] = useState({ customer_name: lead.customer_name, phone: lead.phone, email: lead.email, business_name: lead.business_name, business_category: lead.business_category, region: lead.region, requirements: lead.requirements, interest_level: lead.interest_level });
   const links = contactLinks(lead.phone), answers = formEntries(lead.form_answers);
   const stages = data.stages.filter(s => s.is_active && s.pipeline_id === lead.pipeline_id);
-  const callAction = async (action: 'note' | 'stage' | 'details', payload: Parameters<typeof update>[0]['data']['payload']) => {
+  const callAction = async (action: 'note' | 'stage' | 'details', payload: z.infer<typeof userLeadActionSchema>['payload']) => {
     setBusy(true); try { await update({ data: { id: lead.id, updated_at: lead.updated_at, action, payload } }); await qc.invalidateQueries({ queryKey: userCrmQuery.queryKey }); setNote(''); setEditing(false); toast.success('Lead saved'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Could not save'); } finally { setBusy(false); }
   };
   const schedule = async () => {
