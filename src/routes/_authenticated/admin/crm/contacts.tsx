@@ -8,6 +8,7 @@ import { Breadcrumb, Card, DataTable, EmptyState, PageHeader, SearchInput, Toolb
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { dateBadge } from "@/lib/crm-data";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/crm/contacts")({
@@ -35,16 +36,6 @@ async function load() {
   const err = r.find((x) => x.error)?.error;
   if (err) throw err;
   return { contacts: r[0].data as Contact[], companies: r[1].data as Company[] };
-}
-
-export function dateBadge(iso: string) {
-  const d = new Date(iso), now = new Date();
-  const day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const diff = Math.round((day.getTime() - that.getTime()) / 864e5);
-  if (diff === 0) return "TODAY";
-  if (diff === 1) return "YESTERDAY";
-  return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
 }
 
 const blank = { name: "", phone: "", email: "", city: "", state: "", country: "", job_title: "", notes: "", company_id: "" };
