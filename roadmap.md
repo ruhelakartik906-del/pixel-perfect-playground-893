@@ -4,10 +4,10 @@
 - [x] Functional audit of CRM modules (Oct 16)
 - [ ] Automation executor (runs actions) — needs tasks/WhatsApp/email backends
 - [ ] Employee/company isolation test — needs an employee account
-- [ ] Sales Phase 1 — Products & Services: reference layout, storage, CRUD, image uploads, filters/export
-- [ ] Sales Phase 2 — Customers: separate sales records, lead conversion, linked-record drawer, CRUD/export
-- [ ] Sales Phase 3 — Invoices: exact totals, configurable GST, immutable finalization, payments/PDF
-- [ ] Sales Phase 4 — Credit Notes: authorized credit limits, balances, audit history/PDF
-- [ ] Sales Phase 5 — Revenue: payment-backed totals and double-count prevention
-- [ ] Sales Phase 6 — signed-in connected financial flow and page-by-page verification report
+- [x] Sales Phase 1 — Products & Services: CRUD, images, duplicate/status, export and refresh verified
+- [x] Sales Phase 2 — Customers: CRUD/archive, conversion duplicate prevention, export and refresh verified
+- [x] Sales Phase 3 implementation — Invoices: exact totals, configurable GST, immutable finalization, payments/PDF
+- [x] Sales Phase 4 implementation — Credit Notes: authorized credit limits, balances, audit history/PDF
+- [x] Sales Phase 5 implementation — Revenue: payment-backed totals and double-count prevention
+- [ ] Sales financial end-to-end verification — blocked by real seller/GST details and authorized payment/credit information; no fabricated accounting records
 - [ ] Meta/Make.com intake, automatic routing, follow-ups, attendance — not built

@@ -8,6 +8,8 @@ export const Route = createFileRoute("/terms")({
       { name: "description", content: "Terms for using Routiva CRM." },
       { property: "og:title", content: "Terms — Routiva CRM" },
       { property: "og:description", content: "Terms for using Routiva CRM." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

@@ -14,6 +14,8 @@ export const Route = createFileRoute("/features")({
       { name: "description", content: "Meta lead capture, smart distribution, attendance tracking, reports and Make.com integration." },
       { property: "og:title", content: "Features — Routiva CRM" },
       { property: "og:description", content: "Everything your team needs to capture and convert Meta ad leads." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: FeaturesPage,
