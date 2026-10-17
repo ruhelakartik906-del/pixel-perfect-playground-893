@@ -34,12 +34,15 @@ import { Route as AuthenticatedMyLeadsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedMyWorkTableRouteImport } from './routes/_authenticated/my-work-table'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
+import { Route as AuthenticatedTeamChatRouteImport } from './routes/_authenticated/team-chat'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
 import { Route as AuthenticatedAdminIntegrationsRouteImport } from './routes/_authenticated/admin/integrations'
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin/support'
+import { Route as AuthenticatedWhatsappChatsRouteImport } from './routes/_authenticated/whatsapp.chats'
+import { Route as AuthenticatedWhatsappTemplatesRouteImport } from './routes/_authenticated/whatsapp.templates'
 import { Route as AuthenticatedAdminCommunicationChatRouteImport } from './routes/_authenticated/admin/communication/chat'
 import { Route as AuthenticatedAdminCommunicationMailRouteImport } from './routes/_authenticated/admin/communication/mail'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
@@ -220,6 +223,11 @@ const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
   path: '/tasks',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamChatRoute = AuthenticatedTeamChatRouteImport.update({
+  id: '/team-chat',
+  path: '/team-chat',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -252,6 +260,18 @@ const AuthenticatedAdminSupportRoute =
     id: '/support',
     path: '/support',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedWhatsappChatsRoute =
+  AuthenticatedWhatsappChatsRouteImport.update({
+    id: '/whatsapp/chats',
+    path: '/whatsapp/chats',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedWhatsappTemplatesRoute =
+  AuthenticatedWhatsappTemplatesRouteImport.update({
+    id: '/whatsapp/templates',
+    path: '/whatsapp/templates',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminCommunicationChatRoute =
   AuthenticatedAdminCommunicationChatRouteImport.update({
@@ -603,11 +623,14 @@ export interface FileRoutesByFullPath {
   '/my-work-table': typeof AuthenticatedMyWorkTableRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/team-chat': typeof AuthenticatedTeamChatRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
+  '/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -688,11 +711,14 @@ export interface FileRoutesByTo {
   '/my-work-table': typeof AuthenticatedMyWorkTableRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/team-chat': typeof AuthenticatedTeamChatRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
+  '/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -776,11 +802,14 @@ export interface FileRoutesById {
   '/_authenticated/my-work-table': typeof AuthenticatedMyWorkTableRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
+  '/_authenticated/team-chat': typeof AuthenticatedTeamChatRoute
   '/admin/login': typeof AdminLoginRoute
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/_authenticated/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
+  '/_authenticated/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/_authenticated/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -864,11 +893,14 @@ export interface FileRouteTypes {
     | '/my-work-table'
     | '/support'
     | '/tasks'
+    | '/team-chat'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin/integrations'
     | '/admin/support'
+    | '/whatsapp/chats'
+    | '/whatsapp/templates'
     | '/admin/'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -949,11 +981,14 @@ export interface FileRouteTypes {
     | '/my-work-table'
     | '/support'
     | '/tasks'
+    | '/team-chat'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin/integrations'
     | '/admin/support'
+    | '/whatsapp/chats'
+    | '/whatsapp/templates'
     | '/admin'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -1036,11 +1071,14 @@ export interface FileRouteTypes {
     | '/_authenticated/my-work-table'
     | '/_authenticated/support'
     | '/_authenticated/tasks'
+    | '/_authenticated/team-chat'
     | '/admin/login'
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/integrations'
     | '/_authenticated/admin/support'
+    | '/_authenticated/whatsapp/chats'
+    | '/_authenticated/whatsapp/templates'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/communication/chat'
     | '/_authenticated/admin/communication/mail'
@@ -1294,6 +1332,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/team-chat': {
+      id: '/_authenticated/team-chat'
+      path: '/team-chat'
+      fullPath: '/team-chat'
+      preLoaderRoute: typeof AuthenticatedTeamChatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -1335,6 +1380,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/support'
       preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/whatsapp/chats': {
+      id: '/_authenticated/whatsapp/chats'
+      path: '/whatsapp/chats'
+      fullPath: '/whatsapp/chats'
+      preLoaderRoute: typeof AuthenticatedWhatsappChatsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/whatsapp/templates': {
+      id: '/_authenticated/whatsapp/templates'
+      path: '/whatsapp/templates'
+      fullPath: '/whatsapp/templates'
+      preLoaderRoute: typeof AuthenticatedWhatsappTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/communication/chat': {
       id: '/_authenticated/admin/communication/chat'
@@ -1882,6 +1941,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMyWorkTableRoute: typeof AuthenticatedMyWorkTableRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
+  AuthenticatedTeamChatRoute: typeof AuthenticatedTeamChatRoute
+  AuthenticatedWhatsappChatsRoute: typeof AuthenticatedWhatsappChatsRoute
+  AuthenticatedWhatsappTemplatesRoute: typeof AuthenticatedWhatsappTemplatesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1895,6 +1957,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMyWorkTableRoute: AuthenticatedMyWorkTableRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
+  AuthenticatedTeamChatRoute: AuthenticatedTeamChatRoute,
+  AuthenticatedWhatsappChatsRoute: AuthenticatedWhatsappChatsRoute,
+  AuthenticatedWhatsappTemplatesRoute: AuthenticatedWhatsappTemplatesRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
