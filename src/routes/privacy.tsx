@@ -8,6 +8,8 @@ export const Route = createFileRoute("/privacy")({
       { name: "description", content: "How Routiva CRM collects, uses and protects your data." },
       { property: "og:title", content: "Privacy Policy — Routiva CRM" },
       { property: "og:description", content: "How Routiva CRM protects your data." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

@@ -10,6 +10,8 @@ export const Route = createFileRoute("/how-it-works")({
       { name: "description", content: "Connect Meta Lead Ads via Make.com, set ad-specific routing rules, and let leads distribute automatically." },
       { property: "og:title", content: "How It Works — Routiva CRM" },
       { property: "og:description", content: "From Meta ad click to assigned lead in four steps." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

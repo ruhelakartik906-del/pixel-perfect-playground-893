@@ -1,6 +1,6 @@
 import { downloadBlob } from "@/lib/crm-data";
 import { salesMoney } from "@/lib/sales-data";
-type Doc = { title: string; number: string; seller: Record<string, unknown>; customer: Record<string, unknown>; date: string; due?: string; lines: (string | number)[][]; summary: [string, number][]; notes?: string; terms?: string };
+type Doc = { title: string; number: string; seller: Record<string, unknown>; customer: Record<string, unknown>; date: string; due?: string | undefined; lines: (string | number)[][]; summary: [string, number][]; notes?: string; terms?: string | undefined };
 export async function salesDocument(document: Doc, print = false) {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
