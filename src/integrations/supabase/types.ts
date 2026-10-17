@@ -668,6 +668,172 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_branches: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      hr_departments: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      hr_designations: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_designations_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "hr_departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_employees: {
+        Row: {
+          access_status: string
+          branch_id: string | null
+          created_at: string
+          department_id: string | null
+          designation_id: string | null
+          employee_code: string | null
+          id: string
+          joining_date: string | null
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_status?: string
+          branch_id?: string | null
+          created_at?: string
+          department_id?: string | null
+          designation_id?: string | null
+          employee_code?: string | null
+          id?: string
+          joining_date?: string | null
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_status?: string
+          branch_id?: string | null
+          created_at?: string
+          department_id?: string | null
+          designation_id?: string | null
+          employee_code?: string | null
+          id?: string
+          joining_date?: string | null
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_employees_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "hr_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "hr_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_employees_designation_id_fkey"
+            columns: ["designation_id"]
+            isOneToOne: false
+            referencedRelation: "hr_designations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_employees_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_settings: {
+        Row: {
+          config: Json
+          key: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          key: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          key?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           billing_details: Json
@@ -1394,6 +1560,131 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      wa_broadcasts: {
+        Row: {
+          audience: Json
+          created_at: string
+          created_by: string | null
+          delivered_count: number
+          event_trigger: string | null
+          failed_count: number
+          id: string
+          kind: string
+          name: string
+          read_count: number
+          recipients_count: number
+          scheduled_at: string | null
+          sent_count: number
+          status: string
+          template_id: string | null
+          template_params: Json
+          updated_at: string
+        }
+        Insert: {
+          audience?: Json
+          created_at?: string
+          created_by?: string | null
+          delivered_count?: number
+          event_trigger?: string | null
+          failed_count?: number
+          id?: string
+          kind?: string
+          name: string
+          read_count?: number
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_count?: number
+          status?: string
+          template_id?: string | null
+          template_params?: Json
+          updated_at?: string
+        }
+        Update: {
+          audience?: Json
+          created_at?: string
+          created_by?: string | null
+          delivered_count?: number
+          event_trigger?: string | null
+          failed_count?: number
+          id?: string
+          kind?: string
+          name?: string
+          read_count?: number
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_count?: number
+          status?: string
+          template_id?: string | null
+          template_params?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_broadcasts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wa_suppression: {
+        Row: {
+          created_at: string
+          id: string
+          phone: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          phone: string
+          reason?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          phone?: string
+          reason?: string
+        }
+        Relationships: []
+      }
+      wa_workflows: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          name: string
+          nodes: Json
+          status: string
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          name: string
+          nodes?: Json
+          status?: string
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          name?: string
+          nodes?: Json
+          status?: string
+          trigger?: string
+          updated_at?: string
         }
         Relationships: []
       }
