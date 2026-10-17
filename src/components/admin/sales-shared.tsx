@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { cloneElement, isValidElement, useEffect, useId, useState, type ReactElement, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight, MoreVertical, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,9 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { supabase } from "@/integrations/supabase/client";
 
 export function SalesField({ label, children }: { label: string; children: ReactNode }) {
-  return <Label className="grid gap-1.5 text-sm font-semibold">{label}{children}</Label>;
+  const id = useId();
+  const field = isValidElement(children) && children.type !== "div" ? cloneElement(children as ReactElement<{ id?: string }>, { id }) : children;
+  return <div className="grid gap-1.5"><Label htmlFor={id} className="text-sm font-semibold">{label}</Label>{field}</div>;
 }
 export function TextField({ label, value, onChange, type = "text", required = false }: { label: string; value: string; onChange: (value: string) => void; type?: string; required?: boolean }) {
   return <SalesField label={label}><Input type={type} step={type === "number" ? "any" : undefined} required={required} maxLength={1000} value={value} onChange={(event) => onChange(event.target.value)} className="font-normal" /></SalesField>;
