@@ -29,6 +29,4 @@
 - Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
 - Admin and user CRM work share company-scoped records and locked RPCs; unlinked personal tasks use additive owner-scoped storage — why: retain company-required Admin behavior while supporting private work without fictitious companies.
-- User CRM shares a workspace shell, authenticated assigned-record queries and locked lead RPCs — why: preserve assignment, original form answers and audited edits without duplicating admin pages.
-
-- User Phase 2 uses private owner-scoped table/row RPCs, existing audited deals and source-derived calendar events — why: no duplicate CRM records, tenant leaks or financial side effects.
+- User CRM shares its shell, authenticated assigned-record queries and locked lead RPCs; Phase 2 uses owner-only table/row RPCs, existing audited deals and source-derived calendars — why: preserve assignment, original answers and audit without duplicate records, tenant leaks or financial side effects.
