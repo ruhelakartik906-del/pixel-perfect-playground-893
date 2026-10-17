@@ -12,8 +12,8 @@ export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireS
  const perms=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'super_admin'});
  const extra:Record<string,HrRow[]>={};
  if(['attendance','calendar','payroll'].includes(data.module)){for(const [key,table] of Object.entries({attendance:'hr_attendance',holidays:'hr_holidays',leaves:'hr_leave_requests',meetings:'hr_meetings',schedules:'hr_schedules'})){const r=await db.from(table).select('*').limit(1000);if(r.error)throw new Error(r.error.message);extra[key]=r.data||[];}}
- if(data.module==='leave'){const r=await context.supabase.from('hr_leave_balances').select('*');if(r.error)throw new Error(r.error.message);extra.balances=r.data;}
- if(data.module==='document'){const r=await context.supabase.from('hr_document_versions').select('*').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra.versions=r.data;}
+ if(data.module==='leave'){const r=await context.supabase.from('hr_leave_balances').select('*');if(r.error)throw new Error(r.error.message);extra['balances']=r.data;}
+ if(data.module==='document'){const r=await context.supabase.from('hr_document_versions').select('*').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra['versions']=r.data;}
  return {rows:result[0]||[],companies:result[1]||[],branches:result[2]||[],designations:result[3]||[],departments:result[4]||[],roles:result[5]||[],people:(people.data||[]) as HrRow[],userId:context.userId,isAdmin:perms.data===true,extra};
 });
 export const mutateHrm=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:moduleSchema,action:z.enum(['save','delete']),id:z.string().uuid().optional(),payload:z.record(z.unknown()).optional()}).parse(v)).handler(async({context,data})=>{
@@ -48,5 +48,5 @@ export const downloadHrmFile=createServerFn({method:'POST'}).middleware([require
  const access=await context.supabase.rpc('hrm_document_access',{_document:data.id});if(access.error)throw new Error('Document access denied');
  let q=context.supabase.from('hr_document_versions').select('*').eq('document_id',data.id).order('created_at',{ascending:false}).limit(1);if(data.versionId)q=q.eq('id',data.versionId);const v=await q.single();if(v.error)throw new Error('No file version is available');
  const {supabaseAdmin}=await import('@/integrations/supabase/client.server');const result=await supabaseAdmin.storage.from('hrm-private-files').createSignedUrl(v.data.path,60,{download:v.data.filename});if(result.error)throw new Error('Download could not be authorized');
- const publicOrigin=new URL(import.meta.env.VITE_SUPABASE_URL).origin;const url=new URL(result.data.signedUrl);url.protocol=new URL(publicOrigin).protocol;url.host=new URL(publicOrigin).host;return {url:url.toString(),filename:v.data.filename};
+ const publicOrigin=new URL(import.meta.env['VITE_SUPABASE_URL']).origin;const url=new URL(result.data.signedUrl);url.protocol=new URL(publicOrigin).protocol;url.host=new URL(publicOrigin).host;return {url:url.toString(),filename:v.data.filename};
 });

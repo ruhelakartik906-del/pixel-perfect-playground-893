@@ -7,7 +7,7 @@ import { human } from './config';
 import { cn } from '@/lib/utils';
 export function HrmCalendar({extra,month,setMonth,onOpen}:{extra:Record<string,HrRow[]>;month:string;setMonth:(v:string)=>void;onOpen:(row:HrRow)=>void}){
  const [selected,setSelected]=useState(indiaDate());const [yearView,setYearView]=useState(false);const [filter,setFilter]=useState('');const year=Number(month.slice(0,4));const m=Number(month.slice(5))-1;
- const events=calendarSources(extra.schedules||[],extra.meetings||[],extra.holidays||[],extra.leaves||[],year).filter(r=>!filter||r.source===filter);
+ const events=calendarSources(extra['schedules']||[],extra['meetings']||[],extra['holidays']||[],extra['leaves']||[],year).filter(r=>!filter||r.source===filter);
  const forDay=(date:string)=>events.filter(r=>date>=r.start_date&&date<=r.end_date);
  const move=(delta:number)=>{const d=new Date(Date.UTC(year,m+delta,1));setMonth(d.toISOString().slice(0,7));};
  const upcoming=events.filter(r=>r.end_date>=indiaDate()).sort((a,b)=>a.start_date.localeCompare(b.start_date));
