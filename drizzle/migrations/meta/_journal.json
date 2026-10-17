@@ -232,6 +232,13 @@
       "when": 1792236101183,
       "tag": "0032_user_lead_status_actions",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792237144926,
+      "tag": "0033_user_panel_phase2",
+      "breakpoints": true
     }
   ]
 }
