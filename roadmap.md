@@ -25,7 +25,7 @@
 - [x] WhatsApp Workflows, Broadcast, Message Log, Integrations Cockpit, HRM Analytics, HRM Employees
 - [ ] Workflow execution engine & broadcast sending — needs WhatsApp Business connection
 - [ ] Make.com/Pabbly lead webhook endpoint — not built
-- [ ] Tasks and follow-ups tracking — not built
+- [ ] Build only CRM Tasks and Follow-ups: scoped persistence, assignment, audit, filters/tabs, CSV, List/Kanban and focused verification; hide Proposals only
 - [x] HRM Branch and Designation — existing records extended, scoped CRUD and dependencies
 - [x] HRM Holiday — date validation and calendar/attendance source
 - [x] HRM Attendance — monthly grid, self check-in/out, manual corrections and audits
