@@ -1,4 +1,6 @@
 # Admin roadmap
+- [x] Complete five pending HRM pages and six-item HRM sidebar from October 17 brief; Employees unchanged, no live records written; pages/forms/CSV/month navigation verified, audited bulk and leave reconciliation implemented
+- [ ] Pending HRM populated CRUD/bulk/approval/reversal and cross-company access verification — blocked: zero companies/employees and no isolated test database
 - [x] Ad routing setup, assignment history and unassigned queue — locked routing RPCs, cumulative quotas, source priority and audit; pages/builder/CSV/redirects checked
 - [ ] Routing write/concurrency and non-admin authorization verification — blocked: no company or eligible company-linked user, no isolated test database
 - [x] CRM Automation, System Setup, Leads/Deals storage, Reports, Analytics, Custom Forms, Lead import

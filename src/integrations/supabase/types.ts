@@ -952,6 +952,7 @@ export type Database = {
           employee_id: string
           id: string
           notes: string
+          source_leave_id: string | null
           status: string
           updated_at: string
         }
@@ -965,6 +966,7 @@ export type Database = {
           employee_id: string
           id?: string
           notes?: string
+          source_leave_id?: string | null
           status: string
           updated_at?: string
         }
@@ -978,6 +980,7 @@ export type Database = {
           employee_id?: string
           id?: string
           notes?: string
+          source_leave_id?: string | null
           status?: string
           updated_at?: string
         }
@@ -994,6 +997,13 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_attendance_source_leave_id_fkey"
+            columns: ["source_leave_id"]
+            isOneToOne: false
+            referencedRelation: "hr_leave_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -3076,6 +3086,7 @@ export type Database = {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
+      hrm_attendance_bulk: { Args: { _payload: Json }; Returns: number }
       hrm_audience: {
         Args: {
           _audience: Json
@@ -3108,6 +3119,10 @@ export type Database = {
           _start: string
         }
         Returns: number
+      }
+      hrm_leave_request_with_status: {
+        Args: { _payload: Json }
+        Returns: string
       }
       hrm_meeting_response: {
         Args: { _meeting: string; _response: string }

@@ -38,6 +38,7 @@ import {
   getHrmHistory,
   uploadHrmFile,
   downloadHrmFile,
+  saveBulkAttendance,
 } from "@/lib/hrm.functions";
 import {
   indiaDate,
@@ -48,6 +49,9 @@ import {
   payrollSchema,
   attendanceSchema,
   leaveSchema,
+  announcementStatus,
+  dateDuration,
+  attendanceCell,
   type HrModule,
   type HrRow,
 } from "@/lib/hrm-model";
@@ -56,6 +60,7 @@ import { initials } from "@/lib/admin-head";
 import { hrConfig, human } from "./config";
 import { HrmCalendar } from "./HrmCalendar";
 import { HrmAttendance } from "./HrmAttendance";
+import { BulkAttendance } from "./BulkAttendance";
 function getValue(row: HrRow, key: string) {
   return key.startsWith("details.") ? row.details?.[key.slice(8)] : row[key];
 }
@@ -96,6 +101,8 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [balance, setBalance] = useState<HrRow | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const bulkSave = useServerFn(saveBulkAttendance);
   const query = useQuery({
     queryKey: ["hr-workspace", module, month],
     queryFn: () => fetch({ data: { module, month } }),
@@ -123,9 +130,10 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
     (p) =>
       (!self || p.profile_id === data?.userId) &&
       (!company || p.company_id === company) &&
+      (!status || module !== "attendance" || Array.from({length: new Date(Number(month.slice(0,4)),Number(month.slice(5)),0).getDate()},(_,i)=>`${month}-${String(i+1).padStart(2,"0")}`).some(date=>attendanceCell(p,date,data?.extra["attendance"]||[],data?.extra["holidays"]||[],data?.extra["leaves"]||[]).status===status)) &&
       (!q || `${p.name} ${p.email}`.toLowerCase().includes(q.toLowerCase())),
   );
-  const rows = (data?.rows || []).filter(
+  const rows = (data?.rows || []).map(r => module === "announcement" ? { ...r, status: announcementStatus(r) } : r).filter(
     (r) =>
       (!company || r.company_id === company) &&
       (!status || (r.status || (r.is_active ? "active" : "inactive")) === status) &&
@@ -155,6 +163,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
     }
     r.company_id = company || data?.companies[0]?.id || "";
     if (module === "document") r.details.audience = "employees";
+    if (module === "announcement") r.end_date = "";
     if (module === "attendance") {
       r.date = indiaDate();
       r.status = "present";
@@ -175,7 +184,8 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
       v.end_time = formatTime(r.end_at);
     }
     if (module === "attendance") {
-      v.date = r.attendance_date;
+      v.date = r.attendance_date || r.date;
+      if (!["present", "absent", "half_day", "leave", "weekend"].includes(v.status)) v.status = "present";
       v.check_in_time = r.check_in ? formatTime(r.check_in) : "";
       v.check_out_time = r.check_out ? formatTime(r.check_out) : "";
       v.reason = "";
@@ -210,10 +220,11 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
       if (r.id) p.id = r.id;
     }
     if (module === "leave") {
-      if (r.id) p.id = r.id;
+      if (r.id) { p.id = r.id; p.status = "pending"; }
       if (self) {
         p.self = true;
         delete p.employee_id;
+        p.status = 'pending';
       }
     }
     return p;
@@ -349,12 +360,12 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
       case "designation":
         return [r.name, branchName(r.branch_id), created];
       case "holiday":
-        return [r.title, human(r.kind), period];
+        return [r.title, human(r.kind), `${period} · ${dateDuration(r.start_date, r.end_date)} days`];
       case "leave":
         return [
           name(r.employee_id),
           human(r.kind),
-          `${period}${r.half_day ? " · Half day" : ""}`,
+          `${period} · ${dateDuration(r.start_date, r.end_date, r.half_day)} days${r.half_day ? " · Half day" : ""}`,
           human(r.status),
           r.decided_at
             ? `${name(r.approver_id)} · ${new Date(r.decided_at).toLocaleDateString("en-IN")}`
@@ -368,7 +379,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           human(r.status),
         ];
       case "announcement":
-        return [r.title, name(r.created_by), created];
+        return [r.title, name(r.created_by), created, human(r.status)];
       case "document":
         return [
           "",
@@ -491,7 +502,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               <DropdownMenuItem onClick={() => ask(r, "published")}>Publish</DropdownMenuItem>
             )}
             {r.status === "published" && (
-              <DropdownMenuItem onClick={() => ask(r, "archived")}>Archive</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => ask(r, "draft")}>Unpublish</DropdownMenuItem>
             )}
           </>
         )}
@@ -503,7 +514,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
         )}
         {!self &&
           !["attendance", "leave", "payroll", "meeting"].includes(module) &&
-          (module !== "announcement" || r.status === "draft") && (
+          (
             <DropdownMenuItem className="text-admin-red" onClick={() => ask(r, "delete")}>
               <Trash2 className="size-4" />
               {module === "document" ? "Delete / retain audit" : "Delete"}
@@ -571,6 +582,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
             {cfg.add}
           </ToolbarButton>
         ) : null}
+        {module === "attendance" && !self && <Button variant="outline" onClick={() => setBulkOpen(true)}>Bulk Attendance</Button>}
       </PageHeader>
       {self && module === "attendance" && (
         <Card className="flex flex-wrap items-center gap-4 p-5">
@@ -615,7 +627,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               ))}
             </select>
           )}
-          {module !== "attendance" && (
+          {(
             <select
               aria-label="Status filter"
               className="inp w-40"
@@ -628,7 +640,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               <option value="">All statuses</option>
               {Array.from(
                 new Set(
-                  (data?.rows || []).map((r) => r.status || (r.is_active ? "active" : "inactive")),
+                  module === "attendance" ? ["present","absent","half_day","leave","weekend","holiday","unrecorded"] : (data?.rows || []).map((r) => module === "announcement" ? announcementStatus(r) : r.status || (r.is_active ? "active" : "inactive")),
                 ),
               ).map((s) => (
                 <option key={s} value={s}>
@@ -677,7 +689,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           extra={data?.extra || {}}
           month={month}
           setMonth={setMonth}
-          onOpen={setView}
+          onOpen={self ? setView : edit}
         />
       ) : module === "calendar" ? (
         <HrmCalendar extra={data?.extra || {}} month={month} setMonth={setMonth} onOpen={setView} />
@@ -788,7 +800,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               className="grid max-h-[72vh] gap-4 overflow-y-auto sm:grid-cols-2"
             >
               {cfg.fields
-                .filter((f) => !(self && f.key === "employee_id"))
+                .filter((f) => !(self && ["employee_id", "status"].includes(f.key)))
                 .map((f) => {
                   const value = getValue(form, f.key);
                   const opts = f.source
@@ -862,12 +874,12 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
                           )}
                           {f.options?.map((o) => (
                             <option key={o} value={o}>
-                              {human(o)}
+                              {module === "attendance" && o === "leave" ? "Approved Leave" : module === "announcement" && o === "all" ? "All Authorized Employees" : human(o)}
                             </option>
                           ))}
                           {opts.map((o) => (
                             <option key={o.id} value={o.id}>
-                              {o.name || o.email}
+                            {o.name || o.email}
                             </option>
                           ))}
                         </select>
@@ -979,6 +991,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               {view.details?.description && (
                 <p className="whitespace-pre-wrap">{view.details.description}</p>
               )}
+              {view.details?.decision_reason && <p><b>Decision reason:</b> {view.details.decision_reason}</p>}
               {view.details?.employee_ids?.length > 0 && (
                 <div>
                   <h3 className="font-semibold">Attendees / audience</h3>
@@ -1136,6 +1149,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           </Button>
         </DialogContent>
       </Dialog>
+      <BulkAttendance people={people} open={bulkOpen} onClose={() => setBulkOpen(false)} onSave={async payload => { await bulkSave({ data: payload }); refresh(); toast.success("Attendance saved"); }} />
       <Dialog open={!!balance} onOpenChange={(o) => !o && setBalance(null)}>
         <DialogContent>
           <DialogHeader>

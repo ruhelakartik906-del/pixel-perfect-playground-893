@@ -1,8 +1,18 @@
 import {describe,it,expect} from 'vitest';
-import {salaryTotals,attendanceCell,calendarSources,indiaDate,attendanceSchema,leaveSchema,payrollSchema,validateFile,validateRecord} from '@/lib/hrm-model';
+import {salaryTotals,attendanceCell,calendarSources,indiaDate,attendanceSchema,leaveSchema,payrollSchema,validateFile,validateRecord,bulkAttendanceSchema,announcementStatus,dateDuration} from '@/lib/hrm-model';
 const employee={id:'e',company_id:'c',branch_id:'b'};
 const uuid='00000000-0000-4000-8000-000000000001';
 describe('HRM safety rules',()=>{
+ it('accepts Weekend in manual attendance',()=>expect(attendanceSchema.safeParse({employee_id:uuid,date:'2026-10-17',status:'weekend',reason:'Weekend correction',check_in:null,check_out:null}).success).toBe(true));
+ it('deduplicates bulk employee IDs',()=>expect(bulkAttendanceSchema.parse({employee_ids:[uuid,uuid],date:'2026-10-19',status:'present',reason:'Bulk correction'}).employee_ids).toEqual([uuid]));
+ it('rejects bulk saves without employees',()=>expect(bulkAttendanceSchema.safeParse({employee_ids:[],date:'2026-10-19',status:'present',reason:'Bulk correction'}).success).toBe(false));
+ it('preserves manual attendance when approved leave is reversed',()=>expect(attendanceCell(employee,'2026-10-19',[{id:'a',employee_id:'e',attendance_date:'2026-10-19',status:'present',source_leave_id:null}],[],[{id:'l',status:'cancelled'}]).status).toBe('present'));
+ it('ignores reversed leave-derived attendance',()=>expect(attendanceCell(employee,'2026-10-19',[{id:'a',employee_id:'e',attendance_date:'2026-10-19',status:'leave',source_leave_id:'l'}],[],[{id:'l',status:'cancelled'}]).status).toBe('unrecorded'));
+ it('optional holidays do not exclude working attendance',()=>expect(attendanceCell(employee,'2026-10-19',[],[{id:'h',company_id:'c',kind:'optional',start_date:'2026-10-19',end_date:'2026-10-19',status:'active'}],[]).status).toBe('unrecorded'));
+ it('published announcements expire after their expiry date',()=>expect(announcementStatus({id:'a',status:'published',end_date:'2026-10-19'},'2026-10-20')).toBe('expired'));
+ it('announcements remain published on the expiry date',()=>expect(announcementStatus({id:'a',status:'published',end_date:'2026-10-19'},'2026-10-19')).toBe('published'));
+ it('calculates inclusive duration through leap February',()=>expect(dateDuration('2028-02-28','2028-03-01')).toBe(3));
+ it('supports unpaid leave requests',()=>expect(leaveSchema.safeParse({employee_id:uuid,kind:'unpaid',start_date:'2026-10-19',end_date:'2026-10-20',half_day:false,reason:'Personal'}).success).toBe(true));
  it('calculates gross and net salary exactly',()=>expect(salaryTotals('1000.10','20.20','30.30','10.10')).toEqual({gross:'1050.60',net:'1040.50'}));
  it('rejects deductions above salary',()=>expect(()=>salaryTotals(100,0,0,101)).toThrow());
  it('rejects negative salary',()=>expect(()=>salaryTotals(-1,0,0,0)).toThrow());
