@@ -75,7 +75,7 @@ function NewTicket({ open, onOpenChange, companies, onCreated }: { open: boolean
 }
 function TicketDetail({ id, admin, companyName, onClose }: { id: string; admin: boolean; companyName?: string | undefined; onClose: () => void }) {
   const client = useQueryClient(); const fetch = useServerFn(getSupportTicket); const change = useServerFn(changeSupportTicket); const reply = useServerFn(replySupportTicket); const upload = useServerFn(uploadSupportAttachment); const download = useServerFn(downloadSupportAttachment);
-  const query = useQuery({ queryKey: ['support-detail', id], queryFn: () => fetch({ data: { id } }) });
+  const query = useQuery({ queryKey: ['support-detail', id, admin], queryFn: () => fetch({ data: { id, admin } }) });
   const [body, setBody] = useState(''); const [privateNote, setPrivateNote] = useState(false); const [busy, setBusy] = useState(false); const [file, setFile] = useState<File | null>(null); const [fileKey, setFileKey] = useState(0);
   const refresh = async () => { await client.invalidateQueries({ queryKey: ['support-detail', id] }); await client.invalidateQueries({ queryKey: ['support-list'] }); };
   const activity = query.data?.ticket;
@@ -92,7 +92,7 @@ function TicketDetail({ id, admin, companyName, onClose }: { id: string; admin: 
   const send = async (e: FormEvent) => {
     e.preventDefault(); setBusy(true); try {
       const attachment = file ? await attachmentData(file) : null;
-      const messageId = await reply({ data: { id, body, private: admin && privateNote } });
+      const messageId = await reply({ data: { id, body, private: admin && privateNote, admin } });
       setBody('');
       if (attachment) { try { await upload({ data: { id, message_id: messageId, ...attachment } }); setFile(null); setFileKey(k => k + 1); } catch (error) { toast.error('Reply saved; attachment failed.'); } }
       await refresh(); toast.success(privateNote ? 'Private note saved.' : 'Reply sent.');

@@ -4,7 +4,7 @@ export const supportCategories = ['Technical Issue', 'Login / Account', 'Leads /
 export const supportPriorities = ['Low', 'Medium', 'High', 'Urgent'] as const;
 export const supportStatuses = ['Open', 'In Progress', 'Waiting for User', 'Resolved', 'Closed'] as const;
 export const ticketSchema = z.object({ subject: z.string().trim().min(1).max(200), category: z.enum(supportCategories), priority: z.enum(supportPriorities), description: z.string().trim().min(1).max(10000), company_id: z.string().uuid().nullable().optional() }).strict();
-export const replySchema = z.object({ id: z.string().uuid(), body: z.string().trim().min(1).max(10000), private: z.boolean().default(false) }).strict();
+export const replySchema = z.object({ id: z.string().uuid(), body: z.string().trim().min(1).max(10000), private: z.boolean().default(false), admin: z.boolean().default(false) }).strict();
 export const canReopen = (status: string) => status === 'Resolved' || status === 'Closed';
 export const supportFileLimit = 5 * 1024 * 1024;
 export function validateSupportFile(bytes: Uint8Array, mime: string) {

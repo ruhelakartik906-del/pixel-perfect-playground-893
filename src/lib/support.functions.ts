@@ -34,16 +34,20 @@ export const getSupportWorkspace = createServerFn({ method: 'GET' }).middleware(
   const choices = data.admin ? companies.data as { id: string; name: string }[] : (companies.data as unknown as { companies: { id: string; name: string } | null }[]).flatMap(c => c.companies ? [c.companies] : []);
   return { tickets: rows.data, count: rows.count ?? 0, counts: Object.fromEntries(counts), companies: choices, userId: context.userId };
 });
-export const getSupportTicket = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => idSchema.parse(input)).handler(async ({ context, data }) => {
+export const getSupportTicket = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => z.object({ id: z.string().uuid(), admin: z.boolean() }).strict().parse(input)).handler(async ({ context, data }) => {
+  if (data.admin && (await context.supabase.rpc('support_admin')).data !== true) throw new Error('Super Admin access required.');
   const ticket = await context.supabase.from('support_tickets').select('*').eq('id', data.id).single();
   if (ticket.error) throw new Error('Ticket not found or access denied.');
+  if (!data.admin && ticket.data.user_id !== context.userId) throw new Error('Ticket access denied.');
   const [messages, attachments, events] = await Promise.all([
     context.supabase.from('support_messages').select('*').eq('ticket_id', data.id).order('created_at').order('id'),
     context.supabase.from('support_attachments').select('*').eq('ticket_id', data.id).order('created_at'),
     context.supabase.from('support_ticket_events').select('*').eq('ticket_id', data.id).order('created_at'),
   ]);
   if (messages.error || attachments.error || events.error) throw new Error('Conversation could not be loaded.');
-  return { ticket: ticket.data, messages: messages.data, attachments: attachments.data, events: events.data };
+  const visibleMessages = data.admin ? messages.data : messages.data.filter(m => !m.is_private);
+  const visibleIds = new Set(visibleMessages.map(m => m.id));
+  return { ticket: ticket.data, messages: visibleMessages, attachments: attachments.data.filter(a => !a.message_id || visibleIds.has(a.message_id)), events: events.data };
 });
 export const createSupportTicket = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => ticketSchema.parse(input)).handler(async ({ context, data }) => {
   const r = await context.supabase.rpc('support_action', { _action: 'create', _payload: data as Json });
