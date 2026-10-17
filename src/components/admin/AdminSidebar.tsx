@@ -35,7 +35,8 @@ export function AdminSidebar({ collapsed, onToggle, onLogout, onNavigate }: {
           const Icon = grp.icon;
           if (single) return (
             <Link key={grp.label} to="/admin/$" params={{ _splat: grp.items[0]?.path ?? "" }} onClick={onNavigate} className={rowCls} title={grp.label}>
-              <Icon className="size-5 shrink-0" />{!collapsed && <span>{grp.label}</span>}
+              <Icon className="size-5 shrink-0" />{!collapsed && <span className="flex-1">{grp.label}</span>}
+              {!collapsed && grp.badge && <span className="rounded-full bg-admin-green px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{grp.badge}</span>}
             </Link>
           );
           return (

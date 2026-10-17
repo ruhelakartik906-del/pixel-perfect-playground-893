@@ -23,7 +23,7 @@ export const adminNav: NavGroup[] = [
   g("User Management", UserCog, "users", ["Users", "Role"]),
   g("Communication", MessageSquare, "communication", ["Mail", "Chat"]),
   g("WhatsApp", Phone, "whatsapp", ["WhatsApp Chat", "Message Templates", "Workflows", "Broadcast", "Message Log"]),
-  g("Integrations", Cable, "integrations", ["Meta Ads / Make.com", "Website Lead Forms", "Webhook Logs", "Other Integrations"]),
+  { label: "Integrations", icon: Cable, badge: "NEW", items: [{ label: "Integrations", path: "integrations" }] },
   g("HRM", Briefcase, "hrm", ["HRM Analytics", "Employees", "Payroll", "Branches", "Designations", "Departments", "Attendance", "Holidays", "Leave Management", "HR Calendar", "Meetings", "Announcements", "Documents", "Training Setup"]),
   g("Job", FileText, "job", ["Jobs", "Job Candidates", "Job Onboarding", "Job Applications", "Offer Letters", "Interviews"]),
   g("Setting", Settings, "settings", ["CRM Configuration", "Countries", "Currencies", "Tax", "E-Signature"]),
