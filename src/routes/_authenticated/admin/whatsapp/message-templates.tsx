@@ -32,19 +32,19 @@ function Templates() {
 
   const save = async () => {
     if (!form) return;
-    if (!validTemplateName(form.name)) return toast.error("Name: lowercase letters, numbers and underscores only");
-    if (!form.body.trim() || form.body.length > 1024) return toast.error("Body is required (max 1024 characters)");
-    if (form.header.length > 60 || form.footer.length > 60) return toast.error("Header and footer are limited to 60 characters");
-    if (form.buttons.some((b) => !b.text.trim() || (b.type !== "QUICK_REPLY" && !b.value.trim()))) return toast.error("Complete every button");
+    if (!validTemplateName(form.name)) { toast.error("Name: lowercase letters, numbers and underscores only"); return; }
+    if (!form.body.trim() || form.body.length > 1024) { toast.error("Body is required (max 1024 characters)"); return; }
+    if (form.header.length > 60 || form.footer.length > 60) { toast.error("Header and footer are limited to 60 characters"); return; }
+    if (form.buttons.some((b) => !b.text.trim() || (b.type !== "QUICK_REPLY" && !b.value.trim()))) { toast.error("Complete every button"); return; }
     const { id, ...payload } = form;
     const { error } = id ? await db.from("whatsapp_templates").update({ ...payload, sync_status: "not_synced" }).eq("id", id) : await db.from("whatsapp_templates").insert(payload);
-    if (error) return toast.error(error.message.includes("duplicate") ? "A template with this name already exists" : error.message);
+    if (error) { toast.error(error.message.includes("duplicate") ? "A template with this name already exists" : error.message); return; }
     toast.success(id ? "Template updated" : "Template created"); setForm(null); qc.invalidateQueries({ queryKey: QK });
   };
   const remove = async () => {
     if (!del) return;
     const { error } = await db.from("whatsapp_templates").delete().eq("id", del.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Template deleted"); setDel(null); qc.invalidateQueries({ queryKey: QK });
   };
 

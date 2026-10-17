@@ -59,24 +59,24 @@ function MailPage() {
     if (!compose) return;
     const emails = compose.to_emails.split(",").map((s) => s.trim()).filter(Boolean);
     if (mode === "scheduled") {
-      if (!connected) return toast.error("Connect a mailbox before scheduling emails");
-      if (!emails.length || emails.some((e) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))) return toast.error("Enter valid recipient emails");
-      if (!compose.scheduled_at || new Date(compose.scheduled_at) <= new Date()) return toast.error("Pick a future send time");
+      if (!connected) { toast.error("Connect a mailbox before scheduling emails"); return; }
+      if (!emails.length || emails.some((e) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))) { toast.error("Enter valid recipient emails"); return; }
+      if (!compose.scheduled_at || new Date(compose.scheduled_at) <= new Date()) { toast.error("Pick a future send time"); return; }
     }
     const payload = { folder: mode, to_emails: compose.to_emails.trim(), cc: compose.cc.trim(), subject: compose.subject.trim().slice(0, 300), body: compose.body.slice(0, 50000),
       from_email: box.data?.from_email ?? "", scheduled_at: mode === "scheduled" ? new Date(compose.scheduled_at).toISOString() : null, delivery_status: mode === "scheduled" ? "awaiting_delivery_integration" : "not_sent" };
     const { error } = compose.id ? await db.from("mail_messages").update(payload).eq("id", compose.id) : await db.from("mail_messages").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(mode === "draft" ? "Draft saved" : "Scheduled — will be delivered once mail sending is activated");
     setCompose(null); setFolder(mode); refresh();
   };
 
   const patch = async (m: Msg, p: Partial<Msg>, msg: string) => {
     const { error } = await db.from("mail_messages").update(p).eq("id", m.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(msg); setOpen(null); refresh();
   };
-  const purge = async (m: Msg) => { const { error } = await db.from("mail_messages").delete().eq("id", m.id); if (error) return toast.error(error.message); toast.success("Deleted forever"); setOpen(null); refresh(); };
+  const purge = async (m: Msg) => { const { error } = await db.from("mail_messages").delete().eq("id", m.id); if (error) { toast.error(error.message); return; } toast.success("Deleted forever"); setOpen(null); refresh(); };
 
   return (
     <Card className="flex min-h-[calc(100vh-180px)] overflow-hidden">

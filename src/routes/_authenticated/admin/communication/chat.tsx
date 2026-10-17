@@ -33,7 +33,7 @@ function ChatPage() {
   const end = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!me) return;
+    if (!me) return () => {};
     const ch = supabase.channel("chat-live", { config: { presence: { key: me } } })
       .on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, () => qc.invalidateQueries({ queryKey: ["chat-msgs"] }))
       .on("presence", { event: "sync" }, () => setOnline(new Set(Object.keys(ch.presenceState()))))
@@ -61,15 +61,15 @@ function ChatPage() {
   const send = async () => {
     const body = text.trim();
     if (!peer || !body) return;
-    if (body.length > 4000) return toast.error("Message is too long");
+    if (body.length > 4000) { toast.error("Message is too long"); return; }
     const { error } = await db.from("chat_messages").insert({ recipient_id: peer, body });
-    if (error) return toast.error(error.message.includes("row-level") ? "You are not allowed to message this user" : error.message);
+    if (error) { toast.error(error.message.includes("row-level") ? "You are not allowed to message this user" : error.message); return; }
     setText(""); qc.invalidateQueries({ queryKey: ["chat-msgs"] });
   };
   const toggleStar = async (id: string) => {
     const has = stars.data?.has(id);
     const { error } = has ? await db.from("chat_stars").delete().eq("peer_id", id) : await db.from("chat_stars").insert({ peer_id: id });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["chat-stars"] });
   };
   const Av = ({ p, size = "size-14" }: { p: P; size?: string }) => p.avatar_url ? <img src={p.avatar_url} alt="" className={cn(size, "rounded-lg object-cover")} />

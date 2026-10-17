@@ -48,18 +48,18 @@ function RolesPage() {
   const save = async () => {
     if (!form) return;
     const name = form.name.trim();
-    if (!name || name.length > 60) return toast.error("Role name is required (max 60 characters)");
-    if (data.some((r) => r.id !== form.id && r.name.toLowerCase() === name.toLowerCase())) return toast.error("A role with this name already exists");
+    if (!name || name.length > 60) { toast.error("Role name is required (max 60 characters)"); return; }
+    if (data.some((r) => r.id !== form.id && r.name.toLowerCase() === name.toLowerCase())) { toast.error("A role with this name already exists"); return; }
     const payload = { name, description: form.description.trim(), permissions: [...form.permissions].filter(isPermission) };
     const { error } = form.id ? await db.from("access_roles").update(payload).eq("id", form.id) : await db.from("access_roles").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(form.id ? "Role updated" : "Role created"); setForm(null); qc.invalidateQueries({ queryKey: QK });
   };
   const remove = async () => {
     if (!del) return;
     if (!canDeleteRole(del.users)) { toast.error("Reassign the users on this role before deleting it"); setDel(null); return; }
     const { error } = await db.from("access_roles").delete().eq("id", del.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Role deleted"); setDel(null); qc.invalidateQueries({ queryKey: QK });
   };
 

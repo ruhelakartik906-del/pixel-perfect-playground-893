@@ -71,9 +71,9 @@ function UsersPage() {
 
   const save = async () => {
     if (!form) return;
-    if (!form.full_name.trim()) return toast.error("Name is required");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return toast.error("Enter a valid email");
-    if (form.id === me && form.role !== "super_admin") return toast.error("You cannot remove your own Super Admin role");
+    if (!form.full_name.trim()) { toast.error("Name is required"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { toast.error("Enter a valid email"); return; }
+    if (form.id === me && form.role !== "super_admin") { toast.error("You cannot remove your own Super Admin role"); return; }
     setBusy(true);
     try {
       if (!form.id) {
@@ -97,9 +97,9 @@ function UsersPage() {
   };
 
   const setStatus = async (u: U, status: "active" | "blocked") => {
-    if (u.id === me) return toast.error("You cannot block your own account");
+    if (u.id === me) { toast.error("You cannot block your own account"); return; }
     const { error } = await db.from("profiles").update({ account_status: status }).eq("id", u.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(status === "active" ? "User activated" : "User blocked"); refresh();
   };
 
