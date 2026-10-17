@@ -9,5 +9,5 @@
 - [x] Sales Phase 3 implementation — Invoices: exact totals, configurable GST, immutable finalization, payments/PDF
 - [x] Sales Phase 4 implementation — Credit Notes: authorized credit limits, balances, audit history/PDF
 - [x] Sales Phase 5 implementation — Revenue: payment-backed totals and double-count prevention
-- [ ] Sales financial end-to-end verification — blocked by real seller/GST details and authorized payment/credit information; no fabricated accounting records
+- [ ] Sales financial end-to-end verification — running in isolated Sales QA draft with authorized test billing/payment records; awaiting verified results and Sales-only fixes
 - [ ] Meta/Make.com intake, automatic routing, follow-ups, attendance — not built
