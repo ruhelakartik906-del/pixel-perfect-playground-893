@@ -5,7 +5,7 @@ import { CreditCard, Download, Eye, FileText, Pencil, Plus, Printer, Save, Setti
 import { toast } from "sonner";
 import { salesQuery, salesMoney } from "@/lib/sales-data";
 import { salesFinancialAction } from "@/lib/sales.functions";
-import { invoiceBalance, invoiceTotals, realizedRevenue, type InvoiceLine, type TaxMode } from "@/lib/sales-finance";
+import { allowableCredit, allowablePayment, invoiceBalance, invoiceTotals, realizedRevenue, revenueReceiptTotal, sumMoney, type InvoiceLine, type TaxMode } from "@/lib/sales-finance";
 import { salesDocument } from "@/lib/sales-documents";
 import { exportCsv } from "@/lib/crm-data";
 import { Breadcrumb, Card, DataTable, EmptyState, PageHeader, SearchInput, StatusBadge } from "@/components/admin/ui";
@@ -48,8 +48,8 @@ export function SalesFinance({ module }: { module: "invoices" | "credit-notes" |
   const customer = (id: string) => data.customers.find((item) => item.id === id);
   const customerName = (id: string) => customer(id)?.name ?? "—";
   const invoice = (id: string) => data.invoices.find((item) => item.id === id);
-  const paidFor = (id: string) => data.payments.filter((item) => item.invoice_id === id).reduce((sum, item) => sum + item.amount, 0);
-  const creditFor = (id: string) => data.credits.filter((item) => item.invoice_id === id && item.status === "issued").reduce((sum, item) => sum + item.amount, 0);
+  const paidFor = (id: string) => sumMoney(data.payments.filter((item) => item.invoice_id === id).map((item) => item.amount));
+  const creditFor = (id: string) => sumMoney(data.credits.filter((item) => item.invoice_id === id && item.status === "issued").map((item) => item.amount));
   const balance = (item: Invoice) => invoiceBalance(item.total, paidFor(item.id), creditFor(item.id));
   const invoiceStatus = (item: Invoice) => {
     if (item.status !== "unpaid") return item.status;
@@ -61,7 +61,7 @@ export function SalesFinance({ module }: { module: "invoices" | "credit-notes" |
   const filteredCredits = data.credits.filter((item) => (!from || item.issue_date >= from) && (!to || item.issue_date <= to) && (status === "all" || item.status === status) && [item.number, item.reason, invoice(item.invoice_id)?.number ?? "", customerName(invoice(item.invoice_id)?.customer_id ?? "")].some((text) => text.toLowerCase().includes(q.toLowerCase())));
   const receipts = [
     ...data.payments.map((payment) => ({ id: payment.id, type: "payment", title: `Payment · ${invoice(payment.invoice_id)?.number ?? "Invoice"}`, date: payment.payment_date, amount: payment.amount, customer_id: invoice(payment.invoice_id)?.customer_id ?? "", invoice_id: payment.invoice_id, status: "posted", method: payment.method, reference: payment.reference })),
-    ...data.revenues.map((entry) => ({ id: entry.id, type: "revenue", title: entry.title, date: entry.entry_date, amount: entry.amount, customer_id: entry.customer_id, invoice_id: entry.invoice_id, status: entry.status, method: entry.method, reference: entry.reference })),
+    ...data.revenues.filter((entry) => !entry.invoice_id).map((entry) => ({ id: entry.id, type: "revenue", title: entry.title, date: entry.entry_date, amount: entry.amount, customer_id: entry.customer_id, invoice_id: entry.invoice_id, status: entry.status, method: entry.method, reference: entry.reference })),
   ].sort((a, b) => b.date.localeCompare(a.date));
   const filteredRevenue = receipts.filter((item) => (!from || item.date >= from) && (!to || item.date <= to) && (status === "all" || item.status === status) && [item.title, item.reference, customerName(item.customer_id)].some((text) => text.toLowerCase().includes(q.toLowerCase())));
   const filtered = module === "invoices" ? filteredInvoices : module === "credit-notes" ? filteredCredits : filteredRevenue;
@@ -70,7 +70,7 @@ export function SalesFinance({ module }: { module: "invoices" | "credit-notes" |
   const pageCredits = filteredCredits.slice((current - 1) * size, current * size);
   const pageRevenue = filteredRevenue.slice((current - 1) * size, current * size);
   const postedReceipts = filteredRevenue.filter((item) => item.status === "posted");
-  const cash = postedReceipts.reduce((sum, item) => sum + item.amount, 0);
+  const cash = revenueReceiptTotal(postedReceipts.filter((item) => item.type === "payment"), postedReceipts.filter((item) => item.type === "revenue"));
   const realized = postedReceipts.reduce((sum, receipt) => {
     if (receipt.type !== "payment") return sum + receipt.amount;
     const inv = invoice(receipt.invoice_id ?? "");
@@ -115,6 +115,15 @@ export function SalesFinance({ module }: { module: "invoices" | "credit-notes" |
   const save = async (event: React.FormEvent, draft = false) => {
     event.preventDefault();
     if (!form) return;
+    if (mode === "payment" && (!selectedInvoice || !allowablePayment(selectedInvoice.total, paidFor(selectedInvoice.id), creditFor(selectedInvoice.id), Number(form['amount']), authorized))) {
+      toast.error("Confirm authorization and enter a positive payment within the outstanding balance"); return;
+    }
+    if (mode === "credit") {
+      const creditedTax = sumMoney(data.credits.filter((item) => item.invoice_id === selectedInvoice?.id && item.status === "issued").map((item) => item.tax_adjustment));
+      if (!selectedInvoice || !allowableCredit(selectedInvoice.total, creditFor(selectedInvoice.id), selectedInvoice.tax_total, creditedTax, Number(form['amount']), Number(form['tax_adjustment']))) {
+        toast.error("Credit and included tax must stay within the invoice's remaining allowances"); return;
+      }
+    }
     const payload: Record<string, unknown> = { ...form, authorized };
     if (mode === "invoice") { payload['items'] = items; payload['status'] = draft ? "draft" : "unpaid"; }
     if (mode === "revenue" && form['invoice_id']) {
