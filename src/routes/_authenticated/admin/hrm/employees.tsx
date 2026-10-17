@@ -18,8 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/hrm/employees")({
 });
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a: unknown) => any };
-type Form = { id?: string; profile_id: string; employee_code: string; phone: string; department_id: string; designation_id: string; branch_id: string; joining_date: string; employment_type: string; reporting_manager_id: string; is_active: boolean };
-const blank: Form = { profile_id: "", employee_code: "", phone: "", department_id: "", designation_id: "", branch_id: "", joining_date: "", employment_type: "full_time", reporting_manager_id: "", is_active: true };
+type Form = { id?: string; company_id: string; profile_id: string; employee_code: string; phone: string; department_id: string; designation_id: string; branch_id: string; joining_date: string; employment_type: string; reporting_manager_id: string; is_active: boolean };
+const blank: Form = { company_id: "", profile_id: "", employee_code: "", phone: "", department_id: "", designation_id: "", branch_id: "", joining_date: "", employment_type: "full_time", reporting_manager_id: "", is_active: true };
 const types: Record<string, string> = { full_time: "Full-time", part_time: "Part-time", contract: "Contract", intern: "Intern" };
 
 function EmployeesPage() {
@@ -27,6 +27,7 @@ function EmployeesPage() {
   const { data, isLoading } = useQuery({ queryKey: ["hrm"], queryFn: loadHrm });
   const profiles = useQuery({ queryKey: ["hrm-profiles"], queryFn: async () => (await db.from("profiles").select("id,full_name,email,phone").order("full_name")).data as { id: string; full_name: string; email: string; phone: string }[] }).data ?? [];
   const me = useQuery({ queryKey: ["me-id"], queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? "" }).data;
+  const companies = useQuery({ queryKey: ["hrm-companies"], queryFn: async () => { const r = await supabase.from("companies").select("id,name").order("name"); if (r.error) throw r.error; return r.data; } }).data ?? [];
   const [q, setQ] = useState(""); const [grid, setGrid] = useState(false); const [page, setPage] = useState(1); const [size, setSize] = useState(10);
   const [form, setForm] = useState<Form | null>(null);
   const [view, setView] = useState<Employee | null>(null);
@@ -38,13 +39,13 @@ function EmployeesPage() {
   const pages = Math.max(1, Math.ceil(list.length / size)); const cur = Math.min(page, pages);
   const rows = list.slice((cur - 1) * size, cur * size);
   const linked = new Set((data?.employees ?? []).map((e) => e.profile_id));
-  const audit = useQuery({ queryKey: ["hr-audit", view?.id], enabled: !!view, queryFn: async () => (await db.from("hr_access_audit").select("*").eq("employee_id", view!.id).order("created_at", { ascending: false })).data as { id: string; action: string; note: string; created_at: string }[] });
+  const audit = useQuery({ queryKey: ["hr-audit", view?.id], enabled: !!view, queryFn: async () => { if (!view) return []; return (await db.from("hr_access_audit").select("*").eq("employee_id", view.id).order("created_at", { ascending: false })).data as { id: string; action: string; note: string; created_at: string }[]; } });
 
   const save = async () => {
     if (!form) return;
     if (!form.profile_id) { toast.error("Link a user account"); return; }
     if (form.reporting_manager_id && form.reporting_manager_id === form.id) { toast.error("An employee can't report to themselves"); return; }
-    const p = { profile_id: form.profile_id, employee_code: form.employee_code.trim() || null, phone: form.phone.trim().slice(0, 30), department_id: form.department_id || null, designation_id: form.designation_id || null, branch_id: form.branch_id || null,
+    const p = { company_id: form.company_id || null, profile_id: form.profile_id, employee_code: form.employee_code.trim() || null, phone: form.phone.trim().slice(0, 30), department_id: form.department_id || null, designation_id: form.designation_id || null, branch_id: form.branch_id || null,
       joining_date: form.joining_date || null, employment_type: form.employment_type, reporting_manager_id: form.reporting_manager_id || null, is_active: form.is_active };
     const { error } = form.id ? await db.from("hr_employees").update(p).eq("id", form.id) : await db.from("hr_employees").insert(p);
     if (error) { toast.error(error.message.includes("duplicate") ? "That user or employee ID already has an employee record" : error.message); return; }
@@ -59,11 +60,11 @@ function EmployeesPage() {
   const toggleActive = async (e: Employee) => { const { error } = await db.from("hr_employees").update({ is_active: !e.is_active }).eq("id", e.id); if (error) { toast.error(error.message); return; } toast.success(e.is_active ? "Employee deactivated" : "Employee activated"); refresh(); };
   const addOpt = async () => {
     if (!newOpt || !newOpt.name.trim()) return;
-    const { error } = await db.from(newOpt.table).insert({ name: newOpt.name.trim().slice(0, 80) });
+    const { error } = await db.from(newOpt.table).insert({ name: newOpt.name.trim().slice(0, 80), company_id: form?.company_id || null });
     if (error) { toast.error(error.message.includes("duplicate") ? "Already exists" : error.message); return; }
     toast.success("Added"); setNewOpt(null); refresh();
   };
-  const edit = (e: Employee) => setForm({ id: e.id, profile_id: e.profile_id, employee_code: e.employee_code ?? "", phone: e.phone, department_id: e.department_id ?? "", designation_id: e.designation_id ?? "", branch_id: e.branch_id ?? "", joining_date: e.joining_date ?? "", employment_type: e.employment_type, reporting_manager_id: e.reporting_manager_id ?? "", is_active: e.is_active });
+  const edit = (e: Employee) => setForm({ id: e.id, company_id: e.company_id ?? "", profile_id: e.profile_id, employee_code: e.employee_code ?? "", phone: e.phone, department_id: e.department_id ?? "", designation_id: e.designation_id ?? "", branch_id: e.branch_id ?? "", joining_date: e.joining_date ?? "", employment_type: e.employment_type, reporting_manager_id: e.reporting_manager_id ?? "", is_active: e.is_active });
   const exportCsv = () => csvDownload("employees.csv", [["Name", "Email", "Employee ID", "Department", "Designation", "Branch", "Type", "Joining", "Access", "Active"],
     ...list.map((e) => [e.profiles?.full_name ?? "", e.profiles?.email ?? "", e.employee_code ?? "", nm(data?.departments, e.department_id), nm(data?.designations, e.designation_id), nm(data?.branches, e.branch_id), types[e.employment_type] ?? "", e.joining_date ?? "", e.access_status, e.is_active ? "Yes" : "No"])]);
 
@@ -116,6 +117,7 @@ function EmployeesPage() {
               <option value="">Select a user…</option>{profiles.filter((p) => !linked.has(p.id) || p.id === form.profile_id).map((p) => <option key={p.id} value={p.id}>{p.full_name || "(no name)"} — {p.email}</option>)}</select>
               <span className="text-xs font-normal text-muted-foreground">Full name and work email come from the linked account. New people are invited from User Management → Users first.</span></label>
             <label className="grid gap-1 text-sm font-medium">Employee ID<input className="inp" value={form.employee_code} maxLength={40} onChange={(e) => setForm({ ...form, employee_code: e.target.value })} /></label>
+            <label className="grid gap-1 text-sm font-medium">Company<select className="inp" value={form.company_id} onChange={(e) => setForm({ ...form, company_id: e.target.value, branch_id: "", department_id: "", designation_id: "" })}><option value="">Unassigned</option>{companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
             <label className="grid gap-1 text-sm font-medium">Phone<input className="inp" value={form.phone} maxLength={30} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
             {Sel({ label: "Department", k: "department_id", opts: data?.departments ?? [], table: "hr_departments" })}
             {Sel({ label: "Designation", k: "designation_id", opts: data?.designations ?? [], table: "hr_designations" })}

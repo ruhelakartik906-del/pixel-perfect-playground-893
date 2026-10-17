@@ -86,6 +86,7 @@ function Dashboard() {
           <span className="text-xl font-bold">Routiva CRM</span>
         </Link>
         <nav className="mt-8 grid gap-1">
+          <Link to="/my-hr" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-sidebar-foreground"><CalendarCheck className="size-4" />My HR · Attendance & Leave</Link>
           {nav.map(({ label, icon: Icon }, index) => (
             <span key={label} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${index === 0 ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/75"}`}><Icon className="size-4" />{label}</span>
           ))}

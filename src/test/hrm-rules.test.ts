@@ -1,0 +1,23 @@
+import {describe,it,expect} from 'vitest';
+import {salaryTotals,attendanceCell,calendarSources,indiaDate,attendanceSchema,leaveSchema,payrollSchema,validateFile,validateRecord} from '@/lib/hrm-model';
+const employee={id:'e',company_id:'c',branch_id:'b'};
+const uuid='00000000-0000-4000-8000-000000000001';
+describe('HRM safety rules',()=>{
+ it('calculates gross and net salary exactly',()=>expect(salaryTotals('1000.10','20.20','30.30','10.10')).toEqual({gross:'1050.60',net:'1040.50'}));
+ it('rejects deductions above salary',()=>expect(()=>salaryTotals(100,0,0,101)).toThrow());
+ it('rejects negative salary',()=>expect(()=>salaryTotals(-1,0,0,0)).toThrow());
+ it('requires a normalized salary month',()=>expect(payrollSchema.safeParse({employee_id:uuid,salary_period:'2026-10-02',salary_date:'2026-10-31',basic:100,allowances:0,bonuses:0,deductions:0,notes:''}).success).toBe(false));
+ it('does not label unrecorded weekdays absent',()=>expect(attendanceCell(employee,'2026-10-19',[],[],[]).status).toBe('unrecorded'));
+ it('derives Saturday weekend',()=>expect(attendanceCell(employee,'2026-10-17',[],[],[]).status).toBe('weekend'));
+ it('pending leave is not attendance',()=>expect(attendanceCell(employee,'2026-10-19',[],[],[{id:'l',employee_id:'e',start_date:'2026-10-19',end_date:'2026-10-19',status:'pending'}]).status).toBe('unrecorded'));
+ it('approved leave is attendance',()=>expect(attendanceCell(employee,'2026-10-19',[],[],[{id:'l',employee_id:'e',start_date:'2026-10-19',end_date:'2026-10-19',status:'approved'}]).status).toBe('leave'));
+ it('respects branch holiday scope',()=>expect(attendanceCell(employee,'2026-10-19',[],[{id:'h',company_id:'c',branch_id:'other',start_date:'2026-10-19',end_date:'2026-10-19',status:'active'}],[]).status).toBe('unrecorded'));
+ it('holiday is not an absence',()=>expect(attendanceCell(employee,'2026-10-19',[],[{id:'h',company_id:'c',branch_id:'b',start_date:'2026-10-19',end_date:'2026-10-19',status:'active'}],[]).status).toBe('holiday'));
+ it('checks manual checkout sequence',()=>{const valid={employee_id:uuid,date:'2026-10-19',status:'present',reason:'Correction',check_in:'2026-10-19T09:00:00+05:30',check_out:'2026-10-19T10:00:00+05:30'};expect(attendanceSchema.safeParse(valid).success).toBe(true);expect(attendanceSchema.safeParse({...valid,check_in:'2026-10-19T11:00:00+05:30'}).success).toBe(false);});
+ it('half-day leave cannot span multiple days',()=>expect(leaveSchema.safeParse({employee_id:uuid,kind:'sick',start_date:'2026-10-19',end_date:'2026-10-20',half_day:true,reason:'Sick'}).success).toBe(false));
+ it('calendar includes each original source once and excludes pending leave',()=>expect(calendarSources([],[{id:'m',status:'scheduled'}],[{id:'h',status:'active'}],[{id:'l',status:'pending'}]).map(r=>r.id)).toEqual(['m','h']));
+ it('uses India date across UTC midnight',()=>expect(indiaDate('2026-10-17T20:00:00Z')).toBe('2026-10-18'));
+ it('limits private files to 10 MB',()=>expect(()=>validateFile(10*1024*1024+1,'application/pdf')).toThrow());
+ it('rejects executable MIME types',()=>expect(()=>validateFile(100,'application/x-msdownload')).toThrow());
+ it('rejects unsafe meeting URLs',()=>expect(()=>validateRecord('meeting',{title:'Meeting',company_id:uuid,branch_id:null,department_id:null,start_date:'2026-10-19',end_date:'2026-10-19',start_at:'2026-10-19T09:00:00+05:30',end_at:'2026-10-19T10:00:00+05:30',status:'scheduled',kind:'meeting',details:{url:'javascript:alert(1)'}})).toThrow());
+});

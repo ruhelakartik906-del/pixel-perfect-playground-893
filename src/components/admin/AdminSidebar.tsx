@@ -8,7 +8,9 @@ export function AdminSidebar({ collapsed, onToggle, onLogout, onNavigate }: {
   collapsed: boolean; onToggle?: () => void; onLogout: () => void; onNavigate?: () => void;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname }).replace(/\/$/, "");
-  const current = pathname.replace(/^\/admin\/?/, "");
+  const aliases: Record<string, string> = { "hrm/branch": "hrm/branches", "hrm/designation": "hrm/designations", "hrm/holiday": "hrm/holidays", "hrm/leave": "hrm/leave-management", "hrm/calendar": "hrm/hr-calendar", "hrm/meeting": "hrm/meetings", "hrm/announcement": "hrm/announcements", "hrm/document": "hrm/documents" };
+  const path = pathname.replace(/^\/admin\/?/, "");
+  const current = aliases[path] ?? path;
   const activeGroup = adminNav.find((grp) => grp.items.some((i) => i.path === current))?.label;
   const [open, setOpen] = useState<string | undefined>(activeGroup);
 

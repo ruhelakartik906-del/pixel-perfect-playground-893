@@ -26,6 +26,7 @@ import { Route as RestrictedRouteImport } from './routes/restricted'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
@@ -43,7 +44,25 @@ import { Route as AuthenticatedAdminCrmDealsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminCrmLeadsRouteImport } from './routes/_authenticated/admin/crm/leads'
 import { Route as AuthenticatedAdminCrmReportsRouteImport } from './routes/_authenticated/admin/crm/reports'
 import { Route as AuthenticatedAdminHrmAnalyticsRouteImport } from './routes/_authenticated/admin/hrm/analytics'
+import { Route as AuthenticatedAdminHrmAnnouncementRouteImport } from './routes/_authenticated/admin/hrm/announcement'
+import { Route as AuthenticatedAdminHrmAnnouncementsRouteImport } from './routes/_authenticated/admin/hrm/announcements'
+import { Route as AuthenticatedAdminHrmAttendanceRouteImport } from './routes/_authenticated/admin/hrm/attendance'
+import { Route as AuthenticatedAdminHrmBranchRouteImport } from './routes/_authenticated/admin/hrm/branch'
+import { Route as AuthenticatedAdminHrmBranchesRouteImport } from './routes/_authenticated/admin/hrm/branches'
+import { Route as AuthenticatedAdminHrmCalendarRouteImport } from './routes/_authenticated/admin/hrm/calendar'
+import { Route as AuthenticatedAdminHrmDesignationRouteImport } from './routes/_authenticated/admin/hrm/designation'
+import { Route as AuthenticatedAdminHrmDesignationsRouteImport } from './routes/_authenticated/admin/hrm/designations'
+import { Route as AuthenticatedAdminHrmDocumentRouteImport } from './routes/_authenticated/admin/hrm/document'
+import { Route as AuthenticatedAdminHrmDocumentsRouteImport } from './routes/_authenticated/admin/hrm/documents'
 import { Route as AuthenticatedAdminHrmEmployeesRouteImport } from './routes/_authenticated/admin/hrm/employees'
+import { Route as AuthenticatedAdminHrmHolidayRouteImport } from './routes/_authenticated/admin/hrm/holiday'
+import { Route as AuthenticatedAdminHrmHolidaysRouteImport } from './routes/_authenticated/admin/hrm/holidays'
+import { Route as AuthenticatedAdminHrmHrCalendarRouteImport } from './routes/_authenticated/admin/hrm/hr-calendar'
+import { Route as AuthenticatedAdminHrmLeaveRouteImport } from './routes/_authenticated/admin/hrm/leave'
+import { Route as AuthenticatedAdminHrmLeaveManagementRouteImport } from './routes/_authenticated/admin/hrm/leave-management'
+import { Route as AuthenticatedAdminHrmMeetingRouteImport } from './routes/_authenticated/admin/hrm/meeting'
+import { Route as AuthenticatedAdminHrmMeetingsRouteImport } from './routes/_authenticated/admin/hrm/meetings'
+import { Route as AuthenticatedAdminHrmPayrollRouteImport } from './routes/_authenticated/admin/hrm/payroll'
 import { Route as AuthenticatedAdminRoutingIndexRouteImport } from './routes/_authenticated/admin/routing/index'
 import { Route as AuthenticatedAdminSalesCreditNotesRouteImport } from './routes/_authenticated/admin/sales/credit-notes'
 import { Route as AuthenticatedAdminSalesCustomersRouteImport } from './routes/_authenticated/admin/sales/customers'
@@ -141,6 +160,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyHrRoute = AuthenticatedMyHrRouteImport.update({
+  id: '/my-hr',
+  path: '/my-hr',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -242,10 +266,118 @@ const AuthenticatedAdminHrmAnalyticsRoute =
     path: '/hrm/analytics',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminHrmAnnouncementRoute =
+  AuthenticatedAdminHrmAnnouncementRouteImport.update({
+    id: '/hrm/announcement',
+    path: '/hrm/announcement',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmAnnouncementsRoute =
+  AuthenticatedAdminHrmAnnouncementsRouteImport.update({
+    id: '/hrm/announcements',
+    path: '/hrm/announcements',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmAttendanceRoute =
+  AuthenticatedAdminHrmAttendanceRouteImport.update({
+    id: '/hrm/attendance',
+    path: '/hrm/attendance',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmBranchRoute =
+  AuthenticatedAdminHrmBranchRouteImport.update({
+    id: '/hrm/branch',
+    path: '/hrm/branch',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmBranchesRoute =
+  AuthenticatedAdminHrmBranchesRouteImport.update({
+    id: '/hrm/branches',
+    path: '/hrm/branches',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmCalendarRoute =
+  AuthenticatedAdminHrmCalendarRouteImport.update({
+    id: '/hrm/calendar',
+    path: '/hrm/calendar',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmDesignationRoute =
+  AuthenticatedAdminHrmDesignationRouteImport.update({
+    id: '/hrm/designation',
+    path: '/hrm/designation',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmDesignationsRoute =
+  AuthenticatedAdminHrmDesignationsRouteImport.update({
+    id: '/hrm/designations',
+    path: '/hrm/designations',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmDocumentRoute =
+  AuthenticatedAdminHrmDocumentRouteImport.update({
+    id: '/hrm/document',
+    path: '/hrm/document',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmDocumentsRoute =
+  AuthenticatedAdminHrmDocumentsRouteImport.update({
+    id: '/hrm/documents',
+    path: '/hrm/documents',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminHrmEmployeesRoute =
   AuthenticatedAdminHrmEmployeesRouteImport.update({
     id: '/hrm/employees',
     path: '/hrm/employees',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmHolidayRoute =
+  AuthenticatedAdminHrmHolidayRouteImport.update({
+    id: '/hrm/holiday',
+    path: '/hrm/holiday',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmHolidaysRoute =
+  AuthenticatedAdminHrmHolidaysRouteImport.update({
+    id: '/hrm/holidays',
+    path: '/hrm/holidays',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmHrCalendarRoute =
+  AuthenticatedAdminHrmHrCalendarRouteImport.update({
+    id: '/hrm/hr-calendar',
+    path: '/hrm/hr-calendar',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmLeaveRoute =
+  AuthenticatedAdminHrmLeaveRouteImport.update({
+    id: '/hrm/leave',
+    path: '/hrm/leave',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmLeaveManagementRoute =
+  AuthenticatedAdminHrmLeaveManagementRouteImport.update({
+    id: '/hrm/leave-management',
+    path: '/hrm/leave-management',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmMeetingRoute =
+  AuthenticatedAdminHrmMeetingRouteImport.update({
+    id: '/hrm/meeting',
+    path: '/hrm/meeting',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmMeetingsRoute =
+  AuthenticatedAdminHrmMeetingsRouteImport.update({
+    id: '/hrm/meetings',
+    path: '/hrm/meetings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminHrmPayrollRoute =
+  AuthenticatedAdminHrmPayrollRouteImport.update({
+    id: '/hrm/payroll',
+    path: '/hrm/payroll',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminRoutingIndexRoute =
@@ -350,6 +482,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-hr': typeof AuthenticatedMyHrRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -367,7 +500,25 @@ export interface FileRoutesByFullPath {
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
   '/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
+  '/admin/hrm/announcement': typeof AuthenticatedAdminHrmAnnouncementRoute
+  '/admin/hrm/announcements': typeof AuthenticatedAdminHrmAnnouncementsRoute
+  '/admin/hrm/attendance': typeof AuthenticatedAdminHrmAttendanceRoute
+  '/admin/hrm/branch': typeof AuthenticatedAdminHrmBranchRoute
+  '/admin/hrm/branches': typeof AuthenticatedAdminHrmBranchesRoute
+  '/admin/hrm/calendar': typeof AuthenticatedAdminHrmCalendarRoute
+  '/admin/hrm/designation': typeof AuthenticatedAdminHrmDesignationRoute
+  '/admin/hrm/designations': typeof AuthenticatedAdminHrmDesignationsRoute
+  '/admin/hrm/document': typeof AuthenticatedAdminHrmDocumentRoute
+  '/admin/hrm/documents': typeof AuthenticatedAdminHrmDocumentsRoute
   '/admin/hrm/employees': typeof AuthenticatedAdminHrmEmployeesRoute
+  '/admin/hrm/holiday': typeof AuthenticatedAdminHrmHolidayRoute
+  '/admin/hrm/holidays': typeof AuthenticatedAdminHrmHolidaysRoute
+  '/admin/hrm/hr-calendar': typeof AuthenticatedAdminHrmHrCalendarRoute
+  '/admin/hrm/leave': typeof AuthenticatedAdminHrmLeaveRoute
+  '/admin/hrm/leave-management': typeof AuthenticatedAdminHrmLeaveManagementRoute
+  '/admin/hrm/meeting': typeof AuthenticatedAdminHrmMeetingRoute
+  '/admin/hrm/meetings': typeof AuthenticatedAdminHrmMeetingsRoute
+  '/admin/hrm/payroll': typeof AuthenticatedAdminHrmPayrollRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -399,6 +550,7 @@ export interface FileRoutesByTo {
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-hr': typeof AuthenticatedMyHrRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -416,7 +568,25 @@ export interface FileRoutesByTo {
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
   '/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
+  '/admin/hrm/announcement': typeof AuthenticatedAdminHrmAnnouncementRoute
+  '/admin/hrm/announcements': typeof AuthenticatedAdminHrmAnnouncementsRoute
+  '/admin/hrm/attendance': typeof AuthenticatedAdminHrmAttendanceRoute
+  '/admin/hrm/branch': typeof AuthenticatedAdminHrmBranchRoute
+  '/admin/hrm/branches': typeof AuthenticatedAdminHrmBranchesRoute
+  '/admin/hrm/calendar': typeof AuthenticatedAdminHrmCalendarRoute
+  '/admin/hrm/designation': typeof AuthenticatedAdminHrmDesignationRoute
+  '/admin/hrm/designations': typeof AuthenticatedAdminHrmDesignationsRoute
+  '/admin/hrm/document': typeof AuthenticatedAdminHrmDocumentRoute
+  '/admin/hrm/documents': typeof AuthenticatedAdminHrmDocumentsRoute
   '/admin/hrm/employees': typeof AuthenticatedAdminHrmEmployeesRoute
+  '/admin/hrm/holiday': typeof AuthenticatedAdminHrmHolidayRoute
+  '/admin/hrm/holidays': typeof AuthenticatedAdminHrmHolidaysRoute
+  '/admin/hrm/hr-calendar': typeof AuthenticatedAdminHrmHrCalendarRoute
+  '/admin/hrm/leave': typeof AuthenticatedAdminHrmLeaveRoute
+  '/admin/hrm/leave-management': typeof AuthenticatedAdminHrmLeaveManagementRoute
+  '/admin/hrm/meeting': typeof AuthenticatedAdminHrmMeetingRoute
+  '/admin/hrm/meetings': typeof AuthenticatedAdminHrmMeetingsRoute
+  '/admin/hrm/payroll': typeof AuthenticatedAdminHrmPayrollRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -451,6 +621,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
   '/admin/login': typeof AdminLoginRoute
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -468,7 +639,25 @@ export interface FileRoutesById {
   '/_authenticated/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/_authenticated/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
   '/_authenticated/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
+  '/_authenticated/admin/hrm/announcement': typeof AuthenticatedAdminHrmAnnouncementRoute
+  '/_authenticated/admin/hrm/announcements': typeof AuthenticatedAdminHrmAnnouncementsRoute
+  '/_authenticated/admin/hrm/attendance': typeof AuthenticatedAdminHrmAttendanceRoute
+  '/_authenticated/admin/hrm/branch': typeof AuthenticatedAdminHrmBranchRoute
+  '/_authenticated/admin/hrm/branches': typeof AuthenticatedAdminHrmBranchesRoute
+  '/_authenticated/admin/hrm/calendar': typeof AuthenticatedAdminHrmCalendarRoute
+  '/_authenticated/admin/hrm/designation': typeof AuthenticatedAdminHrmDesignationRoute
+  '/_authenticated/admin/hrm/designations': typeof AuthenticatedAdminHrmDesignationsRoute
+  '/_authenticated/admin/hrm/document': typeof AuthenticatedAdminHrmDocumentRoute
+  '/_authenticated/admin/hrm/documents': typeof AuthenticatedAdminHrmDocumentsRoute
   '/_authenticated/admin/hrm/employees': typeof AuthenticatedAdminHrmEmployeesRoute
+  '/_authenticated/admin/hrm/holiday': typeof AuthenticatedAdminHrmHolidayRoute
+  '/_authenticated/admin/hrm/holidays': typeof AuthenticatedAdminHrmHolidaysRoute
+  '/_authenticated/admin/hrm/hr-calendar': typeof AuthenticatedAdminHrmHrCalendarRoute
+  '/_authenticated/admin/hrm/leave': typeof AuthenticatedAdminHrmLeaveRoute
+  '/_authenticated/admin/hrm/leave-management': typeof AuthenticatedAdminHrmLeaveManagementRoute
+  '/_authenticated/admin/hrm/meeting': typeof AuthenticatedAdminHrmMeetingRoute
+  '/_authenticated/admin/hrm/meetings': typeof AuthenticatedAdminHrmMeetingsRoute
+  '/_authenticated/admin/hrm/payroll': typeof AuthenticatedAdminHrmPayrollRoute
   '/_authenticated/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/_authenticated/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/_authenticated/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -503,6 +692,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/dashboard'
+    | '/my-hr'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
@@ -520,7 +710,25 @@ export interface FileRouteTypes {
     | '/admin/crm/leads'
     | '/admin/crm/reports'
     | '/admin/hrm/analytics'
+    | '/admin/hrm/announcement'
+    | '/admin/hrm/announcements'
+    | '/admin/hrm/attendance'
+    | '/admin/hrm/branch'
+    | '/admin/hrm/branches'
+    | '/admin/hrm/calendar'
+    | '/admin/hrm/designation'
+    | '/admin/hrm/designations'
+    | '/admin/hrm/document'
+    | '/admin/hrm/documents'
     | '/admin/hrm/employees'
+    | '/admin/hrm/holiday'
+    | '/admin/hrm/holidays'
+    | '/admin/hrm/hr-calendar'
+    | '/admin/hrm/leave'
+    | '/admin/hrm/leave-management'
+    | '/admin/hrm/meeting'
+    | '/admin/hrm/meetings'
+    | '/admin/hrm/payroll'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
@@ -552,6 +760,7 @@ export interface FileRouteTypes {
     | '/restricted'
     | '/terms'
     | '/dashboard'
+    | '/my-hr'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
@@ -569,7 +778,25 @@ export interface FileRouteTypes {
     | '/admin/crm/leads'
     | '/admin/crm/reports'
     | '/admin/hrm/analytics'
+    | '/admin/hrm/announcement'
+    | '/admin/hrm/announcements'
+    | '/admin/hrm/attendance'
+    | '/admin/hrm/branch'
+    | '/admin/hrm/branches'
+    | '/admin/hrm/calendar'
+    | '/admin/hrm/designation'
+    | '/admin/hrm/designations'
+    | '/admin/hrm/document'
+    | '/admin/hrm/documents'
     | '/admin/hrm/employees'
+    | '/admin/hrm/holiday'
+    | '/admin/hrm/holidays'
+    | '/admin/hrm/hr-calendar'
+    | '/admin/hrm/leave'
+    | '/admin/hrm/leave-management'
+    | '/admin/hrm/meeting'
+    | '/admin/hrm/meetings'
+    | '/admin/hrm/payroll'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
@@ -603,6 +830,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/my-hr'
     | '/admin/login'
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
@@ -620,7 +848,25 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/crm/leads'
     | '/_authenticated/admin/crm/reports'
     | '/_authenticated/admin/hrm/analytics'
+    | '/_authenticated/admin/hrm/announcement'
+    | '/_authenticated/admin/hrm/announcements'
+    | '/_authenticated/admin/hrm/attendance'
+    | '/_authenticated/admin/hrm/branch'
+    | '/_authenticated/admin/hrm/branches'
+    | '/_authenticated/admin/hrm/calendar'
+    | '/_authenticated/admin/hrm/designation'
+    | '/_authenticated/admin/hrm/designations'
+    | '/_authenticated/admin/hrm/document'
+    | '/_authenticated/admin/hrm/documents'
     | '/_authenticated/admin/hrm/employees'
+    | '/_authenticated/admin/hrm/holiday'
+    | '/_authenticated/admin/hrm/holidays'
+    | '/_authenticated/admin/hrm/hr-calendar'
+    | '/_authenticated/admin/hrm/leave'
+    | '/_authenticated/admin/hrm/leave-management'
+    | '/_authenticated/admin/hrm/meeting'
+    | '/_authenticated/admin/hrm/meetings'
+    | '/_authenticated/admin/hrm/payroll'
     | '/_authenticated/admin/sales/credit-notes'
     | '/_authenticated/admin/sales/customers'
     | '/_authenticated/admin/sales/invoices'
@@ -777,6 +1023,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-hr': {
+      id: '/_authenticated/my-hr'
+      path: '/my-hr'
+      fullPath: '/my-hr'
+      preLoaderRoute: typeof AuthenticatedMyHrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -896,11 +1149,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminHrmAnalyticsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/hrm/announcement': {
+      id: '/_authenticated/admin/hrm/announcement'
+      path: '/hrm/announcement'
+      fullPath: '/admin/hrm/announcement'
+      preLoaderRoute: typeof AuthenticatedAdminHrmAnnouncementRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/announcements': {
+      id: '/_authenticated/admin/hrm/announcements'
+      path: '/hrm/announcements'
+      fullPath: '/admin/hrm/announcements'
+      preLoaderRoute: typeof AuthenticatedAdminHrmAnnouncementsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/attendance': {
+      id: '/_authenticated/admin/hrm/attendance'
+      path: '/hrm/attendance'
+      fullPath: '/admin/hrm/attendance'
+      preLoaderRoute: typeof AuthenticatedAdminHrmAttendanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/branch': {
+      id: '/_authenticated/admin/hrm/branch'
+      path: '/hrm/branch'
+      fullPath: '/admin/hrm/branch'
+      preLoaderRoute: typeof AuthenticatedAdminHrmBranchRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/branches': {
+      id: '/_authenticated/admin/hrm/branches'
+      path: '/hrm/branches'
+      fullPath: '/admin/hrm/branches'
+      preLoaderRoute: typeof AuthenticatedAdminHrmBranchesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/calendar': {
+      id: '/_authenticated/admin/hrm/calendar'
+      path: '/hrm/calendar'
+      fullPath: '/admin/hrm/calendar'
+      preLoaderRoute: typeof AuthenticatedAdminHrmCalendarRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/designation': {
+      id: '/_authenticated/admin/hrm/designation'
+      path: '/hrm/designation'
+      fullPath: '/admin/hrm/designation'
+      preLoaderRoute: typeof AuthenticatedAdminHrmDesignationRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/designations': {
+      id: '/_authenticated/admin/hrm/designations'
+      path: '/hrm/designations'
+      fullPath: '/admin/hrm/designations'
+      preLoaderRoute: typeof AuthenticatedAdminHrmDesignationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/document': {
+      id: '/_authenticated/admin/hrm/document'
+      path: '/hrm/document'
+      fullPath: '/admin/hrm/document'
+      preLoaderRoute: typeof AuthenticatedAdminHrmDocumentRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/documents': {
+      id: '/_authenticated/admin/hrm/documents'
+      path: '/hrm/documents'
+      fullPath: '/admin/hrm/documents'
+      preLoaderRoute: typeof AuthenticatedAdminHrmDocumentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/hrm/employees': {
       id: '/_authenticated/admin/hrm/employees'
       path: '/hrm/employees'
       fullPath: '/admin/hrm/employees'
       preLoaderRoute: typeof AuthenticatedAdminHrmEmployeesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/holiday': {
+      id: '/_authenticated/admin/hrm/holiday'
+      path: '/hrm/holiday'
+      fullPath: '/admin/hrm/holiday'
+      preLoaderRoute: typeof AuthenticatedAdminHrmHolidayRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/holidays': {
+      id: '/_authenticated/admin/hrm/holidays'
+      path: '/hrm/holidays'
+      fullPath: '/admin/hrm/holidays'
+      preLoaderRoute: typeof AuthenticatedAdminHrmHolidaysRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/hr-calendar': {
+      id: '/_authenticated/admin/hrm/hr-calendar'
+      path: '/hrm/hr-calendar'
+      fullPath: '/admin/hrm/hr-calendar'
+      preLoaderRoute: typeof AuthenticatedAdminHrmHrCalendarRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/leave': {
+      id: '/_authenticated/admin/hrm/leave'
+      path: '/hrm/leave'
+      fullPath: '/admin/hrm/leave'
+      preLoaderRoute: typeof AuthenticatedAdminHrmLeaveRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/leave-management': {
+      id: '/_authenticated/admin/hrm/leave-management'
+      path: '/hrm/leave-management'
+      fullPath: '/admin/hrm/leave-management'
+      preLoaderRoute: typeof AuthenticatedAdminHrmLeaveManagementRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/meeting': {
+      id: '/_authenticated/admin/hrm/meeting'
+      path: '/hrm/meeting'
+      fullPath: '/admin/hrm/meeting'
+      preLoaderRoute: typeof AuthenticatedAdminHrmMeetingRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/meetings': {
+      id: '/_authenticated/admin/hrm/meetings'
+      path: '/hrm/meetings'
+      fullPath: '/admin/hrm/meetings'
+      preLoaderRoute: typeof AuthenticatedAdminHrmMeetingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hrm/payroll': {
+      id: '/_authenticated/admin/hrm/payroll'
+      path: '/hrm/payroll'
+      fullPath: '/admin/hrm/payroll'
+      preLoaderRoute: typeof AuthenticatedAdminHrmPayrollRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/routing/': {
@@ -1021,7 +1400,25 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCrmLeadsRoute: typeof AuthenticatedAdminCrmLeadsRoute
   AuthenticatedAdminCrmReportsRoute: typeof AuthenticatedAdminCrmReportsRoute
   AuthenticatedAdminHrmAnalyticsRoute: typeof AuthenticatedAdminHrmAnalyticsRoute
+  AuthenticatedAdminHrmAnnouncementRoute: typeof AuthenticatedAdminHrmAnnouncementRoute
+  AuthenticatedAdminHrmAnnouncementsRoute: typeof AuthenticatedAdminHrmAnnouncementsRoute
+  AuthenticatedAdminHrmAttendanceRoute: typeof AuthenticatedAdminHrmAttendanceRoute
+  AuthenticatedAdminHrmBranchRoute: typeof AuthenticatedAdminHrmBranchRoute
+  AuthenticatedAdminHrmBranchesRoute: typeof AuthenticatedAdminHrmBranchesRoute
+  AuthenticatedAdminHrmCalendarRoute: typeof AuthenticatedAdminHrmCalendarRoute
+  AuthenticatedAdminHrmDesignationRoute: typeof AuthenticatedAdminHrmDesignationRoute
+  AuthenticatedAdminHrmDesignationsRoute: typeof AuthenticatedAdminHrmDesignationsRoute
+  AuthenticatedAdminHrmDocumentRoute: typeof AuthenticatedAdminHrmDocumentRoute
+  AuthenticatedAdminHrmDocumentsRoute: typeof AuthenticatedAdminHrmDocumentsRoute
   AuthenticatedAdminHrmEmployeesRoute: typeof AuthenticatedAdminHrmEmployeesRoute
+  AuthenticatedAdminHrmHolidayRoute: typeof AuthenticatedAdminHrmHolidayRoute
+  AuthenticatedAdminHrmHolidaysRoute: typeof AuthenticatedAdminHrmHolidaysRoute
+  AuthenticatedAdminHrmHrCalendarRoute: typeof AuthenticatedAdminHrmHrCalendarRoute
+  AuthenticatedAdminHrmLeaveRoute: typeof AuthenticatedAdminHrmLeaveRoute
+  AuthenticatedAdminHrmLeaveManagementRoute: typeof AuthenticatedAdminHrmLeaveManagementRoute
+  AuthenticatedAdminHrmMeetingRoute: typeof AuthenticatedAdminHrmMeetingRoute
+  AuthenticatedAdminHrmMeetingsRoute: typeof AuthenticatedAdminHrmMeetingsRoute
+  AuthenticatedAdminHrmPayrollRoute: typeof AuthenticatedAdminHrmPayrollRoute
   AuthenticatedAdminSalesCreditNotesRoute: typeof AuthenticatedAdminSalesCreditNotesRoute
   AuthenticatedAdminSalesCustomersRoute: typeof AuthenticatedAdminSalesCustomersRoute
   AuthenticatedAdminSalesInvoicesRoute: typeof AuthenticatedAdminSalesInvoicesRoute
@@ -1060,7 +1457,30 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCrmLeadsRoute: AuthenticatedAdminCrmLeadsRoute,
     AuthenticatedAdminCrmReportsRoute: AuthenticatedAdminCrmReportsRoute,
     AuthenticatedAdminHrmAnalyticsRoute: AuthenticatedAdminHrmAnalyticsRoute,
+    AuthenticatedAdminHrmAnnouncementRoute:
+      AuthenticatedAdminHrmAnnouncementRoute,
+    AuthenticatedAdminHrmAnnouncementsRoute:
+      AuthenticatedAdminHrmAnnouncementsRoute,
+    AuthenticatedAdminHrmAttendanceRoute: AuthenticatedAdminHrmAttendanceRoute,
+    AuthenticatedAdminHrmBranchRoute: AuthenticatedAdminHrmBranchRoute,
+    AuthenticatedAdminHrmBranchesRoute: AuthenticatedAdminHrmBranchesRoute,
+    AuthenticatedAdminHrmCalendarRoute: AuthenticatedAdminHrmCalendarRoute,
+    AuthenticatedAdminHrmDesignationRoute:
+      AuthenticatedAdminHrmDesignationRoute,
+    AuthenticatedAdminHrmDesignationsRoute:
+      AuthenticatedAdminHrmDesignationsRoute,
+    AuthenticatedAdminHrmDocumentRoute: AuthenticatedAdminHrmDocumentRoute,
+    AuthenticatedAdminHrmDocumentsRoute: AuthenticatedAdminHrmDocumentsRoute,
     AuthenticatedAdminHrmEmployeesRoute: AuthenticatedAdminHrmEmployeesRoute,
+    AuthenticatedAdminHrmHolidayRoute: AuthenticatedAdminHrmHolidayRoute,
+    AuthenticatedAdminHrmHolidaysRoute: AuthenticatedAdminHrmHolidaysRoute,
+    AuthenticatedAdminHrmHrCalendarRoute: AuthenticatedAdminHrmHrCalendarRoute,
+    AuthenticatedAdminHrmLeaveRoute: AuthenticatedAdminHrmLeaveRoute,
+    AuthenticatedAdminHrmLeaveManagementRoute:
+      AuthenticatedAdminHrmLeaveManagementRoute,
+    AuthenticatedAdminHrmMeetingRoute: AuthenticatedAdminHrmMeetingRoute,
+    AuthenticatedAdminHrmMeetingsRoute: AuthenticatedAdminHrmMeetingsRoute,
+    AuthenticatedAdminHrmPayrollRoute: AuthenticatedAdminHrmPayrollRoute,
     AuthenticatedAdminSalesCreditNotesRoute:
       AuthenticatedAdminSalesCreditNotesRoute,
     AuthenticatedAdminSalesCustomersRoute:
@@ -1093,11 +1513,13 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
