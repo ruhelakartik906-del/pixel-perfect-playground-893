@@ -2833,6 +2833,10 @@ export type Database = {
         Args: { _action: string; _company: string; _module: string }
         Returns: boolean
       }
+      hrm_attendance_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
       hrm_audience: {
         Args: {
           _audience: Json
@@ -2842,9 +2846,56 @@ export type Database = {
         }
         Returns: boolean
       }
+      hrm_document_access: { Args: { _document: string }; Returns: undefined }
+      hrm_document_version: {
+        Args: {
+          _document: string
+          _filename: string
+          _mime: string
+          _path: string
+          _size: number
+        }
+        Returns: string
+      }
+      hrm_leave_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      hrm_leave_days: {
+        Args: {
+          _employee: string
+          _end: string
+          _half: boolean
+          _start: string
+        }
+        Returns: number
+      }
+      hrm_meeting_response: {
+        Args: { _meeting: string; _response: string }
+        Returns: undefined
+      }
       hrm_owns_employee: {
         Args: { _company: string; _employee: string }
         Returns: boolean
+      }
+      hrm_payroll_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      hrm_people: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          branch_id: string
+          company_id: string
+          department_id: string
+          designation_id: string
+          email: string
+          id: string
+          is_active: boolean
+          name: string
+          profile_id: string
+        }[]
       }
       is_company_member: {
         Args: { _company: string; _user: string }

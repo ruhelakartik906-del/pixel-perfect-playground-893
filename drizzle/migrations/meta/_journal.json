@@ -127,6 +127,13 @@
       "when": 1792226949497,
       "tag": "0017_hrm_management_scoped_records",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792227006459,
+      "tag": "0018_hrm_atomic_attendance_leave_payroll",
+      "breakpoints": true
     }
   ]
 }
