@@ -90,6 +90,10 @@ export type Database = {
       }
       companies: {
         Row: {
+          address: string
+          city: string
+          contact_person: string
+          country: string
           created_at: string
           email: string
           id: string
@@ -97,9 +101,16 @@ export type Database = {
           is_active: boolean
           location: string
           name: string
+          notes: string
           phone: string
+          state: string
+          website: string
         }
         Insert: {
+          address?: string
+          city?: string
+          contact_person?: string
+          country?: string
           created_at?: string
           email?: string
           id?: string
@@ -107,9 +118,16 @@ export type Database = {
           is_active?: boolean
           location?: string
           name: string
+          notes?: string
           phone?: string
+          state?: string
+          website?: string
         }
         Update: {
+          address?: string
+          city?: string
+          contact_person?: string
+          country?: string
           created_at?: string
           email?: string
           id?: string
@@ -117,7 +135,10 @@ export type Database = {
           is_active?: boolean
           location?: string
           name?: string
+          notes?: string
           phone?: string
+          state?: string
+          website?: string
         }
         Relationships: []
       }
@@ -182,7 +203,9 @@ export type Database = {
       }
       contacts: {
         Row: {
+          city: string
           company_id: string | null
+          country: string
           created_at: string
           created_by: string | null
           email: string
@@ -191,11 +214,15 @@ export type Database = {
           job_title: string
           location: string
           name: string
+          notes: string
           phone: string
+          state: string
           updated_at: string
         }
         Insert: {
+          city?: string
           company_id?: string | null
+          country?: string
           created_at?: string
           created_by?: string | null
           email?: string
@@ -204,11 +231,15 @@ export type Database = {
           job_title?: string
           location?: string
           name: string
+          notes?: string
           phone?: string
+          state?: string
           updated_at?: string
         }
         Update: {
+          city?: string
           company_id?: string | null
+          country?: string
           created_at?: string
           created_by?: string | null
           email?: string
@@ -217,7 +248,9 @@ export type Database = {
           job_title?: string
           location?: string
           name?: string
+          notes?: string
           phone?: string
+          state?: string
           updated_at?: string
         }
         Relationships: [

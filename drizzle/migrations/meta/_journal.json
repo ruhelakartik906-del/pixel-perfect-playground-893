@@ -57,6 +57,13 @@
       "when": 1792219941695,
       "tag": "0007_create_contacts_and_company_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792220532877,
+      "tag": "0008_extend_contacts_companies_details",
+      "breakpoints": true
     }
   ]
 }
