@@ -183,6 +183,13 @@
       "when": 1792230315085,
       "tag": "0025_support_ticket_system",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792230717650,
+      "tag": "0026_support_conversation_sender_context",
+      "breakpoints": true
     }
   ]
 }
