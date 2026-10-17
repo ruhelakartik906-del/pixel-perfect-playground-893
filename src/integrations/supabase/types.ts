@@ -3863,6 +3863,11 @@ export type Database = {
           role: string
         }[]
       }
+      chat_read: { Args: { _group: string; _peer: string }; Returns: undefined }
+      chat_send: {
+        Args: { _body: string; _client: string; _group: string; _peer: string }
+        Returns: string
+      }
       crm_work_action: {
         Args: { _action: string; _payload: Json }
         Returns: string

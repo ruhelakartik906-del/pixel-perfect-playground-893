@@ -253,6 +253,13 @@
       "when": 1792238825684,
       "tag": "0035_shared_phase3_messaging",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792238856111,
+      "tag": "0036_chat_authorized_send_read",
+      "breakpoints": true
     }
   ]
 }
