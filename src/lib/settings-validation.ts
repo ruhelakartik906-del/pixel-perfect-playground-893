@@ -16,7 +16,11 @@ export const businessSettingsSchema = z.object({
 });
 export const credentialChangeSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('email'), current_password: z.string().min(1, 'Enter your current password').max(500), email: z.string().trim().email('Enter a valid email').max(255), redirect_to: z.string().url() }),
-  z.object({ kind: z.literal('password'), current_password: z.string().min(1, 'Enter your current password').max(500), password: z.string().min(8, 'Use at least 8 characters').max(72), confirm_password: z.string() }).refine(v => v.password === v.confirm_password, { message: 'Passwords do not match', path: ['confirm_password'] }).refine(v => v.password !== v.current_password, { message: 'Choose a different password', path: ['password'] }),
-]);
+  z.object({ kind: z.literal('password'), current_password: z.string().min(1, 'Enter your current password').max(500), password: z.string().min(8, 'Use at least 8 characters').max(72), confirm_password: z.string() }),
+]).superRefine((v, ctx) => {
+  if (v.kind !== 'password') return;
+  if (v.password !== v.confirm_password) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Passwords do not match', path: ['confirm_password'] });
+  if (v.password === v.current_password) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Choose a different password', path: ['password'] });
+});
 export function settingsAdminAllowed(role: boolean, status: string) { return role && status === 'active'; }
 export type BusinessSettings = z.infer<typeof businessSettingsSchema>;
