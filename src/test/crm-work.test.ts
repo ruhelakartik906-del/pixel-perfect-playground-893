@@ -1,5 +1,5 @@
 import { describe,it,expect } from "vitest";
-import { workBucket,workSchema,scheduleInput,scheduleUtc } from "@/lib/crm-work";
+import { workBucket,workSchema,scheduleInput,scheduleUtc,workInTab,csvCell } from "@/lib/crm-work";
 const now = new Date("2026-10-17T10:17:00Z");
 describe("CRM work rules",()=>{
  it("completed tasks never count as overdue",()=>expect(workBucket({kind:"task",status:"completed",due_date:"2026-10-15",scheduled_at:null},now)).toBe("completed"));
@@ -13,4 +13,8 @@ describe("CRM work rules",()=>{
  it("rejects task due date before start date",()=>expect(workSchema.safeParse({...task,due_date:"2026-10-16"}).success).toBe(false));
  it("followups require real lead identifiers",()=>expect(workSchema.safeParse({...task,kind:"follow_up",status:"scheduled",start_date:null,due_date:null,scheduled_at:"2026-10-17T10:17:00Z",interaction_type:"call"}).success).toBe(false));
  it("rejects whitespace titles",()=>expect(workSchema.safeParse({...task,title:"  "}).success).toBe(false));
+ it("permits a task deal identifier",()=>expect(workSchema.safeParse({...task,deal_id:"33333333-3333-4333-8333-333333333333"}).success).toBe(true));
+ it("rejects simultaneous lead and deal links",()=>expect(workSchema.safeParse({...task,lead_id:"44444444-4444-4444-8444-444444444444",deal_id:"33333333-3333-4333-8333-333333333333"}).success).toBe(false));
+ it("all includes completed, overdue excludes completed",()=>{const item={kind:"task",status:"completed",due_date:"2026-10-15",scheduled_at:null};expect(workInTab(item,"all",now)).toBe(true);expect(workInTab(item,"overdue",now)).toBe(false);});
+ it("neutralizes exported spreadsheet formulas",()=>expect(csvCell("=SUM(1,2)").startsWith('"' + "'")).toBe(true));
 });

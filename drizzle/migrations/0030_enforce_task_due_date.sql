@@ -1,0 +1,2 @@
+ALTER TABLE public.crm_work_items ADD CONSTRAINT crm_work_task_due_required CHECK (kind <> 'task' OR due_date IS NOT NULL) NOT VALID;
+ALTER TABLE public.crm_work_items VALIDATE CONSTRAINT crm_work_task_due_required;
