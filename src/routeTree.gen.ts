@@ -43,6 +43,7 @@ import { Route as AuthenticatedAdminCrmDealsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminCrmLeadsRouteImport } from './routes/_authenticated/admin/crm/leads'
 import { Route as AuthenticatedAdminCrmReportsRouteImport } from './routes/_authenticated/admin/crm/reports'
 import { Route as AuthenticatedAdminHrmAnalyticsRouteImport } from './routes/_authenticated/admin/hrm/analytics'
+import { Route as AuthenticatedAdminHrmEmployeesRouteImport } from './routes/_authenticated/admin/hrm/employees'
 import { Route as AuthenticatedAdminRoutingIndexRouteImport } from './routes/_authenticated/admin/routing/index'
 import { Route as AuthenticatedAdminSalesCreditNotesRouteImport } from './routes/_authenticated/admin/sales/credit-notes'
 import { Route as AuthenticatedAdminSalesCustomersRouteImport } from './routes/_authenticated/admin/sales/customers'
@@ -241,6 +242,12 @@ const AuthenticatedAdminHrmAnalyticsRoute =
     path: '/hrm/analytics',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminHrmEmployeesRoute =
+  AuthenticatedAdminHrmEmployeesRouteImport.update({
+    id: '/hrm/employees',
+    path: '/hrm/employees',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminRoutingIndexRoute =
   AuthenticatedAdminRoutingIndexRouteImport.update({
     id: '/routing/',
@@ -360,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
   '/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
+  '/admin/hrm/employees': typeof AuthenticatedAdminHrmEmployeesRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -408,6 +416,7 @@ export interface FileRoutesByTo {
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
   '/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
+  '/admin/hrm/employees': typeof AuthenticatedAdminHrmEmployeesRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -459,6 +468,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/_authenticated/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
   '/_authenticated/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
+  '/_authenticated/admin/hrm/employees': typeof AuthenticatedAdminHrmEmployeesRoute
   '/_authenticated/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/_authenticated/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/_authenticated/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -510,6 +520,7 @@ export interface FileRouteTypes {
     | '/admin/crm/leads'
     | '/admin/crm/reports'
     | '/admin/hrm/analytics'
+    | '/admin/hrm/employees'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
@@ -558,6 +569,7 @@ export interface FileRouteTypes {
     | '/admin/crm/leads'
     | '/admin/crm/reports'
     | '/admin/hrm/analytics'
+    | '/admin/hrm/employees'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
@@ -608,6 +620,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/crm/leads'
     | '/_authenticated/admin/crm/reports'
     | '/_authenticated/admin/hrm/analytics'
+    | '/_authenticated/admin/hrm/employees'
     | '/_authenticated/admin/sales/credit-notes'
     | '/_authenticated/admin/sales/customers'
     | '/_authenticated/admin/sales/invoices'
@@ -883,6 +896,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminHrmAnalyticsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/hrm/employees': {
+      id: '/_authenticated/admin/hrm/employees'
+      path: '/hrm/employees'
+      fullPath: '/admin/hrm/employees'
+      preLoaderRoute: typeof AuthenticatedAdminHrmEmployeesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/routing/': {
       id: '/_authenticated/admin/routing/'
       path: '/routing'
@@ -1001,6 +1021,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCrmLeadsRoute: typeof AuthenticatedAdminCrmLeadsRoute
   AuthenticatedAdminCrmReportsRoute: typeof AuthenticatedAdminCrmReportsRoute
   AuthenticatedAdminHrmAnalyticsRoute: typeof AuthenticatedAdminHrmAnalyticsRoute
+  AuthenticatedAdminHrmEmployeesRoute: typeof AuthenticatedAdminHrmEmployeesRoute
   AuthenticatedAdminSalesCreditNotesRoute: typeof AuthenticatedAdminSalesCreditNotesRoute
   AuthenticatedAdminSalesCustomersRoute: typeof AuthenticatedAdminSalesCustomersRoute
   AuthenticatedAdminSalesInvoicesRoute: typeof AuthenticatedAdminSalesInvoicesRoute
@@ -1039,6 +1060,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCrmLeadsRoute: AuthenticatedAdminCrmLeadsRoute,
     AuthenticatedAdminCrmReportsRoute: AuthenticatedAdminCrmReportsRoute,
     AuthenticatedAdminHrmAnalyticsRoute: AuthenticatedAdminHrmAnalyticsRoute,
+    AuthenticatedAdminHrmEmployeesRoute: AuthenticatedAdminHrmEmployeesRoute,
     AuthenticatedAdminSalesCreditNotesRoute:
       AuthenticatedAdminSalesCreditNotesRoute,
     AuthenticatedAdminSalesCustomersRoute:
