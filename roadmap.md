@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] User Panel Phase 2 — private custom work tables, shared Deals, personal/assigned Tasks, Follow-ups and unified Calendar; preserve existing Admin and Phase 1
 - [x] User Panel Phase 1 — user shell, real Dashboard, My Leads list/Kanban, lead drawer, locked status/stage/details/notes actions and original form answers; existing auth/admin preserved, Calendar stays removed
 - [ ] User Panel populated lead drawer/save/refresh and employee/client/cross-company checks — blocked: no company membership or approved employee test account; no unsafe live test data created
 - [x] Admin Account & Security and Business Settings — two Settings links, own active-Super-Admin functions, current-password reauthentication, existing seller settings extended; 16 tests and signed-in pages/profile no-op save/refresh/validation/mobile checks passed; no credentials changed
