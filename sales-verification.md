@@ -14,4 +14,4 @@ All five Sales pages have their interface and Lovable Cloud connection implement
 
 No seller details, successful payments, issued invoices, credits or revenue receipts were fabricated. Profit and margin remain unavailable without sufficiently reliable cost data. Manual linked receipts are recorded as invoice payments, not an additional revenue entry.
 
-The remaining financial workflow is implemented but **not end-to-end verified**. Real seller details and explicitly authorized payment/credit information are required for that check.
+The remaining financial workflow is implemented but **not end-to-end verified**. The user has authorized sample billing details and simulated payments in a confirmed isolated environment; real banking/GST details are not required for these tests. An isolated Sales QA draft is running the full connected workflow and will return a page-wise PASS/FAIL report and confirmed Sales-only fixes. The table above records earlier checks, not the new draft's pending results.
