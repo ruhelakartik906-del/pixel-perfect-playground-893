@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedFollowUpsRouteImport } from './routes/_authenticated/follow-ups'
 import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
+import { Route as AuthenticatedMyLeadsRouteImport } from './routes/_authenticated/my-leads'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -183,6 +184,11 @@ const AuthenticatedFollowUpsRoute = AuthenticatedFollowUpsRouteImport.update({
 const AuthenticatedMyHrRoute = AuthenticatedMyHrRouteImport.update({
   id: '/my-hr',
   path: '/my-hr',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyLeadsRoute = AuthenticatedMyLeadsRouteImport.update({
+  id: '/my-leads',
+  path: '/my-leads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
@@ -572,6 +578,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
+  '/my-leads': typeof AuthenticatedMyLeadsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
@@ -653,6 +660,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
+  '/my-leads': typeof AuthenticatedMyLeadsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
@@ -737,6 +745,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
+  '/_authenticated/my-leads': typeof AuthenticatedMyLeadsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
@@ -821,6 +830,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/follow-ups'
     | '/my-hr'
+    | '/my-leads'
     | '/support'
     | '/tasks'
     | '/admin/login'
@@ -902,6 +912,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/follow-ups'
     | '/my-hr'
+    | '/my-leads'
     | '/support'
     | '/tasks'
     | '/admin/login'
@@ -985,6 +996,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/follow-ups'
     | '/_authenticated/my-hr'
+    | '/_authenticated/my-leads'
     | '/_authenticated/support'
     | '/_authenticated/tasks'
     | '/admin/login'
@@ -1201,6 +1213,13 @@ declare module '@tanstack/react-router' {
       path: '/my-hr'
       fullPath: '/my-hr'
       preLoaderRoute: typeof AuthenticatedMyHrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-leads': {
+      id: '/_authenticated/my-leads'
+      path: '/my-leads'
+      fullPath: '/my-leads'
+      preLoaderRoute: typeof AuthenticatedMyLeadsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/support': {
@@ -1799,6 +1818,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFollowUpsRoute: typeof AuthenticatedFollowUpsRoute
   AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
+  AuthenticatedMyLeadsRoute: typeof AuthenticatedMyLeadsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
 }
@@ -1808,6 +1828,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFollowUpsRoute: AuthenticatedFollowUpsRoute,
   AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
+  AuthenticatedMyLeadsRoute: AuthenticatedMyLeadsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
 }
