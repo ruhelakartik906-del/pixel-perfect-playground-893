@@ -1,6 +1,6 @@
 /** Reusable permission catalog shared by Roles and future module guards. */
 export const PERMISSION_MODULES = [
-  "lead", "deal", "contact", "company", "task", "report", "product", "customer", "invoice",
+  "proposal", "lead", "deal", "contact", "company", "task", "report", "product", "customer", "invoice",
   "credit_note", "revenue", "user", "role", "mail", "chat", "whatsapp", "template",
   "hr_branch", "hr_designation", "hr_holiday", "hr_attendance", "hr_leave", "hr_meeting", "hr_calendar", "hr_announcement", "hr_document", "hr_payroll",
 ] as const;

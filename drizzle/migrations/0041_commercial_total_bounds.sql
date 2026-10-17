@@ -1,0 +1,11 @@
+CREATE OR REPLACE FUNCTION public.commercial_line_totals(_items jsonb,_mode text) RETURNS jsonb LANGUAGE plpgsql IMMUTABLE SET search_path=public AS $$ DECLARE i jsonb;q numeric;p numeric;d numeric;r numeric;b numeric;t numeric;raw numeric;s numeric:=0;ds numeric:=0;ts numeric:=0;lines jsonb:='[]';BEGIN
+IF _mode IS NULL OR _mode NOT IN ('none','cgst_sgst','igst') OR jsonb_typeof(_items) IS DISTINCT FROM 'array' OR jsonb_array_length(_items) NOT BETWEEN 1 AND 100 THEN RAISE EXCEPTION 'Add valid line items and tax treatment';END IF;
+FOR i IN SELECT value FROM jsonb_array_elements(_items) LOOP
+q:=(i->>'quantity')::numeric;p:=(i->>'unit_price')::numeric;d:=(i->>'discount_percent')::numeric;r:=(i->>'tax_rate')::numeric;
+IF q IS NULL OR p IS NULL OR d IS NULL OR r IS NULL OR q::text IN ('NaN','Infinity','-Infinity') OR p::text IN ('NaN','Infinity','-Infinity') OR d::text IN ('NaN','Infinity','-Infinity') OR r::text IN ('NaN','Infinity','-Infinity') OR q<=0 OR q>1000000 OR p<0 OR p>9999999999 OR d NOT BETWEEN 0 AND 100 OR r NOT BETWEEN 0 AND 100 OR length(trim(coalesce(i->>'name','')))=0 THEN RAISE EXCEPTION 'Invalid line item';END IF;
+raw:=round(q*p,2);b:=round(raw*(1-d/100),2);t:=CASE WHEN _mode='none' THEN 0 ELSE round(b*r/100,2) END;s:=s+raw;ds:=ds+raw-b;ts:=ts+t;
+IF greatest(s,ds,ts,s-ds+ts)>=1000000000000 THEN RAISE EXCEPTION 'Total exceeds the ledger limit';END IF;
+lines:=lines||jsonb_build_array(jsonb_build_object('product_id',i->>'product_id','name',i->>'name','quantity',q,'unit_price',p,'discount_percent',d,'tax_rate',r,'subtotal',raw,'discount',raw-b,'tax',t,'total',b+t,'cgst',CASE WHEN _mode='cgst_sgst' THEN round(t/2,2) ELSE 0 END,'sgst',CASE WHEN _mode='cgst_sgst' THEN t-round(t/2,2) ELSE 0 END,'igst',CASE WHEN _mode='igst' THEN t ELSE 0 END));
+END LOOP;IF s-ds+ts<=0 THEN RAISE EXCEPTION 'Total must be positive';END IF;RETURN jsonb_build_object('items',lines,'subtotal',s,'discount',ds,'tax',ts,'total',s-ds+ts);END $$;
+REVOKE ALL ON FUNCTION public.commercial_line_totals(jsonb,text) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.commercial_line_totals(jsonb,text) TO authenticated;

@@ -1,6 +1,6 @@
 import { downloadBlob } from "@/lib/crm-data";
 import { salesMoney } from "@/lib/sales-data";
-type Doc = { title: string; number: string; seller: Record<string, unknown>; customer: Record<string, unknown>; date: string; due?: string | undefined; lines: (string | number)[][]; summary: [string, number][]; notes?: string; terms?: string | undefined };
+type Doc = { title: string; number: string; seller: Record<string, unknown>; customer: Record<string, unknown>; date: string; due?: string | undefined; currency?: string; lines: (string | number)[][]; summary: [string, number][]; notes?: string; terms?: string | undefined };
 export async function salesDocument(document: Doc, print = false) {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
@@ -19,7 +19,7 @@ export async function salesDocument(document: Doc, print = false) {
   y = tableEnd + 12;
   for (const [label, amount] of document.summary) {
     if (y > 275) { pdf.addPage(); y = 20; }
-    pdf.text(label, 115, y); pdf.text(salesMoney(amount).replace("₹", "INR "), 196, y, { align: "right" }); y += 7;
+    pdf.text(label, 115, y); pdf.text((document.currency ? `${document.currency} ${amount.toFixed(2)}` : salesMoney(amount).replace("₹", "INR ")), 196, y, { align: "right" }); y += 7;
   }
   for (const text of [document.terms, document.notes].filter(Boolean)) {
     const wrapped = pdf.splitTextToSize(String(text), 175) as string[];
