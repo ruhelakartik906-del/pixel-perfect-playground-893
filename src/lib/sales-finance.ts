@@ -1,6 +1,16 @@
 import Decimal from "decimal.js";
 export type InvoiceLine = { product_id: string; name: string; quantity: string | number; unit_price: string | number; discount_percent: string | number; tax_rate: string | number; cost_price: number | null };
 export type TaxMode = "none" | "cgst_sgst" | "igst";
+export function allowablePayment(total: number, paid: number, credited: number, amount: number, authorized: boolean) {
+  return authorized && Number.isFinite(amount) && amount > 0 && new Decimal(amount).lte(new Decimal(total).minus(paid).minus(credited));
+}
+export function allowableCredit(total: number, credited: number, tax: number, creditedTax: number, amount: number, taxAdjustment: number) {
+  return Number.isFinite(amount) && Number.isFinite(taxAdjustment) && amount > 0 && taxAdjustment >= 0 && new Decimal(amount).lte(new Decimal(total).minus(credited)) && taxAdjustment <= amount && new Decimal(taxAdjustment).lte(new Decimal(tax).minus(creditedTax));
+}
+export function sumMoney(values: number[]): number { return values.reduce((sum, value) => sum.plus(value), new Decimal(0)).toDecimalPlaces(2).toNumber(); }
+export function revenueReceiptTotal(payments: { amount: number }[], entries: { amount: number; invoice_id: string | null; status: string }[]) {
+  return sumMoney([...payments.map((item) => item.amount), ...entries.filter((item) => item.status === "posted" && !item.invoice_id).map((item) => item.amount)]);
+}
 export function invoiceTotals(items: InvoiceLine[], mode: TaxMode) {
   let subtotal = new Decimal(0), discount = new Decimal(0), tax = new Decimal(0), cgst = new Decimal(0), sgst = new Decimal(0), igst = new Decimal(0);
   for (const item of items) {
