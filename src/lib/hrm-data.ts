@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 const db = supabase as unknown as { from: (t: string) => any };
 export type Named = { id: string; name: string };
 export type Employee = {
+  company_id: string | null;
   id: string; profile_id: string; employee_code: string | null; department_id: string | null; designation_id: string | null; branch_id: string | null;
   joining_date: string | null; access_status: "pending" | "approved" | "rejected"; phone: string; employment_type: string; reporting_manager_id: string | null; is_active: boolean; created_at: string;
   profiles: { full_name: string; email: string; phone: string; avatar_url: string | null; account_status: string } | null;
