@@ -668,6 +668,41 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_access_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          employee_id: string
+          id: string
+          note: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          employee_id: string
+          id?: string
+          note?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          employee_id?: string
+          id?: string
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_access_audit_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_branches: {
         Row: {
           city: string
@@ -753,9 +788,13 @@ export type Database = {
           department_id: string | null
           designation_id: string | null
           employee_code: string | null
+          employment_type: string
           id: string
+          is_active: boolean
           joining_date: string | null
+          phone: string
           profile_id: string
+          reporting_manager_id: string | null
           updated_at: string
         }
         Insert: {
@@ -765,9 +804,13 @@ export type Database = {
           department_id?: string | null
           designation_id?: string | null
           employee_code?: string | null
+          employment_type?: string
           id?: string
+          is_active?: boolean
           joining_date?: string | null
+          phone?: string
           profile_id: string
+          reporting_manager_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -777,9 +820,13 @@ export type Database = {
           department_id?: string | null
           designation_id?: string | null
           employee_code?: string | null
+          employment_type?: string
           id?: string
+          is_active?: boolean
           joining_date?: string | null
+          phone?: string
           profile_id?: string
+          reporting_manager_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -809,6 +856,13 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_employees_reporting_manager_id_fkey"
+            columns: ["reporting_manager_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
             referencedColumns: ["id"]
           },
         ]
@@ -1563,6 +1617,53 @@ export type Database = {
         }
         Relationships: []
       }
+      wa_broadcast_recipients: {
+        Row: {
+          broadcast_id: string
+          created_at: string
+          error: string | null
+          id: string
+          name: string
+          phone: string
+          source: string
+          source_id: string | null
+          status: string
+          wa_message_id: string | null
+        }
+        Insert: {
+          broadcast_id: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          name?: string
+          phone: string
+          source?: string
+          source_id?: string | null
+          status?: string
+          wa_message_id?: string | null
+        }
+        Update: {
+          broadcast_id?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          source?: string
+          source_id?: string | null
+          status?: string
+          wa_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_broadcast_recipients_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "wa_broadcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wa_broadcasts: {
         Row: {
           audience: Json
@@ -1732,32 +1833,57 @@ export type Database = {
       whatsapp_messages: {
         Row: {
           body: string
+          broadcast_id: string | null
           conversation_id: string
           created_at: string
+          delivered_at: string | null
           direction: string
+          failure_reason: string | null
           id: string
+          read_at: string | null
+          sent_at: string | null
           status: string
+          template_name: string | null
           wa_message_id: string | null
         }
         Insert: {
           body?: string
+          broadcast_id?: string | null
           conversation_id: string
           created_at?: string
+          delivered_at?: string | null
           direction: string
+          failure_reason?: string | null
           id?: string
+          read_at?: string | null
+          sent_at?: string | null
           status?: string
+          template_name?: string | null
           wa_message_id?: string | null
         }
         Update: {
           body?: string
+          broadcast_id?: string | null
           conversation_id?: string
           created_at?: string
+          delivered_at?: string | null
           direction?: string
+          failure_reason?: string | null
           id?: string
+          read_at?: string | null
+          sent_at?: string | null
           status?: string
+          template_name?: string | null
           wa_message_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "wa_broadcasts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "whatsapp_messages_conversation_id_fkey"
             columns: ["conversation_id"]
@@ -1825,6 +1951,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      hr_set_access: {
+        Args: { _decision: string; _employee: string; _note?: string }
+        Returns: undefined
       }
       is_company_member: {
         Args: { _company: string; _user: string }

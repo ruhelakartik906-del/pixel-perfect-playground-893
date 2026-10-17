@@ -20,3 +20,5 @@
 - Permission roles (`access_roles` + `user_access_roles`) are separate from the system `user_roles` enum; the permission catalog lives in `src/lib/permissions.ts` — why: custom roles must never grant system privileges.
 - User invites and mailbox credentials go through `src/lib/admin-users.functions.ts`; mailbox passwords live in a table with no client grants — why: credentials must never reach the browser.
 - Mail/WhatsApp pages store data locally only; nothing reaches Sent/Inbox or WhatsApp without a delivery integration — why: no faked sending.
+- WhatsApp workflows/broadcasts are stored only; delivery counts and processing/completed states are writable only by the server (DB trigger), and integration status `connected` can't be set from the browser (RLS) — why: no simulated sending or fake connection badges.
+- HRM employee records (`hr_employees`) link to existing profiles; access approve/reject goes through the `hr_set_access` RPC with audit rows — why: one auth system, atomic access changes.

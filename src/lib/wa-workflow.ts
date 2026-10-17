@@ -26,7 +26,7 @@ export type WfNode = {
   /** Next node id; for conditions this is the "yes" branch. */
   next: string | null;
   /** Condition "no" branch. */
-  no?: string | null;
+  no?: string | null | undefined;
 };
 
 export const triggerLabel = (id: string) => WF_TRIGGERS.find((t) => t.id === id)?.label ?? id;
