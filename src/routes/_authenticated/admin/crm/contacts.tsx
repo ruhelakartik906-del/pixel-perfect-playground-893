@@ -111,7 +111,6 @@ function ContactsPage() {
           : filtered.length === 0 ? <EmptyState title="No data" hint="Create a contact to start building your customer directory." />
           : <>
             <DataTable columns={["No.", "", "Date", "Contact Details", "Company Details", "Location", "Actions"]} minWidth={1000}>
-              <tr className="sr-only"><td /></tr>
               {rows.map((c, i) => {
                 const co = company(c.company_id);
                 return (
