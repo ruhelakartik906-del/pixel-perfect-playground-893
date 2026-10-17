@@ -3120,6 +3120,10 @@ export type Database = {
         }
         Returns: number
       }
+      hrm_leave_request_with_status: {
+        Args: { _payload: Json }
+        Returns: string
+      }
       hrm_meeting_response: {
         Args: { _meeting: string; _response: string }
         Returns: undefined

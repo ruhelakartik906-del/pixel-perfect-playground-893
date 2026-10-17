@@ -169,6 +169,13 @@
       "when": 1792229544293,
       "tag": "0023_complete_pending_hrm_actions",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792229655959,
+      "tag": "0024_hrm_request_initial_decision",
+      "breakpoints": true
     }
   ]
 }
