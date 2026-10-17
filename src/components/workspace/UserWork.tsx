@@ -19,7 +19,7 @@ import { canDeleteWork } from '@/lib/user-phase2';
 export type UserWorkItem=Phase2Data['work'][number];
 const display=(s:string)=>s.replaceAll('_',' ');
 const opts=(values:string[])=>values.map(value=>({value,label:display(value)}));
-export function UserWorkEditor({kind,item,date,onClose}:{kind:'task'|'follow_up';item?:UserWorkItem;date?:string;onClose:()=>void}){
+export function UserWorkEditor({kind,item,date,onClose}:{kind:'task'|'follow_up';item?:UserWorkItem|undefined;date?:string|undefined;onClose:()=>void}){
  const {data}=useSuspenseQuery(phase2Query),qc=useQueryClient(),save=useServerFn(saveUserWork);
  const [form,setForm]=useState(()=>({origin:item?.origin??(kind==='task'?'personal':'company'),company_id:item?.company_id??'',assigned_to:data.userId,lead_id:item?.lead_id??'',deal_id:item?.deal_id??'',title:item?.title??'',notes:item?.notes??'',priority:item?.priority??'medium',status:item?.status??(kind==='task'?'not_started':'scheduled'),start_date:item?.start_date??date??localDay(),due_date:item?.due_date??date??localDay(),scheduled:item?.scheduled_at?scheduleInput(item.scheduled_at):`${date??localDay()}T10:00`,interaction:item?.interaction_type??'call',checklist:(Array.isArray(item?.checklist)?item.checklist:[]) as {text:string;done:boolean}[]}));
  const [error,setError]=useState(''),[busy,setBusy]=useState(false),[check,setCheck]=useState('');

@@ -34,7 +34,7 @@ export function MyWorkTable(){
  const filtered=rows.filter(r=>!filter||String((r.values as Record<string,unknown>)[filter]??'').toLowerCase().includes(filterValue.toLowerCase()));
  const statusCol=cols.find(c=>c.id===(group||String(prefs?.['group']??''))&&c.type==='status')??cols.find(c=>c.type==='status');
  const refresh=async()=>{await Promise.all([qc.invalidateQueries({queryKey:phase2Query.queryKey}),qc.invalidateQueries({queryKey:['user-table-rows']})]);};
- const run=async(payload:Parameters<typeof act>[0]['data'])=>{setBusy(true);try{const id=await act({data:payload});await refresh();return id;}catch(e){toast.error(e instanceof Error?e.message:'Could not save');return null;}finally{setBusy(false);}};
+ const run=async(payload:NonNullable<Parameters<typeof act>[0]>['data'])=>{setBusy(true);try{const id=await act({data:payload});await refresh();return id;}catch(e){toast.error(e instanceof Error?e.message:'Could not save');return null;}finally{setBusy(false);}};
  const rowSave=async(row:Row,values:Record<string,unknown>)=>{const err=validateValues(cols,values);if(err){toast.error(err);return;}await run({action:'save_row',table_id:tableId,id:row.id,version:row.version,values,lead_id:row.lead_id,deal_id:row.deal_id,task_id:row.task_id});};
  const configure=async(p:Record<string,unknown>)=>{if(table)await run({action:'configure',table_id:table.id,version:table.version,preferences:{...prefs,...p}});};
  const references=(r:Row)=>[data.leads.find(l=>l.id===r.lead_id)?.customer_name,data.deals.find(d=>d.id===r.deal_id)?.title,data.work.find(w=>w.id===r.task_id)?.title].filter(Boolean).join(' · ');
