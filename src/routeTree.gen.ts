@@ -40,6 +40,7 @@ import { Route as AuthenticatedAdminCrmDealsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminCrmLeadsRouteImport } from './routes/_authenticated/admin/crm/leads'
 import { Route as AuthenticatedAdminCrmReportsRouteImport } from './routes/_authenticated/admin/crm/reports'
 import { Route as AuthenticatedAdminRoutingIndexRouteImport } from './routes/_authenticated/admin/routing/index'
+import { Route as AuthenticatedAdminSalesCustomersRouteImport } from './routes/_authenticated/admin/sales/customers'
 import { Route as AuthenticatedAdminSalesProductsRouteImport } from './routes/_authenticated/admin/sales/products'
 import { Route as AuthenticatedAdminSalesProductsServicesRouteImport } from './routes/_authenticated/admin/sales/products-services'
 
@@ -208,6 +209,12 @@ const AuthenticatedAdminRoutingIndexRoute =
     path: '/routing/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSalesCustomersRoute =
+  AuthenticatedAdminSalesCustomersRouteImport.update({
+    id: '/sales/customers',
+    path: '/sales/customers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSalesProductsRoute =
   AuthenticatedAdminSalesProductsRouteImport.update({
     id: '/sales/products',
@@ -251,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
+  '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
@@ -284,6 +292,7 @@ export interface FileRoutesByTo {
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
+  '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
@@ -320,6 +329,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
   '/_authenticated/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/_authenticated/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
+  '/_authenticated/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/_authenticated/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/_authenticated/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/admin/crm/deals'
     | '/admin/crm/leads'
     | '/admin/crm/reports'
+    | '/admin/sales/customers'
     | '/admin/sales/products'
     | '/admin/sales/products-services'
     | '/admin/routing/'
@@ -389,6 +400,7 @@ export interface FileRouteTypes {
     | '/admin/crm/deals'
     | '/admin/crm/leads'
     | '/admin/crm/reports'
+    | '/admin/sales/customers'
     | '/admin/sales/products'
     | '/admin/sales/products-services'
     | '/admin/routing'
@@ -424,6 +436,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/crm/deals'
     | '/_authenticated/admin/crm/leads'
     | '/_authenticated/admin/crm/reports'
+    | '/_authenticated/admin/sales/customers'
     | '/_authenticated/admin/sales/products'
     | '/_authenticated/admin/sales/products-services'
     | '/_authenticated/admin/routing/'
@@ -667,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRoutingIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/sales/customers': {
+      id: '/_authenticated/admin/sales/customers'
+      path: '/sales/customers'
+      fullPath: '/admin/sales/customers'
+      preLoaderRoute: typeof AuthenticatedAdminSalesCustomersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/sales/products': {
       id: '/_authenticated/admin/sales/products'
       path: '/sales/products'
@@ -697,6 +717,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCrmDealsRoute: typeof AuthenticatedAdminCrmDealsRoute
   AuthenticatedAdminCrmLeadsRoute: typeof AuthenticatedAdminCrmLeadsRoute
   AuthenticatedAdminCrmReportsRoute: typeof AuthenticatedAdminCrmReportsRoute
+  AuthenticatedAdminSalesCustomersRoute: typeof AuthenticatedAdminSalesCustomersRoute
   AuthenticatedAdminSalesProductsRoute: typeof AuthenticatedAdminSalesProductsRoute
   AuthenticatedAdminSalesProductsServicesRoute: typeof AuthenticatedAdminSalesProductsServicesRoute
   AuthenticatedAdminRoutingIndexRoute: typeof AuthenticatedAdminRoutingIndexRoute
@@ -718,6 +739,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCrmDealsRoute: AuthenticatedAdminCrmDealsRoute,
     AuthenticatedAdminCrmLeadsRoute: AuthenticatedAdminCrmLeadsRoute,
     AuthenticatedAdminCrmReportsRoute: AuthenticatedAdminCrmReportsRoute,
+    AuthenticatedAdminSalesCustomersRoute:
+      AuthenticatedAdminSalesCustomersRoute,
     AuthenticatedAdminSalesProductsRoute: AuthenticatedAdminSalesProductsRoute,
     AuthenticatedAdminSalesProductsServicesRoute:
       AuthenticatedAdminSalesProductsServicesRoute,
