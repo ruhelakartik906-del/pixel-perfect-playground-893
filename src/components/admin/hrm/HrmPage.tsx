@@ -1147,7 +1147,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           </Button>
         </DialogContent>
       </Dialog>
-      <BulkAttendance people={people} open={bulkOpen} onClose={() => setBulkOpen(false)} onSave={async payload => { await bulkSave({ data: payload as Parameters<typeof bulkSave>[0]['data'] }); refresh(); toast.success("Attendance saved"); }} />
+      <BulkAttendance people={people} open={bulkOpen} onClose={() => setBulkOpen(false)} onSave={async payload => { await bulkSave({ data: payload }); refresh(); toast.success("Attendance saved"); }} />
       <Dialog open={!!balance} onOpenChange={(o) => !o && setBalance(null)}>
         <DialogContent>
           <DialogHeader>
