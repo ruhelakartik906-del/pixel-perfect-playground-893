@@ -15,7 +15,7 @@ const g = (label: string, icon: LucideIcon, base: string, items: string[], badge
 export const adminNav: NavGroup[] = [
   { label: "Dashboard", icon: LayoutDashboard, items: [{ label: "Dashboard Overview", path: "dashboard" }] },
   g("Ad Lead Routing", RouteIcon, "routing", ["Ad Routing Setup", "Lead Assignment History", "Unassigned Leads"], "NEW"),
-  g("CRM", Users, "crm", ["Leads", "Deals", "Contacts", "Companies", "Proposals", "Tasks", "Follow-ups", "Calendar", "Automation", "Reports", "Analytics", "Custom Forms", "CRM System Setup"]),
+  g("CRM", Users, "crm", ["Leads", "Deals", "Contacts", "Companies", "Tasks", "Follow-ups", "Calendar", "Automation", "Reports", "Analytics", "Custom Forms", "CRM System Setup"]),
   { ...g("Sales", ShoppingCart, "sales", ["Products & Services", "Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]), items: [
     { label: "Products & Services", path: "sales/products" },
     ...g("Sales", ShoppingCart, "sales", ["Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]).items,
