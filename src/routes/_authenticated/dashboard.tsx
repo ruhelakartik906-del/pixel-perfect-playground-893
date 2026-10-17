@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { BarChart3, CalendarCheck, CheckCircle2, ClipboardList, Loader2, LogOut, Megaphone, PhoneCall, ShieldCheck, Users } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { UserWorkspace } from "@/components/workspace/UserWorkspace";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,15 +24,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
-const nav = [
-  { label: "Dashboard", icon: BarChart3 },
-  { label: "Leads", icon: Megaphone },
-  { label: "Customers", icon: Users },
-  { label: "Follow-ups", icon: PhoneCall },
-  { label: "Attendance", icon: CalendarCheck },
-  { label: "Reports", icon: ClipboardList },
-];
-
 const stats = [
   ["New leads", "24", "8 need assignment"],
   ["Follow-ups due", "17", "Today"],
@@ -42,7 +33,6 @@ const stats = [
 
 function Dashboard() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,31 +59,10 @@ function Dashboard() {
     return () => { active = false; };
   }, [navigate]);
 
-  const signOut = async () => {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/login", replace: true });
-  };
-
   if (loading) return <section className="grid min-h-screen place-items-center bg-surface"><Loader2 className="size-8 animate-spin text-primary" /></section>;
 
   return (
-    <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[280px_1fr]">
-      <aside className="bg-sidebar px-5 py-6 text-sidebar-foreground lg:min-h-screen">
-        <Link to="/" className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground"><ShieldCheck className="size-5" /></span>
-          <span className="text-xl font-bold">Routiva CRM</span>
-        </Link>
-        <nav className="mt-8 grid gap-1">
-          <Link to="/my-hr" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-sidebar-foreground"><CalendarCheck className="size-4" />My HR · Attendance & Leave</Link>
-          {nav.map(({ label, icon: Icon }, index) => (
-            <span key={label} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${index === 0 ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/75"}`}><Icon className="size-4" />{label}</span>
-          ))}
-        </nav>
-        <Button variant="ghost" className="mt-8 w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" onClick={signOut}><LogOut /> Logout</Button>
-      </aside>
-      <main className="px-5 py-6 lg:px-8">
+    <UserWorkspace>
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <p className="eyebrow text-primary">CRM dashboard</p>
@@ -121,7 +90,6 @@ function Dashboard() {
             </div>
           </section>
         </div>
-      </main>
-    </div>
+    </UserWorkspace>
   );
 }
