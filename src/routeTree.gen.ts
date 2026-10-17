@@ -27,11 +27,13 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
+import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
 import { Route as AuthenticatedAdminIntegrationsRouteImport } from './routes/_authenticated/admin/integrations'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin/support'
 import { Route as AuthenticatedAdminCommunicationChatRouteImport } from './routes/_authenticated/admin/communication/chat'
 import { Route as AuthenticatedAdminCommunicationMailRouteImport } from './routes/_authenticated/admin/communication/mail'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
@@ -172,6 +174,11 @@ const AuthenticatedMyHrRoute = AuthenticatedMyHrRouteImport.update({
   path: '/my-hr',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -197,6 +204,12 @@ const AuthenticatedAdminIntegrationsRoute =
   AuthenticatedAdminIntegrationsRouteImport.update({
     id: '/integrations',
     path: '/integrations',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminCommunicationChatRoute =
@@ -518,10 +531,12 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
+  '/support': typeof AuthenticatedSupportRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -591,10 +606,12 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
+  '/support': typeof AuthenticatedSupportRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -667,10 +684,12 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
+  '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/admin/login': typeof AdminLoginRoute
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/_authenticated/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -743,10 +762,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/my-hr'
+    | '/support'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin/integrations'
+    | '/admin/support'
     | '/admin/'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -816,10 +837,12 @@ export interface FileRouteTypes {
     | '/terms'
     | '/dashboard'
     | '/my-hr'
+    | '/support'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin/integrations'
+    | '/admin/support'
     | '/admin'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -891,10 +914,12 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/my-hr'
+    | '/_authenticated/support'
     | '/admin/login'
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/integrations'
+    | '/_authenticated/admin/support'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/communication/chat'
     | '/_authenticated/admin/communication/mail'
@@ -1095,6 +1120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyHrRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/support': {
+      id: '/_authenticated/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AuthenticatedSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -1128,6 +1160,13 @@ declare module '@tanstack/react-router' {
       path: '/integrations'
       fullPath: '/admin/integrations'
       preLoaderRoute: typeof AuthenticatedAdminIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/communication/chat': {
@@ -1487,6 +1526,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSplatRoute: typeof AuthenticatedAdminSplatRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminIntegrationsRoute: typeof AuthenticatedAdminIntegrationsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCommunicationChatRoute: typeof AuthenticatedAdminCommunicationChatRoute
   AuthenticatedAdminCommunicationMailRoute: typeof AuthenticatedAdminCommunicationMailRoute
@@ -1545,6 +1585,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSplatRoute: AuthenticatedAdminSplatRoute,
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
     AuthenticatedAdminIntegrationsRoute: AuthenticatedAdminIntegrationsRoute,
+    AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminCommunicationChatRoute:
       AuthenticatedAdminCommunicationChatRoute,
@@ -1629,12 +1670,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
+  AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
+  AuthenticatedSupportRoute: AuthenticatedSupportRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -26,3 +26,4 @@
 - Bulk attendance uses one atomic RPC; leave-derived attendance carries a source request ID cleared by manual correction — why: failed bulk saves roll back and reversing leave never removes unrelated manual records.
 - Calendar derives meetings, holidays and approved leave from their original records; private HR files use authorized server uploads/downloads and append-only versions — why: avoid duplicate events and public confidential files.
 - Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
+- Support uses owner-scoped reads and locked authenticated database RPCs, with private-note RLS and server-authorized private files; user dashboard and support share a workspace shell — why: ownership, conversation events and unread counts must remain secure and consistent without duplicating layouts.
