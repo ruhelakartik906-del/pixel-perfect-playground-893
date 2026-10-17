@@ -77,6 +77,8 @@ import { Route as AuthenticatedAdminSalesInvoicesRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminSalesProductsRouteImport } from './routes/_authenticated/admin/sales/products'
 import { Route as AuthenticatedAdminSalesProductsServicesRouteImport } from './routes/_authenticated/admin/sales/products-services'
 import { Route as AuthenticatedAdminSalesRevenueRouteImport } from './routes/_authenticated/admin/sales/revenue'
+import { Route as AuthenticatedAdminSettingsAdminAccountSecurityRouteImport } from './routes/_authenticated/admin/settings/admin-account-security'
+import { Route as AuthenticatedAdminSettingsBusinessSettingsRouteImport } from './routes/_authenticated/admin/settings/business-settings'
 import { Route as AuthenticatedAdminUsersRoleRouteImport } from './routes/_authenticated/admin/users/role'
 import { Route as AuthenticatedAdminUsersUsersRouteImport } from './routes/_authenticated/admin/users/users'
 import { Route as AuthenticatedAdminWhatsappBroadcastRouteImport } from './routes/_authenticated/admin/whatsapp/broadcast'
@@ -470,6 +472,18 @@ const AuthenticatedAdminSalesRevenueRoute =
     path: '/sales/revenue',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSettingsAdminAccountSecurityRoute =
+  AuthenticatedAdminSettingsAdminAccountSecurityRouteImport.update({
+    id: '/settings/admin-account-security',
+    path: '/settings/admin-account-security',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSettingsBusinessSettingsRoute =
+  AuthenticatedAdminSettingsBusinessSettingsRouteImport.update({
+    id: '/settings/business-settings',
+    path: '/settings/business-settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoleRoute =
   AuthenticatedAdminUsersRoleRouteImport.update({
     id: '/users/role',
@@ -580,6 +594,8 @@ export interface FileRoutesByFullPath {
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
+  '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
+  '/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -655,6 +671,8 @@ export interface FileRoutesByTo {
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
+  '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
+  '/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -733,6 +751,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/_authenticated/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/_authenticated/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
+  '/_authenticated/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
+  '/_authenticated/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
   '/_authenticated/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/_authenticated/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/_authenticated/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -811,6 +831,8 @@ export interface FileRouteTypes {
     | '/admin/sales/products'
     | '/admin/sales/products-services'
     | '/admin/sales/revenue'
+    | '/admin/settings/admin-account-security'
+    | '/admin/settings/business-settings'
     | '/admin/users/role'
     | '/admin/users/users'
     | '/admin/whatsapp/broadcast'
@@ -886,6 +908,8 @@ export interface FileRouteTypes {
     | '/admin/sales/products'
     | '/admin/sales/products-services'
     | '/admin/sales/revenue'
+    | '/admin/settings/admin-account-security'
+    | '/admin/settings/business-settings'
     | '/admin/users/role'
     | '/admin/users/users'
     | '/admin/whatsapp/broadcast'
@@ -963,6 +987,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sales/products'
     | '/_authenticated/admin/sales/products-services'
     | '/_authenticated/admin/sales/revenue'
+    | '/_authenticated/admin/settings/admin-account-security'
+    | '/_authenticated/admin/settings/business-settings'
     | '/_authenticated/admin/users/role'
     | '/_authenticated/admin/users/users'
     | '/_authenticated/admin/whatsapp/broadcast'
@@ -1470,6 +1496,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSalesRevenueRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/settings/admin-account-security': {
+      id: '/_authenticated/admin/settings/admin-account-security'
+      path: '/settings/admin-account-security'
+      fullPath: '/admin/settings/admin-account-security'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsAdminAccountSecurityRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/settings/business-settings': {
+      id: '/_authenticated/admin/settings/business-settings'
+      path: '/settings/business-settings'
+      fullPath: '/admin/settings/business-settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsBusinessSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/users/role': {
       id: '/_authenticated/admin/users/role'
       path: '/users/role'
@@ -1570,6 +1610,8 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSalesProductsRoute: typeof AuthenticatedAdminSalesProductsRoute
   AuthenticatedAdminSalesProductsServicesRoute: typeof AuthenticatedAdminSalesProductsServicesRoute
   AuthenticatedAdminSalesRevenueRoute: typeof AuthenticatedAdminSalesRevenueRoute
+  AuthenticatedAdminSettingsAdminAccountSecurityRoute: typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
+  AuthenticatedAdminSettingsBusinessSettingsRoute: typeof AuthenticatedAdminSettingsBusinessSettingsRoute
   AuthenticatedAdminUsersRoleRoute: typeof AuthenticatedAdminUsersRoleRoute
   AuthenticatedAdminUsersUsersRoute: typeof AuthenticatedAdminUsersUsersRoute
   AuthenticatedAdminWhatsappBroadcastRoute: typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -1646,6 +1688,10 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSalesProductsServicesRoute:
       AuthenticatedAdminSalesProductsServicesRoute,
     AuthenticatedAdminSalesRevenueRoute: AuthenticatedAdminSalesRevenueRoute,
+    AuthenticatedAdminSettingsAdminAccountSecurityRoute:
+      AuthenticatedAdminSettingsAdminAccountSecurityRoute,
+    AuthenticatedAdminSettingsBusinessSettingsRoute:
+      AuthenticatedAdminSettingsBusinessSettingsRoute,
     AuthenticatedAdminUsersRoleRoute: AuthenticatedAdminUsersRoleRoute,
     AuthenticatedAdminUsersUsersRoute: AuthenticatedAdminUsersUsersRoute,
     AuthenticatedAdminWhatsappBroadcastRoute:
