@@ -51,8 +51,8 @@ export function AdRoutingSetup() {
   async function submit(nextStatus: RuleForm["status"]) {
     if (!form) return;
     const invalid = validateAllocations(form.steps);
-    if (invalid) return toast.error(invalid);
-    if (!form.company_id || !form.name.trim() || !form.account_id.trim()) return toast.error("Company, rule name and real ad account ID are required");
+    if (invalid) { toast.error(invalid); return; }
+    if (!form.company_id || !form.name.trim() || !form.account_id.trim()) { toast.error("Company, rule name and real ad account ID are required"); return; }
     setBusy(true);
     try { await save({ data: { ...form, status: nextStatus } }); await refresh(); setForm(null); toast.success(nextStatus === "active" ? "Rule activated" : "Rule saved"); }
     catch (e) { toast.error(e instanceof Error ? e.message : "Save failed"); }

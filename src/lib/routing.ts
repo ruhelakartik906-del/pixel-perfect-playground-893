@@ -11,7 +11,7 @@ export function assigneeFor(steps: RoutingStep[], n: number) {
   return "";
 }
 
-export type Allocation = { id?: string; user_id: string; quota: number | null; assigned_count?: number };
+export type Allocation = { id?: string | undefined; user_id: string; quota: number | null; assigned_count?: number };
 export function validateAllocations(steps: Allocation[]) {
   if (!steps.length) return "Add at least one user";
   for (let i = 0; i < steps.length; i++) {

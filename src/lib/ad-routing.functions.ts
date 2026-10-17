@@ -59,7 +59,7 @@ export const assignRoutingLeads = createServerFn({ method: "POST" }).middleware(
   if (admin.error || !admin.data) throw new Error("Super Admin authorization required");
   const results = [];
   for (const id of [...new Set(data.lead_ids)]) {
-    const result = await context.supabase.rpc("route_lead", { _lead: id, _manual_user: data.user_id ?? undefined });
+    const result = await context.supabase.rpc("route_lead", data.user_id ? { _lead: id, _manual_user: data.user_id } : { _lead: id });
     results.push({ id, result: result.data, error: result.error?.message ?? null });
   }
   return results;
