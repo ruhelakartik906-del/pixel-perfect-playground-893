@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Public marketing sections live in `src/components/site/`; header/footer are mounted in `__root.tsx` — why: shared across all public routes (CRM workspace will need its own layout without them).
+- Public sections live in `src/components/site/`; root mounts header/footer outside workspaces — why: shared public chrome.
 - Routing allocation validation lives in `src/lib/routing.ts`; persisted assignments and rule changes use locked database RPCs through `ad-routing.functions.ts` — why: concurrency, idempotency, quota counters and audit history must remain atomic and server-authorized.
 - Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
 - Master Admin panel lives under `src/routes/_authenticated/admin/` with nav config in `src/components/admin/nav.ts` and shared UI in `src/components/admin/ui.tsx`; the layout guard requires the `super_admin` role via `has_role` — why: admin access must be role-verified, not hidden links; unbuilt modules fall through to the `$` splat page so no link breaks.
@@ -26,6 +26,7 @@
 - Bulk attendance uses one atomic RPC; leave-derived attendance carries a source request ID cleared by manual correction — why: failed bulk saves roll back and reversing leave never removes unrelated manual records.
 - Calendar derives meetings, holidays and approved leave from their original records; private HR files use authorized server uploads/downloads and append-only versions — why: avoid duplicate events and public confidential files.
 - Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
-- Support uses owner-scoped reads and locked authenticated database RPCs, with private-note RLS and server-authorized private files; user dashboard and support share a workspace shell — why: ownership, conversation events and unread counts must remain secure and consistent without duplicating layouts.
+- Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
 - CRM work uses one shared UI for admin/employee routes and company-scoped records/history; locked version-checked RPCs authorize active admins or eligible assignees — why: atomic audit, consistent behavior and safe ownership.
+- User CRM shares a workspace shell, authenticated assigned-record queries and locked lead RPCs — why: preserve assignment, original form answers and audited edits without duplicating admin pages.
