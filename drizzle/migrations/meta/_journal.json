@@ -134,6 +134,13 @@
       "when": 1792227006459,
       "tag": "0018_hrm_atomic_attendance_leave_payroll",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792227797640,
+      "tag": "0019_hrm_scope_and_audience_guards",
+      "breakpoints": true
     }
   ]
 }
