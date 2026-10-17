@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] User Panel Phase 4 — Proposals, shared Invoices, My Reports, existing My Support, Settings & Profile and secure Logout; preserve earlier phases/Admin and financial restrictions
 - [x] User Panel Phase 3 — three connected pages/nav, shared Team Chat direct/group/files, truthful WhatsApp setup/history and shared local template drafts; 34 tests passed, user/Admin pages and mobile navigation checked, draft create/edit/refresh/Admin sharing/delete verified; temporary draft removed
 - [ ] Phase 3 multi-account chat/realtime, membership/file denial and employee template authorization checks — blocked: sole Super Admin, zero companies/memberships; official WhatsApp transport and approval sync require Meta setup; no customer messages sent
 - [x] User Panel Phase 2 — private custom tables/columns/rows/statuses, shared Deals, personal/assigned Tasks, Follow-ups and source-derived Calendar; existing Admin/Phase 1 preserved; 39 focused tests and signed-in five-page/mobile checks passed; private table/row/Kanban and personal task/Calendar completion readback verified with removable QA data
