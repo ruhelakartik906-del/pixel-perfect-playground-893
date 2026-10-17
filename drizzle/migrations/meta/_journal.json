@@ -50,6 +50,13 @@
       "when": 1792170623646,
       "tag": "0006_deals_close_date_custom_forms",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792219941695,
+      "tag": "0007_create_contacts_and_company_fields",
+      "breakpoints": true
     }
   ]
 }
