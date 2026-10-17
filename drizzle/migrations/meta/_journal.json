@@ -197,6 +197,13 @@
       "when": 1792231552704,
       "tag": "0027_admin_business_settings_defaults",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1792232308130,
+      "tag": "0028_crm_tasks_followups",
+      "breakpoints": true
     }
   ]
 }

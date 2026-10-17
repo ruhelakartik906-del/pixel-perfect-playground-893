@@ -643,6 +643,143 @@ export type Database = {
           },
         ]
       }
+      crm_work_history: {
+        Row: {
+          action: string
+          actor_id: string
+          after_record: Json | null
+          before_record: Json | null
+          created_at: string
+          id: string
+          work_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          after_record?: Json | null
+          before_record?: Json | null
+          created_at?: string
+          id?: string
+          work_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          after_record?: Json | null
+          before_record?: Json | null
+          created_at?: string
+          id?: string
+          work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_work_history_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_work_history_work_id_fkey"
+            columns: ["work_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_work_items: {
+        Row: {
+          assigned_to: string
+          company_id: string
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          due_date: string | null
+          id: string
+          interaction_type: string | null
+          kind: string
+          lead_id: string | null
+          notes: string
+          priority: string
+          scheduled_at: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          assigned_to: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          due_date?: string | null
+          id?: string
+          interaction_type?: string | null
+          kind: string
+          lead_id?: string | null
+          notes?: string
+          priority?: string
+          scheduled_at?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          assigned_to?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          id?: string
+          interaction_type?: string | null
+          kind?: string
+          lead_id?: string | null
+          notes?: string
+          priority?: string
+          scheduled_at?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_work_items_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_work_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_work_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_work_items_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_forms: {
         Row: {
           company_id: string | null
@@ -3283,6 +3420,10 @@ export type Database = {
     Functions: {
       can_chat_with: { Args: { _other: string }; Returns: boolean }
       can_manage_sales: { Args: never; Returns: boolean }
+      crm_work_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
