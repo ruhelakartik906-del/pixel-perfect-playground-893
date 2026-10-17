@@ -41,6 +41,148 @@ export type Database = {
         }
         Relationships: []
       }
+      ad_routing_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string
+          id: string
+          rule_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          id?: string
+          rule_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          id?: string
+          rule_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_routing_audit_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "ad_routing_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_routing_rules: {
+        Row: {
+          account_id: string
+          ad_id: string
+          adset_id: string
+          campaign_id: string
+          campaign_name: string
+          company_id: string
+          created_at: string
+          creative_id: string
+          creative_name: string
+          id: string
+          name: string
+          page_id: string
+          status: string
+          total_leads: number
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          ad_id?: string
+          adset_id?: string
+          campaign_id?: string
+          campaign_name?: string
+          company_id: string
+          created_at?: string
+          creative_id?: string
+          creative_name?: string
+          id?: string
+          name: string
+          page_id?: string
+          status?: string
+          total_leads?: number
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          ad_id?: string
+          adset_id?: string
+          campaign_id?: string
+          campaign_name?: string
+          company_id?: string
+          created_at?: string
+          creative_id?: string
+          creative_name?: string
+          id?: string
+          name?: string
+          page_id?: string
+          status?: string
+          total_leads?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_routing_rules_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_routing_steps: {
+        Row: {
+          assigned_count: number
+          id: string
+          position: number
+          quota: number | null
+          rule_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_count?: number
+          id?: string
+          position: number
+          quota?: number | null
+          rule_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_count?: number
+          id?: string
+          position?: number
+          quota?: number | null
+          rule_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_routing_steps_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "ad_routing_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_routing_steps_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_executions: {
         Row: {
           created_at: string
@@ -1873,6 +2015,100 @@ export type Database = {
           },
         ]
       }
+      lead_assignment_events: {
+        Row: {
+          actor_id: string | null
+          assignment_type: string
+          company_id: string | null
+          created_at: string
+          id: string
+          lead_id: string
+          rule_id: string | null
+          snapshot: Json
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          assignment_type: string
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id: string
+          rule_id?: string | null
+          snapshot: Json
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          assignment_type?: string
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+          rule_id?: string | null
+          snapshot?: Json
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_assignment_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_assignment_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_assignment_events_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "ad_routing_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_assignment_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_routing_queue: {
+        Row: {
+          lead_id: string
+          reason: string
+          updated_at: string
+        }
+        Insert: {
+          lead_id: string
+          reason: string
+          updated_at?: string
+        }
+        Update: {
+          lead_id?: string
+          reason?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_routing_queue_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           assigned_to: string | null
@@ -1893,6 +2129,7 @@ export type Database = {
           meta_adset_id: string | null
           meta_campaign_id: string | null
           meta_campaign_name: string | null
+          meta_creative_id: string | null
           meta_form_id: string | null
           meta_lead_id: string | null
           meta_page_id: string | null
@@ -1924,6 +2161,7 @@ export type Database = {
           meta_adset_id?: string | null
           meta_campaign_id?: string | null
           meta_campaign_name?: string | null
+          meta_creative_id?: string | null
           meta_form_id?: string | null
           meta_lead_id?: string | null
           meta_page_id?: string | null
@@ -1955,6 +2193,7 @@ export type Database = {
           meta_adset_id?: string | null
           meta_campaign_id?: string | null
           meta_campaign_name?: string | null
+          meta_creative_id?: string | null
           meta_form_id?: string | null
           meta_lead_id?: string | null
           meta_page_id?: string | null
@@ -2900,6 +3139,19 @@ export type Database = {
       is_company_member: {
         Args: { _company: string; _user: string }
         Returns: boolean
+      }
+      route_lead: {
+        Args: { _lead: string; _manual_user?: string }
+        Returns: Json
+      }
+      routing_admin: { Args: never; Returns: boolean }
+      routing_eligible: {
+        Args: { _company: string; _user: string }
+        Returns: boolean
+      }
+      routing_rule_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
       }
       sales_financial_action: {
         Args: { action: string; payload: Json }
