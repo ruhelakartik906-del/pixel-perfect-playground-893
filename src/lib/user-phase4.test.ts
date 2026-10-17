@@ -1,0 +1,21 @@
+import { describe,it,expect } from 'vitest';
+import { commercialSchema,canRecordProposal,financialStatus,dateInZone,wonByCurrency,profilePreferences,logoutSafely,safeLines } from './user-phase4';
+import { invoiceTotals } from './sales-finance';
+import { credentialChangeSchema } from './settings-validation';
+const line={product_id:'',name:'Service',quantity:3,unit_price:0.1,discount_percent:0,tax_rate:18,cost_price:null};
+describe('Phase 4 safeguards',()=>{
+ it('uses decimal-safe currency totals',()=>expect(invoiceTotals([line],'igst').total).toBe(0.35));
+ it('requires recorded evidence before sent status',()=>expect(canRecordProposal('draft','sent','')).toBe(false));
+ it('does not accept drafts without recorded delivery',()=>expect(canRecordProposal('draft','accepted','customer email')).toBe(false));
+ it('accepts a recorded decision only after sent',()=>expect(canRecordProposal('sent','accepted','customer email on 17 October')).toBe(true));
+ it('derives partial payment from real receipts',()=>expect(financialStatus({status:'unpaid',total:100,due_date:'2026-10-20'},20,0,'2026-10-17')).toBe('Partially paid'));
+ it('retains draft even with overdue date',()=>expect(financialStatus({status:'draft',total:100,due_date:'2026-01-01'},0,0,'2026-10-17')).toBe('Draft'));
+ it('keeps currencies separate',()=>expect(wonByCurrency([{status:'won',currency:'INR',amount:100,final_amount:null},{status:'won',currency:'USD',amount:20,final_amount:15}])).toEqual({INR:100,USD:15}));
+ it('uses Kolkata date boundaries',()=>expect(dateInZone('2026-10-16T20:00:00Z')).toBe('2026-10-17'));
+ it('rejects mismatched passwords',()=>expect(credentialChangeSchema.safeParse({kind:'password',current_password:'OldPassword',password:'NewPassword',confirm_password:'Different'}).success).toBe(false));
+ it('rejects invalid timezones',()=>expect(profilePreferences.safeParse({timezone:'not-a-zone',date_format:'dd/MM/yyyy',notifications:{lead:false,task:false,follow_up:false,chat:false,support:false}}).success).toBe(false));
+ it('does not clear caches or redirect after failed logout',async()=>{let cleared=false,redirected=false;await expect(logoutSafely({signOut:async()=>({error:'failure'}),cancel:async()=>{},clear:()=>{cleared=true;},disconnect:async()=>{},redirect:()=>{redirected=true;}})).rejects.toThrow('Logout failed');expect(cleared).toBe(false);expect(redirected).toBe(false);});
+ it('clears data and disconnects before successful logout redirect',async()=>{const calls:string[]=[];await logoutSafely({signOut:async()=>({error:null}),cancel:async()=>{calls.push('cancel');},clear:()=>{calls.push('clear');},disconnect:async()=>{calls.push('disconnect');},redirect:()=>{calls.push('redirect');}});expect(calls).toEqual(['cancel','clear','disconnect','redirect']);});
+ it('removes cost prices from document lines',()=>expect(safeLines([{...line,cost_price:99}])[0]?.cost_price).toBe(null));
+ it('requires an authorized real lead or customer',()=>expect(commercialSchema.safeParse({company_id:'00000000-0000-4000-8000-000000000001',lead_id:null,customer_id:null,deal_id:null,title:'Proposal',currency:'INR',issue_date:'2026-10-17',due_date:'2026-10-20',valid_until:'2026-10-20',tax_mode:'none',items:[line],description:'',notes:'',payment_terms:'',seller:{},billing:{}}).success).toBe(false));
+});
