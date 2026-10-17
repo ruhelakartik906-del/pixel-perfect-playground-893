@@ -1,0 +1,12 @@
+import type { ReactNode } from 'react';
+import { Inbox } from 'lucide-react';
+export function UserSection({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
+  return <section className="min-w-0 border-t pt-5"><div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-lg font-bold">{title}</h2>{action}</div>{children}</section>;
+}
+export function UserEmpty({ title = 'No assigned records yet' }: { title?: string }) { return <div className="flex min-h-44 flex-col items-center justify-center gap-3 text-center"><Inbox className="size-10 text-muted-foreground/50" strokeWidth={1.3} /><p className="text-sm text-muted-foreground">{title}</p></div>; }
+const tones = ['text-admin-blue bg-admin-blue/10', 'text-success bg-success-soft', 'text-warning bg-warning-soft', 'text-admin-purple bg-admin-purple/10', 'text-admin-pink bg-admin-pink/10', 'text-cyan bg-cyan/10'];
+export function UserStats({ items }: { items: { label: string; value: number; icon: React.ComponentType<{ className?: string }> }[] }) { return <div className="grid grid-cols-2 gap-3 xl:grid-cols-3 2xl:grid-cols-6">{items.map(({ label, value, icon: Icon }, i) => <div key={label} className="rounded-lg border bg-card p-4 shadow-card"><div className="flex items-center justify-between gap-2"><span className={`grid size-9 shrink-0 place-items-center rounded-lg ${tones[i % tones.length]}`}><Icon className="size-4" /></span><span className="text-2xl font-bold">{value}</span></div><p className="mt-3 text-sm text-muted-foreground">{label}</p></div>)}</div>; }
+export function UserPick({ label, value, onChange, options, placeholder = 'All', disabled = false }: { label: string; value: string; onChange: (v: string) => void; options: { id: string; name: string }[]; placeholder?: string; disabled?: boolean }) {
+  return <select aria-label={label} value={value} onChange={e => onChange(e.target.value)} disabled={disabled} className="h-10 rounded-md border bg-card px-3 text-sm disabled:opacity-50"><option value="">{placeholder}</option>{options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>;
+}
+export function userDate(iso: string | null, time = false) { return iso ? new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric', ...(time ? { hour: '2-digit', minute: '2-digit' } : {}) }).format(new Date(iso)) : '—'; }
