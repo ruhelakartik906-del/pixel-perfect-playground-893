@@ -1,0 +1,1 @@
+DO $$ DECLARE definition text; BEGIN SELECT pg_get_functiondef('public.hrm_payroll_action(text,jsonb)'::regprocedure) INTO definition; definition:=replace(definition,'SET status=''unpaid'',updated_at=now() WHERE id=p.id','SET status=''unpaid'',payment_reference='''',paid_at=NULL,updated_at=now() WHERE id=p.id'); EXECUTE definition; END $$;
