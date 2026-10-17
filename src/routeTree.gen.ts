@@ -50,6 +50,7 @@ import { Route as AuthenticatedAdminSalesProductsServicesRouteImport } from './r
 import { Route as AuthenticatedAdminSalesRevenueRouteImport } from './routes/_authenticated/admin/sales/revenue'
 import { Route as AuthenticatedAdminUsersRoleRouteImport } from './routes/_authenticated/admin/users/role'
 import { Route as AuthenticatedAdminUsersUsersRouteImport } from './routes/_authenticated/admin/users/users'
+import { Route as AuthenticatedAdminWhatsappBroadcastRouteImport } from './routes/_authenticated/admin/whatsapp/broadcast'
 import { Route as AuthenticatedAdminWhatsappMessageTemplatesRouteImport } from './routes/_authenticated/admin/whatsapp/message-templates'
 import { Route as AuthenticatedAdminWhatsappWhatsappChatRouteImport } from './routes/_authenticated/admin/whatsapp/whatsapp-chat'
 import { Route as AuthenticatedAdminWhatsappWorkflowsRouteImport } from './routes/_authenticated/admin/whatsapp/workflows'
@@ -279,6 +280,12 @@ const AuthenticatedAdminUsersUsersRoute =
     path: '/users/users',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminWhatsappBroadcastRoute =
+  AuthenticatedAdminWhatsappBroadcastRouteImport.update({
+    id: '/whatsapp/broadcast',
+    path: '/whatsapp/broadcast',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminWhatsappMessageTemplatesRoute =
   AuthenticatedAdminWhatsappMessageTemplatesRouteImport.update({
     id: '/whatsapp/message-templates',
@@ -338,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
+  '/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
   '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
@@ -382,6 +390,7 @@ export interface FileRoutesByTo {
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
+  '/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
   '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
@@ -429,6 +438,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/_authenticated/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/_authenticated/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
+  '/_authenticated/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
   '/_authenticated/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/_authenticated/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/_authenticated/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/admin/sales/revenue'
     | '/admin/users/role'
     | '/admin/users/users'
+    | '/admin/whatsapp/broadcast'
     | '/admin/whatsapp/message-templates'
     | '/admin/whatsapp/whatsapp-chat'
     | '/admin/whatsapp/workflows'
@@ -520,6 +531,7 @@ export interface FileRouteTypes {
     | '/admin/sales/revenue'
     | '/admin/users/role'
     | '/admin/users/users'
+    | '/admin/whatsapp/broadcast'
     | '/admin/whatsapp/message-templates'
     | '/admin/whatsapp/whatsapp-chat'
     | '/admin/whatsapp/workflows'
@@ -566,6 +578,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sales/revenue'
     | '/_authenticated/admin/users/role'
     | '/_authenticated/admin/users/users'
+    | '/_authenticated/admin/whatsapp/broadcast'
     | '/_authenticated/admin/whatsapp/message-templates'
     | '/_authenticated/admin/whatsapp/whatsapp-chat'
     | '/_authenticated/admin/whatsapp/workflows'
@@ -880,6 +893,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/whatsapp/broadcast': {
+      id: '/_authenticated/admin/whatsapp/broadcast'
+      path: '/whatsapp/broadcast'
+      fullPath: '/admin/whatsapp/broadcast'
+      preLoaderRoute: typeof AuthenticatedAdminWhatsappBroadcastRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/whatsapp/message-templates': {
       id: '/_authenticated/admin/whatsapp/message-templates'
       path: '/whatsapp/message-templates'
@@ -927,6 +947,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSalesRevenueRoute: typeof AuthenticatedAdminSalesRevenueRoute
   AuthenticatedAdminUsersRoleRoute: typeof AuthenticatedAdminUsersRoleRoute
   AuthenticatedAdminUsersUsersRoute: typeof AuthenticatedAdminUsersUsersRoute
+  AuthenticatedAdminWhatsappBroadcastRoute: typeof AuthenticatedAdminWhatsappBroadcastRoute
   AuthenticatedAdminWhatsappMessageTemplatesRoute: typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   AuthenticatedAdminWhatsappWhatsappChatRoute: typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   AuthenticatedAdminWhatsappWorkflowsRoute: typeof AuthenticatedAdminWhatsappWorkflowsRoute
@@ -964,6 +985,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSalesRevenueRoute: AuthenticatedAdminSalesRevenueRoute,
     AuthenticatedAdminUsersRoleRoute: AuthenticatedAdminUsersRoleRoute,
     AuthenticatedAdminUsersUsersRoute: AuthenticatedAdminUsersUsersRoute,
+    AuthenticatedAdminWhatsappBroadcastRoute:
+      AuthenticatedAdminWhatsappBroadcastRoute,
     AuthenticatedAdminWhatsappMessageTemplatesRoute:
       AuthenticatedAdminWhatsappMessageTemplatesRoute,
     AuthenticatedAdminWhatsappWhatsappChatRoute:
