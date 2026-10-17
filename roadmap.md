@@ -1,5 +1,6 @@
 # Admin roadmap
-- [ ] Support tickets — user/admin pages, private attachments, audited two-way conversation, unread indicators and safe authorization checks
+- [x] Support tickets — /support and /admin/support, private files/notes, audited conversations, unread indicators and filters; 17 tests and sole-account ticket/reply/status/reopen/refresh/upload/download checks passed; temporary records/files removed
+- [ ] Support multi-account and cross-company verification — blocked: sole account is Super Admin, zero companies; regular-user admin denial, other-owner/private-file denial, populated pagination and separate-session Realtime remain unverified
 - [x] Complete five pending HRM pages and six-item HRM sidebar from October 17 brief; Employees unchanged, no live records written; pages/forms/CSV/month navigation verified, audited bulk and leave reconciliation implemented
 - [ ] Pending HRM populated CRUD/bulk/approval/reversal and cross-company access verification — blocked: zero companies/employees and no isolated test database
 - [x] Ad routing setup, assignment history and unassigned queue — locked routing RPCs, cumulative quotas, source priority and audit; pages/builder/CSV/redirects checked
