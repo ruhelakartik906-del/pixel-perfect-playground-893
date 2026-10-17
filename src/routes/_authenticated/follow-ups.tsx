@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CrmWorkPage, crmWorkQuery } from "@/components/admin/work/CrmWorkPage";
-import { adminHead } from "@/lib/admin-head";
+import { UserWork } from "@/components/workspace/UserWork";
+import { phase2Query } from "@/lib/user-phase2-query";
+import { userHead } from "@/lib/user-crm";
 export const Route = createFileRoute("/_authenticated/follow-ups")({
- head:()=>adminHead("Follow-ups","Manage authorized follow-ups, assignments and scheduled work in Routiva CRM."),
- loader:({context})=>context.queryClient.ensureQueryData(crmWorkQuery),
+ head:()=>userHead("Follow-ups","Manage authorized follow-ups, assignments and scheduled work in Routiva CRM."),
+ loader:({context})=>context.queryClient.ensureQueryData(phase2Query),
  component:Page,
 });
-function Page() {return <CrmWorkPage kind="follow_up" employee/>;}
+function Page() {return <UserWork kind="follow_up"/>;}

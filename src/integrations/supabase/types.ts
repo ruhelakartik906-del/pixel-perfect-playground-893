@@ -691,6 +691,7 @@ export type Database = {
       crm_work_items: {
         Row: {
           assigned_to: string
+          checklist: Json
           company_id: string
           created_at: string
           created_by: string
@@ -712,6 +713,7 @@ export type Database = {
         }
         Insert: {
           assigned_to: string
+          checklist?: Json
           company_id: string
           created_at?: string
           created_by: string
@@ -733,6 +735,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string
+          checklist?: Json
           company_id?: string
           created_at?: string
           created_by?: string
@@ -840,50 +843,115 @@ export type Database = {
           },
         ]
       }
+      deal_activity_history: {
+        Row: {
+          action: string
+          actor_id: string | null
+          after_record: Json | null
+          before_record: Json | null
+          created_at: string
+          deal_id: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          after_record?: Json | null
+          before_record?: Json | null
+          created_at?: string
+          deal_id: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          after_record?: Json | null
+          before_record?: Json | null
+          created_at?: string
+          deal_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_activity_history_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
+          actual_close_date: string | null
           amount: number
           assigned_to: string | null
           company_id: string | null
           contract_type_id: string | null
           created_at: string
           created_by: string | null
+          currency: string
+          deleted_at: string | null
+          description: string
           expected_close_date: string | null
+          final_amount: number | null
           id: string
           lead_id: string | null
+          lost_reason: string
+          negotiated_amount: number | null
+          notes: string
           pipeline_id: string | null
+          service_name: string
           stage_id: string | null
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          actual_close_date?: string | null
           amount?: number
           assigned_to?: string | null
           company_id?: string | null
           contract_type_id?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
+          deleted_at?: string | null
+          description?: string
           expected_close_date?: string | null
+          final_amount?: number | null
           id?: string
           lead_id?: string | null
+          lost_reason?: string
+          negotiated_amount?: number | null
+          notes?: string
           pipeline_id?: string | null
+          service_name?: string
           stage_id?: string | null
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          actual_close_date?: string | null
           amount?: number
           assigned_to?: string | null
           company_id?: string | null
           contract_type_id?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
+          deleted_at?: string | null
+          description?: string
           expected_close_date?: string | null
+          final_amount?: number | null
           id?: string
           lead_id?: string | null
+          lost_reason?: string
+          negotiated_amount?: number | null
+          notes?: string
           pipeline_id?: string | null
+          service_name?: string
           stage_id?: string | null
           status?: string
           title?: string
@@ -2555,6 +2623,92 @@ export type Database = {
           },
         ]
       }
+      personal_crm_tasks: {
+        Row: {
+          checklist: Json
+          created_at: string
+          deleted_at: string | null
+          due_date: string
+          id: string
+          notes: string
+          owner_id: string
+          priority: string
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          checklist?: Json
+          created_at?: string
+          deleted_at?: string | null
+          due_date: string
+          id?: string
+          notes?: string
+          owner_id?: string
+          priority?: string
+          start_date: string
+          status?: string
+          title: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          checklist?: Json
+          created_at?: string
+          deleted_at?: string | null
+          due_date?: string
+          id?: string
+          notes?: string
+          owner_id?: string
+          priority?: string
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      personal_task_history: {
+        Row: {
+          action: string
+          actor_id: string
+          after_record: Json | null
+          before_record: Json | null
+          created_at: string
+          id: string
+          task_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string
+          after_record?: Json | null
+          before_record?: Json | null
+          created_at?: string
+          id?: string
+          task_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          after_record?: Json | null
+          before_record?: Json | null
+          created_at?: string
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_task_history_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "personal_crm_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products_services: {
         Row: {
           billing_frequency: string
@@ -3102,6 +3256,107 @@ export type Database = {
         }
         Relationships: []
       }
+      user_work_rows: {
+        Row: {
+          created_at: string
+          deal_id: string | null
+          id: string
+          lead_id: string | null
+          position: number
+          table_id: string
+          task_id: string | null
+          updated_at: string
+          values: Json
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          lead_id?: string | null
+          position?: number
+          table_id: string
+          task_id?: string | null
+          updated_at?: string
+          values?: Json
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          lead_id?: string | null
+          position?: number
+          table_id?: string
+          task_id?: string | null
+          updated_at?: string
+          values?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_work_rows_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_work_rows_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_work_rows_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "user_work_tables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_work_rows_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_work_tables: {
+        Row: {
+          columns: Json
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          preferences: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          columns?: Json
+          created_at?: string
+          id?: string
+          name: string
+          owner_id?: string
+          preferences?: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          columns?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          preferences?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       wa_broadcast_recipients: {
         Row: {
           broadcast_id: string
@@ -3546,7 +3801,12 @@ export type Database = {
         Returns: string
       }
       support_admin: { Args: never; Returns: boolean }
+      user_checklist_valid: { Args: { _list: Json }; Returns: boolean }
       user_crm_company: { Args: { _company: string }; Returns: boolean }
+      user_deal_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
       user_lead_action: {
         Args: {
           _action: string
@@ -3556,6 +3816,27 @@ export type Database = {
         }
         Returns: string
       }
+      user_table_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      user_table_rows_page: {
+        Args: {
+          _descending?: boolean
+          _filter?: string
+          _page: number
+          _q?: string
+          _sort?: string
+          _table: string
+          _value?: string
+        }
+        Returns: Json
+      }
+      user_work_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      user_workspace_allowed: { Args: never; Returns: boolean }
     }
     Enums: {
       account_status: "pending" | "active" | "blocked"
