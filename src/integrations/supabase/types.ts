@@ -917,6 +917,7 @@ export type Database = {
           important: boolean
           is_read: boolean
           owner_id: string
+          previous_folder: string | null
           scheduled_at: string | null
           starred: boolean
           subject: string
@@ -934,6 +935,7 @@ export type Database = {
           important?: boolean
           is_read?: boolean
           owner_id?: string
+          previous_folder?: string | null
           scheduled_at?: string | null
           starred?: boolean
           subject?: string
@@ -951,6 +953,7 @@ export type Database = {
           important?: boolean
           is_read?: boolean
           owner_id?: string
+          previous_folder?: string | null
           scheduled_at?: string | null
           starred?: boolean
           subject?: string

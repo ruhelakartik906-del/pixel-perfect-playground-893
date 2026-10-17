@@ -3,10 +3,11 @@ import { Link } from "@tanstack/react-router";
 import { Home, Inbox, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function Breadcrumb({ label }: { label: string }) {
+export function Breadcrumb({ label, trail = [] }: { label: string; trail?: string[] }) {
   return (
     <div className="mb-3 flex items-center gap-2 text-[15px] text-muted-foreground">
       <Home className="size-4" /><Link to="/admin/$" params={{ _splat: "" }} className="hover:text-foreground">Home</Link>
+      {trail.map((t) => <span key={t} className="contents"><span>/</span><span>{t}</span></span>)}
       <span>/</span><span className="font-medium text-foreground">{label}</span>
     </div>
   );
