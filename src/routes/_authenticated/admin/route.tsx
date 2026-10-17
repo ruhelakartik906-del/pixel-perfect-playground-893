@@ -78,7 +78,7 @@ function AdminLayout() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel><div>{adminName}</div><div className="text-xs font-normal text-muted-foreground">{adminEmail}</div></DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/admin/$", params: { _splat: "settings/crm-configuration" } })}>Company settings</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/admin/settings/business-settings" })}>Business settings</DropdownMenuItem>
                 <DropdownMenuItem onClick={logout} className="text-destructive">Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
