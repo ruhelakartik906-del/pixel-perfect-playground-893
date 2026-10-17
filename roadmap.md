@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] User Panel Phase 1 — shared user sidebar/layout, real Dashboard, My Leads list/Kanban, authorized lead drawer and focused verification; preserve completed modules
 - [x] Admin Account & Security and Business Settings — two Settings links, own active-Super-Admin functions, current-password reauthentication, existing seller settings extended; 16 tests and signed-in pages/profile no-op save/refresh/validation/mobile checks passed; no credentials changed
 - [ ] Settings live business save, email verification/password changes and second-account authorization verification — blocked: no real business details or isolated environment; real credentials must not change in tests. New currency/tax/prefix/instructions preferences persist but are not auto-applied by unchanged Sales forms.
 - [x] Support tickets — /support and /admin/support, private files/notes, audited conversations, unread indicators and filters; 17 tests and sole-account ticket/reply/status/reopen/refresh/upload/download checks passed; temporary records/files removed
