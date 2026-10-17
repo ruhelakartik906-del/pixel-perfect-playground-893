@@ -28,7 +28,7 @@ function HrmAnalytics() {
 
   const rows = useMemo(() => (data?.employees ?? [])
     .filter((e) => (!dept || e.department_id === dept) && (!branch || e.branch_id === branch) && (!q || `${e.profiles?.full_name} ${e.profiles?.email}`.toLowerCase().includes(q.toLowerCase())))
-    .map((e) => ({ e, name: e.profiles?.full_name || e.profiles?.email || "Employee", ...employeeMetrics(e.profile_id, data!.leads, data!.deals, from, to) }))
+    .map((e) => ({ e, name: e.profiles?.full_name || e.profiles?.email || "Employee", ...employeeMetrics(e.profile_id, data?.leads ?? [], data?.deals ?? [], from, to), meetings: (data?.meetings ?? []).filter(m => m.status === "scheduled" && m.details.employee_ids?.includes(e.id) && (!from || m.start_date >= from) && (!to || m.start_date <= to)).length, attendance: (data?.attendance ?? []).filter(a => a.employee_id === e.id && a.status === "present" && (!from || a.attendance_date >= from) && (!to || a.attendance_date <= to)).length }))
     .sort((a, b) => { const va = a[sort.k], vb = b[sort.k]; const c = typeof va === "string" ? va.localeCompare(vb as string) : (va as number) - (vb as number); return sort.asc ? c : -c; }), [data, q, dept, branch, from, to, sort]);
   const pages = Math.max(1, Math.ceil(rows.length / PAGE)); const cur = Math.min(page, pages);
   const slice = rows.slice((cur - 1) * PAGE, cur * PAGE);
@@ -39,7 +39,7 @@ function HrmAnalytics() {
   };
   const Th = ({ k, l }: { k: SortKey; l: string }) => <th className="px-4 py-4"><button onClick={() => setSort({ k, asc: sort.k === k ? !sort.asc : false })} className="flex items-center gap-2 text-left font-semibold">{l}<ArrowUpDown className="size-3.5 text-muted-foreground" /></button></th>;
   const exportCsv = () => csvDownload("employee-performance.csv", [["Employee", "Email", "Assigned Leads", "Pending Leads", "Won Deals", "Open Deals", "Pending Tasks", "Pending Follow-ups", "Avg Reply Speed", "Scheduled Meetings"],
-    ...rows.map((r) => [r.name, r.e.profiles?.email ?? "", r.assigned, r.pending, r.won, r.openDeals, "Not tracked", "Not tracked", "Not tracked", "Not tracked"])]);
+    ...rows.map((r) => [r.name, r.e.profiles?.email ?? "", r.assigned, r.pending, r.won, r.openDeals, "Not tracked", "Not tracked", "Not tracked", r.meetings])]);
 
   if (error) return <p className="p-10 text-admin-red">{(error as Error).message}</p>;
   const activeBranches = data?.branches.filter((b) => b.is_active).length ?? 0;
@@ -64,7 +64,7 @@ function HrmAnalytics() {
             <div className="h-80 p-4"><ResponsiveContainer><BarChart data={rows.map((r) => ({ n: short(r.name), "Assigned Leads": r.assigned, "Won Deals": r.won }))}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="n" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="Assigned Leads" fill={C.blue} radius={[4, 4, 0, 0]} /><Bar dataKey="Won Deals" fill={C.green} radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div></Card>
           <Card><h3 className="flex items-center gap-2 border-b px-6 py-5 text-xl font-semibold"><Activity className="size-5 text-admin-blue" />Active Operational Workload</h3>
             <div className="h-80 p-4"><ResponsiveContainer><BarChart data={rows.map((r) => ({ n: short(r.name), "Pending Leads": r.pending, "Open Deals": r.openDeals }))}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="n" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="Pending Leads" fill={C.orange} radius={[4, 4, 0, 0]} /><Bar dataKey="Open Deals" fill={C.purple} radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
-            <p className="px-6 pb-4 text-xs text-muted-foreground">Tasks, follow-ups and meetings aren't tracked in the CRM yet, so they're not charted.</p></Card>
+            <p className="px-6 pb-4 text-xs text-muted-foreground">Recorded present days: {rows.reduce((n, r) => n + r.attendance, 0)} · Scheduled meetings: {rows.reduce((n, r) => n + r.meetings, 0)}. Tasks and follow-ups are not tracked.</p></Card>
         </div>
         <Card>
           <div className="flex flex-wrap items-center gap-3 border-b px-6 py-5"><h3 className="flex flex-1 items-center gap-2 text-xl font-semibold"><Users className="size-5" />Full Employee Performance Ledger</h3>
@@ -78,7 +78,7 @@ function HrmAnalytics() {
             <tbody className="divide-y">{slice.map((r) => <tr key={r.e.id} className="hover:bg-muted/40">
               <td className="px-4 py-5"><div className="flex items-center gap-3">{r.e.profiles?.avatar_url ? <img src={r.e.profiles.avatar_url} alt="" className="size-11 rounded-full object-cover" /> : <span className="grid size-11 place-items-center rounded-full bg-admin-blue font-bold text-primary-foreground">{initials(r.name)}</span>}<span>{r.name}</span></div></td>
               <td className="px-4 py-5 font-semibold">{r.assigned} Leads</td><td className="px-4 py-5 font-semibold text-warning">{r.pending} Leads</td><td className="px-4 py-5 font-semibold text-success">{r.won} Won</td>
-              {[0, 1, 2, 3].map((i) => <td key={i} className="px-4 py-5 text-sm text-muted-foreground">Not tracked</td>)}
+              {[0, 1, 2].map((i) => <td key={i} className="px-4 py-5 text-sm text-muted-foreground">Not tracked</td>)}<td className="px-4 py-5 font-semibold">{r.meetings}</td>
             </tr>)}</tbody></table>
             {!isLoading && rows.length === 0 && <p className="py-16 text-center text-muted-foreground">No employee records yet. Add employees in HRM → Employees.</p>}
             <div className="mt-5 flex items-center justify-end gap-3"><button aria-label="Previous" disabled={cur <= 1} onClick={() => setPage(cur - 1)} className="disabled:opacity-30"><ChevronLeft className="size-4" /></button>

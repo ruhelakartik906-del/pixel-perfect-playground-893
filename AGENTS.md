@@ -22,3 +22,6 @@
 - Mail/WhatsApp pages store data locally only; nothing reaches Sent/Inbox or WhatsApp without a delivery integration — why: no faked sending.
 - WhatsApp workflows/broadcasts are stored only; delivery counts and processing/completed states are writable only by the server (DB trigger), and integration status `connected` can't be set from the browser (RLS) — why: no simulated sending or fake connection badges.
 - HRM employee records (`hr_employees`) link to existing profiles; access approve/reject goes through the `hr_set_access` RPC with audit rows — why: one auth system, atomic access changes.
+- HRM management uses shared validated forms with scoped database policies; attendance, leave and payroll mutate only through transactional audited RPCs — why: identity, balances and financial history cannot depend on browser controls.
+- Calendar derives meetings, holidays and approved leave from their original records; private HR files use authorized server uploads/downloads and append-only versions — why: avoid duplicate events and public confidential files.
+- Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
