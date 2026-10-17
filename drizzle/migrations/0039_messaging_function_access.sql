@@ -1,0 +1,3 @@
+REVOKE ALL ON FUNCTION public.messaging_allowed(text),public.chat_people(),public.chat_group_access(uuid),public.chat_group_action(text,jsonb),public.chat_send(uuid,uuid,text,uuid),public.chat_read(uuid,uuid),public.template_scope(uuid) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.messaging_allowed(text),public.chat_people(),public.chat_group_access(uuid),public.chat_group_action(text,jsonb),public.chat_send(uuid,uuid,text,uuid),public.chat_read(uuid,uuid),public.template_scope(uuid) TO authenticated;
+CREATE POLICY "Authorized team attachment downloads" ON storage.objects FOR SELECT TO authenticated USING(bucket_id='team-chat-private' AND EXISTS(SELECT 1 FROM public.chat_attachments a WHERE a.path=name));

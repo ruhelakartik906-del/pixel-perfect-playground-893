@@ -8,6 +8,8 @@ import { Card } from "@/components/admin/ui";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { adminHead, initials } from "@/lib/admin-head";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { TeamChat } from "@/components/messaging/TeamChat";
 
 export const Route = createFileRoute("/_authenticated/admin/communication/chat")({
   head: () => adminHead("Chat", "Message your team members, employees and clients."),
@@ -20,6 +22,7 @@ type M = { id: string; sender_id: string; recipient_id: string; body: string; re
 
 function ChatPage() {
   const qc = useQueryClient();
+  const [sharedView,setSharedView] = useState(false);
   const me = useQuery({ queryKey: ["me-id"], queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? "" }).data ?? "";
   const people = useQuery({ queryKey: ["chat-people"], queryFn: async () => { const r = await db.from("profiles").select("id,full_name,email,avatar_url,account_status").order("full_name"); if (r.error) throw r.error; return r.data as P[]; } });
   const msgs = useQuery({ queryKey: ["chat-msgs"], queryFn: async () => { const r = await db.from("chat_messages").select("*").order("created_at").limit(5000); if (r.error) throw r.error; return r.data as M[]; } });
@@ -75,8 +78,9 @@ function ChatPage() {
   const Av = ({ p, size = "size-14" }: { p: P; size?: string }) => p.avatar_url ? <img src={p.avatar_url} alt="" className={cn(size, "rounded-lg object-cover")} />
     : <span className={cn(size, "grid shrink-0 place-items-center rounded-lg bg-admin-blue text-xl font-bold text-primary-foreground")}>{initials(p.full_name || p.email)}</span>;
 
+  if(sharedView)return <><Button variant="outline" className="mb-4" onClick={()=>setSharedView(false)}>Back to existing chat</Button><TeamChat admin/></>;
   return (
-    <Card className="flex h-[calc(100vh-170px)] min-h-[560px] overflow-hidden">
+    <><Button variant="outline" className="mb-4" onClick={()=>setSharedView(true)}><Users/>Groups & Files</Button><Card className="flex h-[calc(100vh-170px)] min-h-[560px] overflow-hidden">
       <aside className="flex w-[420px] shrink-0 flex-col border-r">
         <div className="space-y-4 border-b p-6">
           <div className="flex items-center gap-4 rounded-xl bg-muted/60 p-4">
@@ -135,6 +139,6 @@ function ChatPage() {
             {others.length === 0 && <p className="text-sm text-muted-foreground">No other active users yet.</p>}</div>
         </DialogContent>
       </Dialog>
-    </Card>
+    </Card></>
   );
 }
