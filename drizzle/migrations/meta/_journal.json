@@ -71,6 +71,13 @@
       "when": 1792221606508,
       "tag": "0009_sales_products_customers",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792221656833,
+      "tag": "0010_sales_product_image_access",
+      "breakpoints": true
     }
   ]
 }
