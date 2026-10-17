@@ -1,5 +1,5 @@
 # Admin roadmap
-- [x] Ad routing setup, assignment history and unassigned queue — locked routing RPCs, cumulative quotas, source priority and audit; seven tests, pages/builder/CSV/redirects checked
+- [x] Ad routing setup, assignment history and unassigned queue — locked routing RPCs, cumulative quotas, source priority and audit; pages/builder/CSV/redirects checked
 - [ ] Routing write/concurrency and non-admin authorization verification — blocked: no company or eligible company-linked user, no isolated test database
 - [x] CRM Automation, System Setup, Leads/Deals storage, Reports, Analytics, Custom Forms, Lead import
 - [x] Contacts & Companies pages (CRUD, search, export, safe company delete)

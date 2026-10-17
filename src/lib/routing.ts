@@ -12,6 +12,10 @@ export function assigneeFor(steps: RoutingStep[], n: number) {
 }
 
 export type Allocation = { id?: string | undefined; user_id: string; quota: number | null; assigned_count?: number };
+export function validateVideoSource(source: { creative_name: string; ad_id: string; creative_id: string }) {
+  return source.creative_name.trim() && !source.ad_id.trim() && !source.creative_id.trim()
+    ? "A specific video requires its actual Ad ID or Creative ID" : null;
+}
 export function validateAllocations(steps: Allocation[]) {
   if (!steps.length) return "Add at least one user";
   for (let i = 0; i < steps.length; i++) {

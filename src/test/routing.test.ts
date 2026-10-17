@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { assigneeFor, validateAllocations } from "@/lib/routing";
+import { assigneeFor, validateAllocations, validateVideoSource } from "@/lib/routing";
 
 describe("lead routing quotas", () => {
+  it("a specific video requires an actual Ad or Creative ID", () => {
+    expect(validateVideoSource({ creative_name: "Video A", ad_id: "", creative_id: "" })).toBe("A specific video requires its actual Ad ID or Creative ID");
+    expect(validateVideoSource({ creative_name: "Video A", ad_id: "real-ad-id", creative_id: "" })).toBeNull();
+    expect(validateVideoSource({ creative_name: "Video A", ad_id: "", creative_id: "real-creative-id" })).toBeNull();
+  });
   it("Video A: first 5 to A, next 10 to D, remaining to C", () => {
     const steps = [{ user: "A", limit: 5 }, { user: "D", limit: 10 }, { user: "C", limit: null }];
     expect(assigneeFor(steps, 5)).toBe("A");

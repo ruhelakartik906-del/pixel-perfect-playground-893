@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { validateAllocations } from "@/lib/routing";
+import { validateAllocations, validateVideoSource } from "@/lib/routing";
 
 export const loadAdRouting = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const admin = await context.supabase.rpc("routing_admin");
@@ -37,7 +37,7 @@ export const saveAdRouting = createServerFn({ method: "POST" }).middleware([requ
   adset_id: source, ad_id: source, creative_id: source, creative_name: source, status: z.enum(["draft", "active", "paused"]),
   steps: z.array(z.object({ id: z.string().uuid().optional(), user_id: z.string().uuid(), quota: z.number().int().positive().nullable() })),
 }).parse(input)).handler(async ({ context, data }) => {
-  const invalid = validateAllocations(data.steps);
+  const invalid = validateAllocations(data.steps) || (data.status === "active" ? validateVideoSource(data) : null);
   if (invalid) throw new Error(invalid);
   const result = await context.supabase.rpc("routing_rule_action", { _action: "save", _payload: data });
   if (result.error) throw new Error(result.error.message);
