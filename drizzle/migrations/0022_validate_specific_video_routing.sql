@@ -1,0 +1,4 @@
+CREATE FUNCTION public.routing_source_guard() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN IF NEW.status='active' AND trim(NEW.creative_name)<>'' AND NEW.ad_id='' AND NEW.creative_id='' THEN RAISE EXCEPTION 'A specific video requires its actual Ad ID or Creative ID'; END IF; RETURN NEW; END $$;
+CREATE TRIGGER routing_source_identifier_guard BEFORE INSERT OR UPDATE ON public.ad_routing_rules FOR EACH ROW EXECUTE FUNCTION public.routing_source_guard();
+REVOKE ALL ON FUNCTION public.routing_admin() FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.routing_admin() TO authenticated,service_role;
+REVOKE ALL ON FUNCTION public.routing_eligible(uuid,uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.routing_eligible(uuid,uuid) TO authenticated,service_role;
