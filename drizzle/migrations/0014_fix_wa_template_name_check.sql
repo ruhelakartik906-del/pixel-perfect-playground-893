@@ -1,0 +1,2 @@
+ALTER TABLE public.whatsapp_templates DROP CONSTRAINT whatsapp_templates_name_check;
+ALTER TABLE public.whatsapp_templates ADD CONSTRAINT whatsapp_templates_name_check CHECK (name ~ '^[a-z0-9_]+$' AND length(name) <= 512);
