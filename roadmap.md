@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] Support tickets — user/admin pages, private attachments, audited two-way conversation, unread indicators and safe authorization checks
 - [x] Complete five pending HRM pages and six-item HRM sidebar from October 17 brief; Employees unchanged, no live records written; pages/forms/CSV/month navigation verified, audited bulk and leave reconciliation implemented
 - [ ] Pending HRM populated CRUD/bulk/approval/reversal and cross-company access verification — blocked: zero companies/employees and no isolated test database
 - [x] Ad routing setup, assignment history and unassigned queue — locked routing RPCs, cumulative quotas, source priority and audit; pages/builder/CSV/redirects checked
