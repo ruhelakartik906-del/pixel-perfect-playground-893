@@ -11,3 +11,6 @@
 - [x] Sales Phase 5 implementation — Revenue: payment-backed totals and double-count prevention
 - [ ] Sales financial end-to-end verification — running in isolated Sales QA draft with authorized test billing/payment records; awaiting verified results and Sales-only fixes
 - [ ] Meta/Make.com intake, automatic routing, follow-ups, attendance — not built
+- [x] Users, Role, Mail, Chat, WhatsApp Chat, Message Templates pages
+- [ ] Live email sending/inbox sync — needs a mail delivery integration
+- [ ] WhatsApp live messaging & Meta template sync — needs WhatsApp Business connection
