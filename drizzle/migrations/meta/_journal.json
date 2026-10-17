@@ -204,6 +204,13 @@
       "when": 1792232308130,
       "tag": "0028_crm_tasks_followups",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1792233762491,
+      "tag": "0029_crm_work_employee_actions_and_deals",
+      "breakpoints": true
     }
   ]
 }

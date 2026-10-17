@@ -694,6 +694,7 @@ export type Database = {
           company_id: string
           created_at: string
           created_by: string
+          deal_id: string | null
           deleted_at: string | null
           due_date: string | null
           id: string
@@ -714,6 +715,7 @@ export type Database = {
           company_id: string
           created_at?: string
           created_by: string
+          deal_id?: string | null
           deleted_at?: string | null
           due_date?: string | null
           id?: string
@@ -734,6 +736,7 @@ export type Database = {
           company_id?: string
           created_at?: string
           created_by?: string
+          deal_id?: string | null
           deleted_at?: string | null
           due_date?: string | null
           id?: string
@@ -769,6 +772,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_work_items_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
             referencedColumns: ["id"]
           },
           {

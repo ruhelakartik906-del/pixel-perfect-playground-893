@@ -26,8 +26,10 @@ import { Route as RestrictedRouteImport } from './routes/restricted'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFollowUpsRouteImport } from './routes/_authenticated/follow-ups'
 import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
+import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
@@ -43,8 +45,10 @@ import { Route as AuthenticatedAdminCrmContactsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminCrmCrmSystemSetupRouteImport } from './routes/_authenticated/admin/crm/crm-system-setup'
 import { Route as AuthenticatedAdminCrmCustomFormsRouteImport } from './routes/_authenticated/admin/crm/custom-forms'
 import { Route as AuthenticatedAdminCrmDealsRouteImport } from './routes/_authenticated/admin/crm/deals'
+import { Route as AuthenticatedAdminCrmFollowUpsRouteImport } from './routes/_authenticated/admin/crm/follow-ups'
 import { Route as AuthenticatedAdminCrmLeadsRouteImport } from './routes/_authenticated/admin/crm/leads'
 import { Route as AuthenticatedAdminCrmReportsRouteImport } from './routes/_authenticated/admin/crm/reports'
+import { Route as AuthenticatedAdminCrmTasksRouteImport } from './routes/_authenticated/admin/crm/tasks'
 import { Route as AuthenticatedAdminHrmAnalyticsRouteImport } from './routes/_authenticated/admin/hrm/analytics'
 import { Route as AuthenticatedAdminHrmAnnouncementRouteImport } from './routes/_authenticated/admin/hrm/announcement'
 import { Route as AuthenticatedAdminHrmAnnouncementsRouteImport } from './routes/_authenticated/admin/hrm/announcements'
@@ -171,6 +175,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFollowUpsRoute = AuthenticatedFollowUpsRouteImport.update({
+  id: '/follow-ups',
+  path: '/follow-ups',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyHrRoute = AuthenticatedMyHrRouteImport.update({
   id: '/my-hr',
   path: '/my-hr',
@@ -179,6 +188,11 @@ const AuthenticatedMyHrRoute = AuthenticatedMyHrRouteImport.update({
 const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -268,6 +282,12 @@ const AuthenticatedAdminCrmDealsRoute =
     path: '/crm/deals',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminCrmFollowUpsRoute =
+  AuthenticatedAdminCrmFollowUpsRouteImport.update({
+    id: '/crm/follow-ups',
+    path: '/crm/follow-ups',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCrmLeadsRoute =
   AuthenticatedAdminCrmLeadsRouteImport.update({
     id: '/crm/leads',
@@ -278,6 +298,12 @@ const AuthenticatedAdminCrmReportsRoute =
   AuthenticatedAdminCrmReportsRouteImport.update({
     id: '/crm/reports',
     path: '/crm/reports',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCrmTasksRoute =
+  AuthenticatedAdminCrmTasksRouteImport.update({
+    id: '/crm/tasks',
+    path: '/crm/tasks',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminHrmAnalyticsRoute =
@@ -544,8 +570,10 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/support': typeof AuthenticatedSupportRoute
+  '/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -561,8 +589,10 @@ export interface FileRoutesByFullPath {
   '/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
+  '/admin/crm/follow-ups': typeof AuthenticatedAdminCrmFollowUpsRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
+  '/admin/crm/tasks': typeof AuthenticatedAdminCrmTasksRoute
   '/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
   '/admin/hrm/announcement': typeof AuthenticatedAdminHrmAnnouncementRoute
   '/admin/hrm/announcements': typeof AuthenticatedAdminHrmAnnouncementsRoute
@@ -621,8 +651,10 @@ export interface FileRoutesByTo {
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/support': typeof AuthenticatedSupportRoute
+  '/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -638,8 +670,10 @@ export interface FileRoutesByTo {
   '/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
+  '/admin/crm/follow-ups': typeof AuthenticatedAdminCrmFollowUpsRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
+  '/admin/crm/tasks': typeof AuthenticatedAdminCrmTasksRoute
   '/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
   '/admin/hrm/announcement': typeof AuthenticatedAdminHrmAnnouncementRoute
   '/admin/hrm/announcements': typeof AuthenticatedAdminHrmAnnouncementsRoute
@@ -701,8 +735,10 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -718,8 +754,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/_authenticated/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/_authenticated/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
+  '/_authenticated/admin/crm/follow-ups': typeof AuthenticatedAdminCrmFollowUpsRoute
   '/_authenticated/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/_authenticated/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
+  '/_authenticated/admin/crm/tasks': typeof AuthenticatedAdminCrmTasksRoute
   '/_authenticated/admin/hrm/analytics': typeof AuthenticatedAdminHrmAnalyticsRoute
   '/_authenticated/admin/hrm/announcement': typeof AuthenticatedAdminHrmAnnouncementRoute
   '/_authenticated/admin/hrm/announcements': typeof AuthenticatedAdminHrmAnnouncementsRoute
@@ -781,8 +819,10 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/dashboard'
+    | '/follow-ups'
     | '/my-hr'
     | '/support'
+    | '/tasks'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
@@ -798,8 +838,10 @@ export interface FileRouteTypes {
     | '/admin/crm/crm-system-setup'
     | '/admin/crm/custom-forms'
     | '/admin/crm/deals'
+    | '/admin/crm/follow-ups'
     | '/admin/crm/leads'
     | '/admin/crm/reports'
+    | '/admin/crm/tasks'
     | '/admin/hrm/analytics'
     | '/admin/hrm/announcement'
     | '/admin/hrm/announcements'
@@ -858,8 +900,10 @@ export interface FileRouteTypes {
     | '/restricted'
     | '/terms'
     | '/dashboard'
+    | '/follow-ups'
     | '/my-hr'
     | '/support'
+    | '/tasks'
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
@@ -875,8 +919,10 @@ export interface FileRouteTypes {
     | '/admin/crm/crm-system-setup'
     | '/admin/crm/custom-forms'
     | '/admin/crm/deals'
+    | '/admin/crm/follow-ups'
     | '/admin/crm/leads'
     | '/admin/crm/reports'
+    | '/admin/crm/tasks'
     | '/admin/hrm/analytics'
     | '/admin/hrm/announcement'
     | '/admin/hrm/announcements'
@@ -937,8 +983,10 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/follow-ups'
     | '/_authenticated/my-hr'
     | '/_authenticated/support'
+    | '/_authenticated/tasks'
     | '/admin/login'
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
@@ -954,8 +1002,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/crm/crm-system-setup'
     | '/_authenticated/admin/crm/custom-forms'
     | '/_authenticated/admin/crm/deals'
+    | '/_authenticated/admin/crm/follow-ups'
     | '/_authenticated/admin/crm/leads'
     | '/_authenticated/admin/crm/reports'
+    | '/_authenticated/admin/crm/tasks'
     | '/_authenticated/admin/hrm/analytics'
     | '/_authenticated/admin/hrm/announcement'
     | '/_authenticated/admin/hrm/announcements'
@@ -1139,6 +1189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/follow-ups': {
+      id: '/_authenticated/follow-ups'
+      path: '/follow-ups'
+      fullPath: '/follow-ups'
+      preLoaderRoute: typeof AuthenticatedFollowUpsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-hr': {
       id: '/_authenticated/my-hr'
       path: '/my-hr'
@@ -1151,6 +1208,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof AuthenticatedSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tasks': {
+      id: '/_authenticated/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AuthenticatedTasksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/admin/login': {
@@ -1258,6 +1322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCrmDealsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/crm/follow-ups': {
+      id: '/_authenticated/admin/crm/follow-ups'
+      path: '/crm/follow-ups'
+      fullPath: '/admin/crm/follow-ups'
+      preLoaderRoute: typeof AuthenticatedAdminCrmFollowUpsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/crm/leads': {
       id: '/_authenticated/admin/crm/leads'
       path: '/crm/leads'
@@ -1270,6 +1341,13 @@ declare module '@tanstack/react-router' {
       path: '/crm/reports'
       fullPath: '/admin/crm/reports'
       preLoaderRoute: typeof AuthenticatedAdminCrmReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/crm/tasks': {
+      id: '/_authenticated/admin/crm/tasks'
+      path: '/crm/tasks'
+      fullPath: '/admin/crm/tasks'
+      preLoaderRoute: typeof AuthenticatedAdminCrmTasksRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/hrm/analytics': {
@@ -1577,8 +1655,10 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCrmCrmSystemSetupRoute: typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   AuthenticatedAdminCrmCustomFormsRoute: typeof AuthenticatedAdminCrmCustomFormsRoute
   AuthenticatedAdminCrmDealsRoute: typeof AuthenticatedAdminCrmDealsRoute
+  AuthenticatedAdminCrmFollowUpsRoute: typeof AuthenticatedAdminCrmFollowUpsRoute
   AuthenticatedAdminCrmLeadsRoute: typeof AuthenticatedAdminCrmLeadsRoute
   AuthenticatedAdminCrmReportsRoute: typeof AuthenticatedAdminCrmReportsRoute
+  AuthenticatedAdminCrmTasksRoute: typeof AuthenticatedAdminCrmTasksRoute
   AuthenticatedAdminHrmAnalyticsRoute: typeof AuthenticatedAdminHrmAnalyticsRoute
   AuthenticatedAdminHrmAnnouncementRoute: typeof AuthenticatedAdminHrmAnnouncementRoute
   AuthenticatedAdminHrmAnnouncementsRoute: typeof AuthenticatedAdminHrmAnnouncementsRoute
@@ -1642,8 +1722,10 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCrmCustomFormsRoute:
       AuthenticatedAdminCrmCustomFormsRoute,
     AuthenticatedAdminCrmDealsRoute: AuthenticatedAdminCrmDealsRoute,
+    AuthenticatedAdminCrmFollowUpsRoute: AuthenticatedAdminCrmFollowUpsRoute,
     AuthenticatedAdminCrmLeadsRoute: AuthenticatedAdminCrmLeadsRoute,
     AuthenticatedAdminCrmReportsRoute: AuthenticatedAdminCrmReportsRoute,
+    AuthenticatedAdminCrmTasksRoute: AuthenticatedAdminCrmTasksRoute,
     AuthenticatedAdminHrmAnalyticsRoute: AuthenticatedAdminHrmAnalyticsRoute,
     AuthenticatedAdminHrmAnnouncementRoute:
       AuthenticatedAdminHrmAnnouncementRoute,
@@ -1715,15 +1797,19 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFollowUpsRoute: typeof AuthenticatedFollowUpsRoute
   AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFollowUpsRoute: AuthenticatedFollowUpsRoute,
   AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedTasksRoute: AuthenticatedTasksRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
