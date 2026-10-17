@@ -2685,6 +2685,201 @@ export type Database = {
         }
         Relationships: []
       }
+      support_attachments: {
+        Row: {
+          created_at: string
+          filename: string
+          id: string
+          message_id: string | null
+          mime: string
+          path: string
+          size: number
+          ticket_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          filename: string
+          id?: string
+          message_id?: string | null
+          mime: string
+          path: string
+          size: number
+          ticket_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          filename?: string
+          id?: string
+          message_id?: string | null
+          mime?: string
+          path?: string
+          size?: number
+          ticket_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "support_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_attachments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_private: boolean
+          sender_id: string
+          sender_name: string
+          sender_role: string
+          ticket_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          sender_id: string
+          sender_name: string
+          sender_role: string
+          ticket_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          sender_id?: string
+          sender_name?: string
+          sender_role?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_ticket_events: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          detail: Json
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_events_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          admin_read_at: string | null
+          category: string
+          company_id: string | null
+          created_at: string
+          description: string
+          id: string
+          last_admin_message_at: string | null
+          last_user_message_at: string
+          number: number
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_email: string
+          user_id: string
+          user_name: string
+          user_read_at: string
+        }
+        Insert: {
+          admin_read_at?: string | null
+          category: string
+          company_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          last_admin_message_at?: string | null
+          last_user_message_at?: string
+          number?: never
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_email: string
+          user_id: string
+          user_name: string
+          user_read_at?: string
+        }
+        Update: {
+          admin_read_at?: string | null
+          category?: string
+          company_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          last_admin_message_at?: string | null
+          last_user_message_at?: string
+          number?: never
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_email?: string
+          user_id?: string
+          user_name?: string
+          user_read_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_access_roles: {
         Row: {
           created_at: string
@@ -3172,6 +3367,12 @@ export type Database = {
         Args: { action: string; payload: Json }
         Returns: string
       }
+      support_access: { Args: { _ticket: string }; Returns: boolean }
+      support_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      support_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       account_status: "pending" | "active" | "blocked"
