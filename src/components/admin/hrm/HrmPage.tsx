@@ -51,6 +51,7 @@ import {
   leaveSchema,
   announcementStatus,
   dateDuration,
+  attendanceCell,
   type HrModule,
   type HrRow,
 } from "@/lib/hrm-model";
@@ -129,6 +130,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
     (p) =>
       (!self || p.profile_id === data?.userId) &&
       (!company || p.company_id === company) &&
+      (!status || module !== "attendance" || Array.from({length: new Date(Number(month.slice(0,4)),Number(month.slice(5)),0).getDate()},(_,i)=>`${month}-${String(i+1).padStart(2,"0")}`).some(date=>attendanceCell(p,date,data?.extra["attendance"]||[],data?.extra["holidays"]||[],data?.extra["leaves"]||[]).status===status)) &&
       (!q || `${p.name} ${p.email}`.toLowerCase().includes(q.toLowerCase())),
   );
   const rows = (data?.rows || []).map(r => module === "announcement" ? { ...r, status: announcementStatus(r) } : r).filter(
@@ -218,7 +220,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
       if (r.id) p.id = r.id;
     }
     if (module === "leave") {
-      if (r.id) p.id = r.id;
+      if (r.id) { p.id = r.id; p.status = "pending"; }
       if (self) {
         p.self = true;
         delete p.employee_id;
@@ -625,7 +627,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               ))}
             </select>
           )}
-          {module !== "attendance" && (
+          {(
             <select
               aria-label="Status filter"
               className="inp w-40"
@@ -638,7 +640,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
               <option value="">All statuses</option>
               {Array.from(
                 new Set(
-                  (data?.rows || []).map((r) => r.status || (r.is_active ? "active" : "inactive")),
+                  module === "attendance" ? ["present","absent","half_day","leave","weekend","holiday","unrecorded"] : (data?.rows || []).map((r) => module === "announcement" ? announcementStatus(r) : r.status || (r.is_active ? "active" : "inactive")),
                 ),
               ).map((s) => (
                 <option key={s} value={s}>
