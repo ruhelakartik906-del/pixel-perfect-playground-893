@@ -14,3 +14,7 @@
 - [x] Users, Role, Mail, Chat, WhatsApp Chat, Message Templates pages
 - [ ] Live email sending/inbox sync — needs a mail delivery integration
 - [ ] WhatsApp live messaging & Meta template sync — needs WhatsApp Business connection
+- [x] WhatsApp Workflows, Broadcast, Message Log, Integrations Cockpit, HRM Analytics, HRM Employees
+- [ ] Workflow execution engine & broadcast sending — needs WhatsApp Business connection
+- [ ] Make.com/Pabbly lead webhook endpoint — not built
+- [ ] Tasks, follow-ups, meetings, attendance tracking — not built (HRM shows Not tracked)
