@@ -8,6 +8,7 @@ import { Breadcrumb, Card, PageHeader, SearchInput, StatusBadge, ToolbarButton }
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { MiniKpi as Kpi } from "@/components/admin/MiniKpi";
 import { adminHead } from "@/lib/admin-head";
 import { WF_NODE_TYPES, WF_TRIGGERS, nodeLabel, triggerLabel, validateWorkflow, type NodeType, type WfNode } from "@/lib/wa-workflow";
 import { cn } from "@/lib/utils";
@@ -22,16 +23,6 @@ const QK = ["wa-workflows"];
 type Wf = { id: string; name: string; description: string; trigger: string; nodes: WfNode[]; status: "draft" | "active" | "paused"; updated_at: string };
 type Draft = { id?: string; name: string; description: string; trigger: string; nodes: WfNode[]; status: Wf["status"] };
 const uid = () => Math.random().toString(36).slice(2, 9);
-
-function Kpi({ icon: Icon, tone, chip, label, value, note }: { icon: typeof Zap; tone: string; chip: string; label: string; value: string | number; note: string }) {
-  return (
-    <Card className="p-5">
-      <div className="flex items-start justify-between"><span className={cn("grid size-11 place-items-center rounded-lg text-primary-foreground", `bg-${tone}`)}><Icon className="size-5" /></span>
-        <span className={cn("rounded px-2.5 py-1 text-xs font-semibold", `text-${tone}`, `bg-${tone}/10`)}>{chip}</span></div>
-      <p className="mt-4 font-semibold">{label}</p><p className={cn("text-3xl font-bold", `text-${tone}`)}>{value}</p><p className="text-sm text-muted-foreground">{note}</p>
-    </Card>
-  );
-}
 
 function WorkflowsPage() {
   const qc = useQueryClient();
@@ -75,10 +66,10 @@ function WorkflowsPage() {
         <ToolbarButton primary onClick={() => setEdit({ name: "", description: "", trigger: "lead_created", nodes: [{ id: uid(), type: "end", config: {}, next: null }], status: "draft" })}><Plus className="size-4" />Create Workflow</ToolbarButton>
       </PageHeader>
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi icon={SlidersHorizontal} tone="admin-blue" chip="All Workflows" label="Total Workflows" value={data.length} note="Saved Workflows" />
-        <Kpi icon={CheckCircle2} tone="admin-green" chip="Active" label="Active Workflows" value={data.filter((w) => w.status === "active").length} note={waConnected ? "Running live" : "Enabled — waiting for WhatsApp"} />
-        <Kpi icon={Clock} tone="admin-orange" chip="Draft" label="Draft Workflows" value={data.filter((w) => w.status === "draft").length} note="In Development" />
-        <Kpi icon={Zap} tone="admin-purple" chip="Triggers" label="Automated Triggers" value={new Set(data.filter((w) => w.status === "active").map((w) => w.trigger)).size} note={waConnected ? "Distinct live triggers" : "Execution needs WhatsApp connection"} />
+        <Kpi icon={SlidersHorizontal} tone="blue" chip="All Workflows" label="Total Workflows" value={data.length} note="Saved Workflows" />
+        <Kpi icon={CheckCircle2} tone="green" chip="Active" label="Active Workflows" value={data.filter((w) => w.status === "active").length} note={waConnected ? "Running live" : "Enabled — waiting for WhatsApp"} />
+        <Kpi icon={Clock} tone="orange" chip="Draft" label="Draft Workflows" value={data.filter((w) => w.status === "draft").length} note="In Development" />
+        <Kpi icon={Zap} tone="purple" chip="Triggers" label="Automated Triggers" value={new Set(data.filter((w) => w.status === "active").map((w) => w.trigger)).size} note={waConnected ? "Distinct live triggers" : "Execution needs WhatsApp connection"} />
       </div>
       {!waConnected && <p className="flex items-center gap-2 rounded-lg border border-admin-orange/30 bg-admin-orange/10 px-4 py-3 text-sm text-warning"><AlertTriangle className="size-4" />WhatsApp Business API is not connected. You can build and save workflows; nothing is sent until the connection is set up in Integrations.</p>}
       <Card className="p-6">

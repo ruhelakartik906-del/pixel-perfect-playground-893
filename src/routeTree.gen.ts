@@ -52,6 +52,7 @@ import { Route as AuthenticatedAdminUsersRoleRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminUsersUsersRouteImport } from './routes/_authenticated/admin/users/users'
 import { Route as AuthenticatedAdminWhatsappMessageTemplatesRouteImport } from './routes/_authenticated/admin/whatsapp/message-templates'
 import { Route as AuthenticatedAdminWhatsappWhatsappChatRouteImport } from './routes/_authenticated/admin/whatsapp/whatsapp-chat'
+import { Route as AuthenticatedAdminWhatsappWorkflowsRouteImport } from './routes/_authenticated/admin/whatsapp/workflows'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -290,6 +291,12 @@ const AuthenticatedAdminWhatsappWhatsappChatRoute =
     path: '/whatsapp/whatsapp-chat',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminWhatsappWorkflowsRoute =
+  AuthenticatedAdminWhatsappWorkflowsRouteImport.update({
+    id: '/whatsapp/workflows',
+    path: '/whatsapp/workflows',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -333,6 +340,7 @@ export interface FileRoutesByFullPath {
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
+  '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesByTo {
@@ -376,6 +384,7 @@ export interface FileRoutesByTo {
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
+  '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesById {
@@ -422,6 +431,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/_authenticated/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/_authenticated/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
+  '/_authenticated/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRouteTypes {
@@ -468,6 +478,7 @@ export interface FileRouteTypes {
     | '/admin/users/users'
     | '/admin/whatsapp/message-templates'
     | '/admin/whatsapp/whatsapp-chat'
+    | '/admin/whatsapp/workflows'
     | '/admin/routing/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -511,6 +522,7 @@ export interface FileRouteTypes {
     | '/admin/users/users'
     | '/admin/whatsapp/message-templates'
     | '/admin/whatsapp/whatsapp-chat'
+    | '/admin/whatsapp/workflows'
     | '/admin/routing'
   id:
     | '__root__'
@@ -556,6 +568,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users/users'
     | '/_authenticated/admin/whatsapp/message-templates'
     | '/_authenticated/admin/whatsapp/whatsapp-chat'
+    | '/_authenticated/admin/whatsapp/workflows'
     | '/_authenticated/admin/routing/'
   fileRoutesById: FileRoutesById
 }
@@ -881,6 +894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWhatsappWhatsappChatRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/whatsapp/workflows': {
+      id: '/_authenticated/admin/whatsapp/workflows'
+      path: '/whatsapp/workflows'
+      fullPath: '/admin/whatsapp/workflows'
+      preLoaderRoute: typeof AuthenticatedAdminWhatsappWorkflowsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
@@ -909,6 +929,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminUsersUsersRoute: typeof AuthenticatedAdminUsersUsersRoute
   AuthenticatedAdminWhatsappMessageTemplatesRoute: typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   AuthenticatedAdminWhatsappWhatsappChatRoute: typeof AuthenticatedAdminWhatsappWhatsappChatRoute
+  AuthenticatedAdminWhatsappWorkflowsRoute: typeof AuthenticatedAdminWhatsappWorkflowsRoute
   AuthenticatedAdminRoutingIndexRoute: typeof AuthenticatedAdminRoutingIndexRoute
 }
 
@@ -947,6 +968,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminWhatsappMessageTemplatesRoute,
     AuthenticatedAdminWhatsappWhatsappChatRoute:
       AuthenticatedAdminWhatsappWhatsappChatRoute,
+    AuthenticatedAdminWhatsappWorkflowsRoute:
+      AuthenticatedAdminWhatsappWorkflowsRoute,
     AuthenticatedAdminRoutingIndexRoute: AuthenticatedAdminRoutingIndexRoute,
   }
 
