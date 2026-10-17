@@ -85,6 +85,13 @@
       "when": 1792222144827,
       "tag": "0011_sales_financial_ledger",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792223494195,
+      "tag": "0012_user_management_communication_whatsapp",
+      "breakpoints": true
     }
   ]
 }
