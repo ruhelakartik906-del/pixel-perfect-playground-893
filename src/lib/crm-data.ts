@@ -124,3 +124,14 @@ export async function readSheet(file: File): Promise<{ headers: string[]; rows: 
   const headers = (XLSX.utils.sheet_to_json<string[]>(ws, { header: 1 })[0] ?? []).map(String);
   return { headers, rows };
 }
+
+/** Blue date badge label: TODAY / YESTERDAY / formatted date. */
+export function dateBadge(iso: string) {
+  const d = new Date(iso), now = new Date();
+  const day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diff = Math.round((day.getTime() - that.getTime()) / 864e5);
+  if (diff === 0) return "TODAY";
+  if (diff === 1) return "YESTERDAY";
+  return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+}
