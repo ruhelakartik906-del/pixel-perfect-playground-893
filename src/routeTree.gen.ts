@@ -30,6 +30,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
+import { Route as AuthenticatedAdminIntegrationsRouteImport } from './routes/_authenticated/admin/integrations'
 import { Route as AuthenticatedAdminCommunicationChatRouteImport } from './routes/_authenticated/admin/communication/chat'
 import { Route as AuthenticatedAdminCommunicationMailRouteImport } from './routes/_authenticated/admin/communication/mail'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
@@ -159,6 +160,12 @@ const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/dashboard',
     path: '/dashboard',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminIntegrationsRoute =
+  AuthenticatedAdminIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminCommunicationChatRoute =
@@ -332,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -378,6 +386,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -427,6 +436,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/_authenticated/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
+    | '/admin/integrations'
     | '/admin/'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -522,6 +533,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/$'
     | '/admin/dashboard'
+    | '/admin/integrations'
     | '/admin'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -570,6 +582,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
+    | '/_authenticated/admin/integrations'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/communication/chat'
     | '/_authenticated/admin/communication/mail'
@@ -766,6 +779,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/integrations': {
+      id: '/_authenticated/admin/integrations'
+      path: '/integrations'
+      fullPath: '/admin/integrations'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/communication/chat': {
       id: '/_authenticated/admin/communication/chat'
       path: '/communication/chat'
@@ -947,6 +967,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSplatRoute: typeof AuthenticatedAdminSplatRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminIntegrationsRoute: typeof AuthenticatedAdminIntegrationsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCommunicationChatRoute: typeof AuthenticatedAdminCommunicationChatRoute
   AuthenticatedAdminCommunicationMailRoute: typeof AuthenticatedAdminCommunicationMailRoute
@@ -979,6 +1000,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminSplatRoute: AuthenticatedAdminSplatRoute,
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+    AuthenticatedAdminIntegrationsRoute: AuthenticatedAdminIntegrationsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminCommunicationChatRoute:
       AuthenticatedAdminCommunicationChatRoute,
