@@ -3820,6 +3820,18 @@ export type Database = {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
+      user_table_rows_page: {
+        Args: {
+          _descending?: boolean
+          _filter?: string
+          _page: number
+          _q?: string
+          _sort?: string
+          _table: string
+          _value?: string
+        }
+        Returns: Json
+      }
       user_work_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
