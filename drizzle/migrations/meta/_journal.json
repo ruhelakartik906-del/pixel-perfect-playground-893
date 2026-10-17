@@ -99,6 +99,13 @@
       "when": 1792223552112,
       "tag": "0013_mail_policy_split",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792223998686,
+      "tag": "0014_fix_wa_template_name_check",
+      "breakpoints": true
     }
   ]
 }
