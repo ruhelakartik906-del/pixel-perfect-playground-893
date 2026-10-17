@@ -30,6 +30,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
+import { Route as AuthenticatedAdminCommunicationMailRouteImport } from './routes/_authenticated/admin/communication/mail'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
 import { Route as AuthenticatedAdminCrmAutomationRouteImport } from './routes/_authenticated/admin/crm/automation'
 import { Route as AuthenticatedAdminCrmCompaniesRouteImport } from './routes/_authenticated/admin/crm/companies'
@@ -152,6 +153,12 @@ const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/dashboard',
     path: '/dashboard',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCommunicationMailRoute =
+  AuthenticatedAdminCommunicationMailRouteImport.update({
+    id: '/communication/mail',
+    path: '/communication/mail',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminCrmAnalyticsRoute =
@@ -284,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
   '/admin/crm/companies': typeof AuthenticatedAdminCrmCompaniesRoute
@@ -323,6 +331,7 @@ export interface FileRoutesByTo {
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
   '/admin/crm/companies': typeof AuthenticatedAdminCrmCompaniesRoute
@@ -365,6 +374,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/_authenticated/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/_authenticated/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
   '/_authenticated/admin/crm/companies': typeof AuthenticatedAdminCrmCompaniesRoute
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin/'
+    | '/admin/communication/mail'
     | '/admin/crm/analytics'
     | '/admin/crm/automation'
     | '/admin/crm/companies'
@@ -446,6 +457,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin'
+    | '/admin/communication/mail'
     | '/admin/crm/analytics'
     | '/admin/crm/automation'
     | '/admin/crm/companies'
@@ -487,6 +499,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/communication/mail'
     | '/_authenticated/admin/crm/analytics'
     | '/_authenticated/admin/crm/automation'
     | '/_authenticated/admin/crm/companies'
@@ -675,6 +688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/communication/mail': {
+      id: '/_authenticated/admin/communication/mail'
+      path: '/communication/mail'
+      fullPath: '/admin/communication/mail'
+      preLoaderRoute: typeof AuthenticatedAdminCommunicationMailRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/crm/analytics': {
       id: '/_authenticated/admin/crm/analytics'
       path: '/crm/analytics'
@@ -808,6 +828,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSplatRoute: typeof AuthenticatedAdminSplatRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCommunicationMailRoute: typeof AuthenticatedAdminCommunicationMailRoute
   AuthenticatedAdminCrmAnalyticsRoute: typeof AuthenticatedAdminCrmAnalyticsRoute
   AuthenticatedAdminCrmAutomationRoute: typeof AuthenticatedAdminCrmAutomationRoute
   AuthenticatedAdminCrmCompaniesRoute: typeof AuthenticatedAdminCrmCompaniesRoute
@@ -833,6 +854,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSplatRoute: AuthenticatedAdminSplatRoute,
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminCommunicationMailRoute:
+      AuthenticatedAdminCommunicationMailRoute,
     AuthenticatedAdminCrmAnalyticsRoute: AuthenticatedAdminCrmAnalyticsRoute,
     AuthenticatedAdminCrmAutomationRoute: AuthenticatedAdminCrmAutomationRoute,
     AuthenticatedAdminCrmCompaniesRoute: AuthenticatedAdminCrmCompaniesRoute,
