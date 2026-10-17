@@ -9,7 +9,7 @@
 - [x] Sales Phase 3 implementation — Invoices: exact totals, configurable GST, immutable finalization, payments/PDF
 - [x] Sales Phase 4 implementation — Credit Notes: authorized credit limits, balances, audit history/PDF
 - [x] Sales Phase 5 implementation — Revenue: payment-backed totals and double-count prevention
-- [ ] Sales financial end-to-end verification — running in isolated Sales QA draft with authorized test billing/payment records; awaiting verified results and Sales-only fixes
+- [ ] Sales financial end-to-end verification — blocked: no confirmed isolated database; no live financial test writes
 - [ ] Meta/Make.com intake, automatic routing, follow-ups, attendance — not built
 - [x] Users, Role, Mail, Chat, WhatsApp Chat, Message Templates pages
 - [ ] Live email sending/inbox sync — needs a mail delivery integration
@@ -18,3 +18,12 @@
 - [ ] Workflow execution engine & broadcast sending — needs WhatsApp Business connection
 - [ ] Make.com/Pabbly lead webhook endpoint — not built
 - [ ] Tasks, follow-ups, meetings, attendance tracking — not built (HRM shows Not tracked)
+- [ ] HRM Branch and Designation — extend existing records, scoped CRUD and dependencies
+- [ ] HRM Holiday — date validation and calendar/attendance source
+- [ ] HRM Attendance — monthly grid, self check-in/out, manual corrections and audits
+- [ ] HRM Leave — own requests, transactional approvals/balances and overlap safeguards
+- [ ] HRM Meetings and Calendar — shared source events and timezone-consistent views
+- [ ] HRM Announcements — private targeted audience publishing
+- [ ] HRM Documents — private storage, signed access and file versions
+- [ ] HRM Payroll — calculated drafts, evidence-backed paid/correction audit
+- [ ] HRM Analytics integration and safe read-only/automated verification report
