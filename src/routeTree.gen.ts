@@ -46,6 +46,7 @@ import { Route as AuthenticatedAdminSalesInvoicesRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminSalesProductsRouteImport } from './routes/_authenticated/admin/sales/products'
 import { Route as AuthenticatedAdminSalesProductsServicesRouteImport } from './routes/_authenticated/admin/sales/products-services'
 import { Route as AuthenticatedAdminSalesRevenueRouteImport } from './routes/_authenticated/admin/sales/revenue'
+import { Route as AuthenticatedAdminUsersUsersRouteImport } from './routes/_authenticated/admin/users/users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -248,6 +249,12 @@ const AuthenticatedAdminSalesRevenueRoute =
     path: '/sales/revenue',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminUsersUsersRoute =
+  AuthenticatedAdminUsersUsersRouteImport.update({
+    id: '/users/users',
+    path: '/users/users',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -285,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
+  '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesByTo {
@@ -322,6 +330,7 @@ export interface FileRoutesByTo {
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
+  '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesById {
@@ -362,6 +371,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/_authenticated/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
   '/_authenticated/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
+  '/_authenticated/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRouteTypes {
@@ -402,6 +412,7 @@ export interface FileRouteTypes {
     | '/admin/sales/products'
     | '/admin/sales/products-services'
     | '/admin/sales/revenue'
+    | '/admin/users/users'
     | '/admin/routing/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -439,6 +450,7 @@ export interface FileRouteTypes {
     | '/admin/sales/products'
     | '/admin/sales/products-services'
     | '/admin/sales/revenue'
+    | '/admin/users/users'
     | '/admin/routing'
   id:
     | '__root__'
@@ -478,6 +490,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sales/products'
     | '/_authenticated/admin/sales/products-services'
     | '/_authenticated/admin/sales/revenue'
+    | '/_authenticated/admin/users/users'
     | '/_authenticated/admin/routing/'
   fileRoutesById: FileRoutesById
 }
@@ -761,6 +774,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSalesRevenueRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/users/users': {
+      id: '/_authenticated/admin/users/users'
+      path: '/users/users'
+      fullPath: '/admin/users/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
@@ -783,6 +803,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSalesProductsRoute: typeof AuthenticatedAdminSalesProductsRoute
   AuthenticatedAdminSalesProductsServicesRoute: typeof AuthenticatedAdminSalesProductsServicesRoute
   AuthenticatedAdminSalesRevenueRoute: typeof AuthenticatedAdminSalesRevenueRoute
+  AuthenticatedAdminUsersUsersRoute: typeof AuthenticatedAdminUsersUsersRoute
   AuthenticatedAdminRoutingIndexRoute: typeof AuthenticatedAdminRoutingIndexRoute
 }
 
@@ -811,6 +832,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSalesProductsServicesRoute:
       AuthenticatedAdminSalesProductsServicesRoute,
     AuthenticatedAdminSalesRevenueRoute: AuthenticatedAdminSalesRevenueRoute,
+    AuthenticatedAdminUsersUsersRoute: AuthenticatedAdminUsersUsersRoute,
     AuthenticatedAdminRoutingIndexRoute: AuthenticatedAdminRoutingIndexRoute,
   }
 
