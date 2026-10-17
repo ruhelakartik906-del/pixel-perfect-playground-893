@@ -281,6 +281,13 @@
       "when": 1792239343400,
       "tag": "0039_messaging_function_access",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792239804641,
+      "tag": "0040_user_phase4_commercial_profiles",
+      "breakpoints": true
     }
   ]
 }

@@ -2254,18 +2254,23 @@ export type Database = {
       invoices: {
         Row: {
           billing_details: Json
+          company_id: string | null
           created_at: string
           created_by: string
+          currency: string
           customer_id: string
+          deal_id: string | null
           discount_total: number
           due_date: string
           id: string
           issue_date: string
           items: Json
           kind: string
+          lead_id: string | null
           notes: string
           number: string
           payment_terms: string
+          proposal_id: string | null
           seller_details: Json
           status: string
           subtotal: number
@@ -2276,18 +2281,23 @@ export type Database = {
         }
         Insert: {
           billing_details?: Json
+          company_id?: string | null
           created_at?: string
           created_by?: string
+          currency?: string
           customer_id: string
+          deal_id?: string | null
           discount_total?: number
           due_date: string
           id?: string
           issue_date: string
           items?: Json
           kind: string
+          lead_id?: string | null
           notes?: string
           number: string
           payment_terms?: string
+          proposal_id?: string | null
           seller_details?: Json
           status?: string
           subtotal?: number
@@ -2298,18 +2308,23 @@ export type Database = {
         }
         Update: {
           billing_details?: Json
+          company_id?: string | null
           created_at?: string
           created_by?: string
+          currency?: string
           customer_id?: string
+          deal_id?: string | null
           discount_total?: number
           due_date?: string
           id?: string
           issue_date?: string
           items?: Json
           kind?: string
+          lead_id?: string | null
           notes?: string
           number?: string
           payment_terms?: string
+          proposal_id?: string | null
           seller_details?: Json
           status?: string
           subtotal?: number
@@ -2320,10 +2335,38 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "invoices_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "sales_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "sales_proposals"
             referencedColumns: ["id"]
           },
         ]
@@ -2906,10 +2949,12 @@ export type Database = {
           avatar_url: string | null
           company_name: string
           created_at: string
+          display_name: string
           email: string
           full_name: string
           id: string
           phone: string
+          preferences: Json
           updated_at: string
         }
         Insert: {
@@ -2917,10 +2962,12 @@ export type Database = {
           avatar_url?: string | null
           company_name?: string
           created_at?: string
+          display_name?: string
           email?: string
           full_name?: string
           id: string
           phone?: string
+          preferences?: Json
           updated_at?: string
         }
         Update: {
@@ -2928,13 +2975,50 @@ export type Database = {
           avatar_url?: string | null
           company_name?: string
           created_at?: string
+          display_name?: string
           email?: string
           full_name?: string
           id?: string
           phone?: string
+          preferences?: Json
           updated_at?: string
         }
         Relationships: []
+      }
+      proposal_events: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          note: string
+          proposal_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          note?: string
+          proposal_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          note?: string
+          proposal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_events_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "sales_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       revenue_entries: {
         Row: {
@@ -3071,6 +3155,101 @@ export type Database = {
             foreignKeyName: "sales_customers_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_proposals: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          currency: string
+          customer_id: string | null
+          deal_id: string | null
+          discount_total: number
+          document: Json
+          id: string
+          lead_id: string | null
+          number: string
+          status: string
+          subtotal: number
+          tax_total: number
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string
+          version: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string
+          currency?: string
+          customer_id?: string | null
+          deal_id?: string | null
+          discount_total?: number
+          document?: Json
+          id?: string
+          lead_id?: string | null
+          number: string
+          status?: string
+          subtotal?: number
+          tax_total?: number
+          title: string
+          total?: number
+          updated_at?: string
+          valid_until: string
+          version?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          currency?: string
+          customer_id?: string | null
+          deal_id?: string | null
+          discount_total?: number
+          document?: Json
+          id?: string
+          lead_id?: string | null
+          number?: string
+          status?: string
+          subtotal?: number
+          tax_total?: number
+          title?: string
+          total?: number
+          updated_at?: string
+          valid_until?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_proposals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_proposals_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "sales_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_proposals_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_proposals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
             referencedRelation: "leads"
             referencedColumns: ["id"]
           },
@@ -3868,6 +4047,10 @@ export type Database = {
         Args: { _body: string; _client: string; _group: string; _peer: string }
         Returns: string
       }
+      commercial_line_totals: {
+        Args: { _items: Json; _mode: string }
+        Returns: Json
+      }
       crm_work_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
@@ -3987,11 +4170,21 @@ export type Database = {
       support_admin: { Args: never; Returns: boolean }
       template_scope: { Args: { _company: string }; Returns: boolean }
       user_checklist_valid: { Args: { _list: Json }; Returns: boolean }
+      user_commercial_allowed: {
+        Args: { _permission: string }
+        Returns: boolean
+      }
+      user_commercial_company: { Args: { _company: string }; Returns: boolean }
+      user_commercial_lead: {
+        Args: { _company: string; _lead: string }
+        Returns: boolean
+      }
       user_crm_company: { Args: { _company: string }; Returns: boolean }
       user_deal_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
+      user_invoice_draft: { Args: { _payload: Json }; Returns: string }
       user_lead_action: {
         Args: {
           _action: string
@@ -4000,6 +4193,19 @@ export type Database = {
           _updated_at: string
         }
         Returns: string
+      }
+      user_proposal_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      user_sales_catalog: {
+        Args: never
+        Returns: {
+          id: string
+          name: string
+          selling_price: number
+          tax_rate: number
+        }[]
       }
       user_table_action: {
         Args: { _action: string; _payload: Json }
