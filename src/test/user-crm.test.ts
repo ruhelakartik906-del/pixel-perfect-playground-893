@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { contactLinks, formEntries, inPeriod, leadDetailsSchema, stageCategory, userLeadActionSchema } from '@/lib/user-crm';
 const id = '11111111-1111-4111-8111-111111111111';
 describe('User CRM safeguards', () => {
+  it('accepts existing lead statuses and rejects invented values', () => { for (const status of ['open', 'won', 'lost']) expect(userLeadActionSchema.safeParse({ id, updated_at: '2026-10-17T00:00:00Z', action: 'status', payload: { status } }).success).toBe(true); expect(userLeadActionSchema.safeParse({ id, updated_at: '2026-10-17T00:00:00Z', action: 'status', payload: { status: 'invented' } }).success).toBe(false); });
   it('today uses Asia/Kolkata at midnight', () => { expect(inPeriod('2026-10-16T19:00:00Z', 'today', new Date('2026-10-17T00:00:00Z'))).toBe(true); expect(inPeriod('2026-10-16T18:00:00Z', 'today', new Date('2026-10-17T00:00:00Z'))).toBe(false); });
   it('this month excludes previous months', () => { expect(inPeriod('2026-09-15T00:00:00Z', 'month', new Date('2026-10-17T00:00:00Z'))).toBe(false); });
   it('converted leads are not new', () => { expect(stageCategory('New', 'won')).toBe('converted'); });

@@ -36,10 +36,10 @@ export const leadDetailsSchema = z.object({
 }).strict();
 export const userLeadActionSchema = z.object({
   id: z.string().uuid(), updated_at: z.string().datetime({ offset: true }),
-  action: z.enum(['stage', 'note', 'details']),
-  payload: z.union([z.object({ stage_id: z.string().uuid() }).strict(), z.object({ note: z.string().trim().min(1).max(5000) }).strict(), leadDetailsSchema]),
+  action: z.enum(['stage', 'status', 'note', 'details']),
+  payload: z.union([z.object({ stage_id: z.string().uuid() }).strict(), z.object({ status: z.enum(['open', 'won', 'lost']) }).strict(), z.object({ note: z.string().trim().min(1).max(5000) }).strict(), leadDetailsSchema]),
 }).superRefine((v, ctx) => {
-  if ((v.action === 'stage' && !('stage_id' in v.payload)) || (v.action === 'note' && !('note' in v.payload)) || (v.action === 'details' && !('customer_name' in v.payload))) ctx.addIssue({ code: 'custom', message: 'Invalid lead action' });
+  if ((v.action === 'stage' && !('stage_id' in v.payload)) || (v.action === 'status' && !('status' in v.payload)) || (v.action === 'note' && !('note' in v.payload)) || (v.action === 'details' && !('customer_name' in v.payload))) ctx.addIssue({ code: 'custom', message: 'Invalid lead action' });
 });
 export function userHead(title: string, description: string) {
   const text = `${title} — Routiva CRM`;
