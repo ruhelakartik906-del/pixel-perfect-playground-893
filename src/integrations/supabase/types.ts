@@ -257,10 +257,121 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_attachments: {
+        Row: {
+          created_at: string
+          filename: string
+          id: string
+          message_id: string
+          mime: string
+          path: string
+          size: number
+        }
+        Insert: {
+          created_at?: string
+          filename: string
+          id?: string
+          message_id: string
+          mime: string
+          path: string
+          size: number
+        }
+        Update: {
+          created_at?: string
+          filename?: string
+          id?: string
+          message_id?: string
+          mime?: string
+          path?: string
+          size?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_groups: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          owner_id?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_groups_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           body: string
+          client_id: string | null
           created_at: string
+          group_id: string | null
           id: string
           read_at: string | null
           recipient_id: string
@@ -268,7 +379,9 @@ export type Database = {
         }
         Insert: {
           body: string
+          client_id?: string | null
           created_at?: string
+          group_id?: string | null
           id?: string
           read_at?: string | null
           recipient_id: string
@@ -276,13 +389,23 @@ export type Database = {
         }
         Update: {
           body?: string
+          client_id?: string | null
           created_at?: string
+          group_id?: string | null
           id?: string
           read_at?: string | null
           recipient_id?: string
           sender_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_stars: {
         Row: {
@@ -3531,6 +3654,8 @@ export type Database = {
       }
       whatsapp_conversations: {
         Row: {
+          assigned_to: string | null
+          company_id: string | null
           contact_name: string
           created_at: string
           id: string
@@ -3541,6 +3666,8 @@ export type Database = {
           wa_phone: string
         }
         Insert: {
+          assigned_to?: string | null
+          company_id?: string | null
           contact_name?: string
           created_at?: string
           id?: string
@@ -3551,6 +3678,8 @@ export type Database = {
           wa_phone: string
         }
         Update: {
+          assigned_to?: string | null
+          company_id?: string | null
           contact_name?: string
           created_at?: string
           id?: string
@@ -3561,6 +3690,20 @@ export type Database = {
           wa_phone?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "whatsapp_conversations_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_conversations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "whatsapp_conversations_lead_id_fkey"
             columns: ["lead_id"]
@@ -3638,12 +3781,16 @@ export type Database = {
           body: string
           buttons: Json
           category: string
+          company_id: string | null
           created_at: string
+          created_by: string | null
           footer: string
           header: string
+          header_type: string
           id: string
           language: string
           name: string
+          samples: Json
           status: string
           sync_status: string
           updated_at: string
@@ -3652,12 +3799,16 @@ export type Database = {
           body: string
           buttons?: Json
           category: string
+          company_id?: string | null
           created_at?: string
+          created_by?: string | null
           footer?: string
           header?: string
+          header_type?: string
           id?: string
           language?: string
           name: string
+          samples?: Json
           status?: string
           sync_status?: string
           updated_at?: string
@@ -3666,17 +3817,29 @@ export type Database = {
           body?: string
           buttons?: Json
           category?: string
+          company_id?: string | null
           created_at?: string
+          created_by?: string | null
           footer?: string
           header?: string
+          header_type?: string
           id?: string
           language?: string
           name?: string
+          samples?: Json
           status?: string
           sync_status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_templates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -3685,6 +3848,21 @@ export type Database = {
     Functions: {
       can_chat_with: { Args: { _other: string }; Returns: boolean }
       can_manage_sales: { Args: never; Returns: boolean }
+      chat_group_access: { Args: { _group: string }; Returns: boolean }
+      chat_group_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      chat_people: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+        }[]
+      }
       crm_work_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
@@ -3777,6 +3955,7 @@ export type Database = {
         Args: { _company: string; _user: string }
         Returns: boolean
       }
+      messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
       route_lead: {
         Args: { _lead: string; _manual_user?: string }
         Returns: Json
@@ -3801,6 +3980,7 @@ export type Database = {
         Returns: string
       }
       support_admin: { Args: never; Returns: boolean }
+      template_scope: { Args: { _company: string }; Returns: boolean }
       user_checklist_valid: { Args: { _list: Json }; Returns: boolean }
       user_crm_company: { Args: { _company: string }; Returns: boolean }
       user_deal_action: {
