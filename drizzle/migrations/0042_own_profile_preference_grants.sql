@@ -1,0 +1,1 @@
+GRANT UPDATE (display_name, preferences) ON public.profiles TO authenticated;
