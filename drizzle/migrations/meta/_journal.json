@@ -120,6 +120,13 @@
       "when": 1792224821785,
       "tag": "0016_broadcast_recipients_employee_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792226949497,
+      "tag": "0017_hrm_management_scoped_records",
+      "breakpoints": true
     }
   ]
 }
