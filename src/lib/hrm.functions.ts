@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { hrModules,hrTables,validateRecord,attendanceSchema,leaveSchema,payrollSchema,validateFile,type HrRow } from './hrm-model';
+import { hrModules,hrTables,validateRecord,attendanceSchema,bulkAttendanceSchema,leaveSchema,payrollSchema,validateFile,type HrRow } from './hrm-model';
 import type { Json } from '@/integrations/supabase/types';
 const moduleSchema=z.enum(hrModules);
 export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:moduleSchema,month:z.string().regex(/^\d{4}-\d{2}$/).optional()}).parse(v)).handler(async({context,data})=>{
@@ -39,6 +39,7 @@ export const hrmControlledAction=createServerFn({method:'POST'}).middleware([req
  const r=await (context.supabase as any).rpc(`hrm_${data.module}_action`,{_action:data.action,_payload:p as Json});if(r.error)throw new Error(r.error.message);return r.data as string;
 });
 export const getHrmHistory=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({id:z.string().uuid()}).parse(v)).handler(async({context,data})=>{const r=await context.supabase.from('hr_audit_logs').select('*').eq('entity_id',data.id).order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);return r.data;});
+export const saveBulkAttendance=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>bulkAttendanceSchema.parse(v)).handler(async({context,data})=>{const r=await context.supabase.rpc('hrm_attendance_bulk',{_payload:data as Json});if(r.error)throw new Error(r.error.message);return r.data;});
 export const uploadHrmFile=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({id:z.string().uuid(),filename:z.string().min(1).max(200),mime:z.string().max(150),base64:z.string().max(14000000)}).parse(v)).handler(async({context,data})=>{
  const doc=await context.supabase.from('hr_documents').select('*').eq('id',data.id).single();if(doc.error)throw new Error('Document not found or access denied');
  const permission=await context.supabase.rpc('hrm_allowed',{_module:'hr_document',_action:'edit',_company:doc.data.company_id});const create=await context.supabase.rpc('hrm_allowed',{_module:'hr_document',_action:'create',_company:doc.data.company_id});if(!permission.data&&!(create.data&&doc.data.created_by===context.userId))throw new Error('Document write permission required');
