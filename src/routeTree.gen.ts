@@ -29,9 +29,13 @@ import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
 import { Route as AuthenticatedFollowUpsRouteImport } from './routes/_authenticated/follow-ups'
+import { Route as AuthenticatedInvoicesRouteImport } from './routes/_authenticated/invoices'
 import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
 import { Route as AuthenticatedMyLeadsRouteImport } from './routes/_authenticated/my-leads'
+import { Route as AuthenticatedMyReportsRouteImport } from './routes/_authenticated/my-reports'
 import { Route as AuthenticatedMyWorkTableRouteImport } from './routes/_authenticated/my-work-table'
+import { Route as AuthenticatedProposalsRouteImport } from './routes/_authenticated/proposals'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AuthenticatedTeamChatRouteImport } from './routes/_authenticated/team-chat'
@@ -197,6 +201,11 @@ const AuthenticatedFollowUpsRoute = AuthenticatedFollowUpsRouteImport.update({
   path: '/follow-ups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInvoicesRoute = AuthenticatedInvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyHrRoute = AuthenticatedMyHrRouteImport.update({
   id: '/my-hr',
   path: '/my-hr',
@@ -207,12 +216,27 @@ const AuthenticatedMyLeadsRoute = AuthenticatedMyLeadsRouteImport.update({
   path: '/my-leads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyReportsRoute = AuthenticatedMyReportsRouteImport.update({
+  id: '/my-reports',
+  path: '/my-reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyWorkTableRoute =
   AuthenticatedMyWorkTableRouteImport.update({
     id: '/my-work-table',
     path: '/my-work-table',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProposalsRoute = AuthenticatedProposalsRouteImport.update({
+  id: '/proposals',
+  path: '/proposals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -618,9 +642,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
+  '/invoices': typeof AuthenticatedInvoicesRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/my-leads': typeof AuthenticatedMyLeadsRoute
+  '/my-reports': typeof AuthenticatedMyReportsRoute
   '/my-work-table': typeof AuthenticatedMyWorkTableRoute
+  '/proposals': typeof AuthenticatedProposalsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/team-chat': typeof AuthenticatedTeamChatRoute
@@ -706,9 +734,13 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
+  '/invoices': typeof AuthenticatedInvoicesRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/my-leads': typeof AuthenticatedMyLeadsRoute
+  '/my-reports': typeof AuthenticatedMyReportsRoute
   '/my-work-table': typeof AuthenticatedMyWorkTableRoute
+  '/proposals': typeof AuthenticatedProposalsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/team-chat': typeof AuthenticatedTeamChatRoute
@@ -797,9 +829,13 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/deals': typeof AuthenticatedDealsRoute
   '/_authenticated/follow-ups': typeof AuthenticatedFollowUpsRoute
+  '/_authenticated/invoices': typeof AuthenticatedInvoicesRoute
   '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
   '/_authenticated/my-leads': typeof AuthenticatedMyLeadsRoute
+  '/_authenticated/my-reports': typeof AuthenticatedMyReportsRoute
   '/_authenticated/my-work-table': typeof AuthenticatedMyWorkTableRoute
+  '/_authenticated/proposals': typeof AuthenticatedProposalsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
   '/_authenticated/team-chat': typeof AuthenticatedTeamChatRoute
@@ -888,9 +924,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deals'
     | '/follow-ups'
+    | '/invoices'
     | '/my-hr'
     | '/my-leads'
+    | '/my-reports'
     | '/my-work-table'
+    | '/proposals'
+    | '/settings'
     | '/support'
     | '/tasks'
     | '/team-chat'
@@ -976,9 +1016,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deals'
     | '/follow-ups'
+    | '/invoices'
     | '/my-hr'
     | '/my-leads'
+    | '/my-reports'
     | '/my-work-table'
+    | '/proposals'
+    | '/settings'
     | '/support'
     | '/tasks'
     | '/team-chat'
@@ -1066,9 +1110,13 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/deals'
     | '/_authenticated/follow-ups'
+    | '/_authenticated/invoices'
     | '/_authenticated/my-hr'
     | '/_authenticated/my-leads'
+    | '/_authenticated/my-reports'
     | '/_authenticated/my-work-table'
+    | '/_authenticated/proposals'
+    | '/_authenticated/settings'
     | '/_authenticated/support'
     | '/_authenticated/tasks'
     | '/_authenticated/team-chat'
@@ -1297,6 +1345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFollowUpsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/invoices': {
+      id: '/_authenticated/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof AuthenticatedInvoicesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-hr': {
       id: '/_authenticated/my-hr'
       path: '/my-hr'
@@ -1311,11 +1366,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyLeadsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-reports': {
+      id: '/_authenticated/my-reports'
+      path: '/my-reports'
+      fullPath: '/my-reports'
+      preLoaderRoute: typeof AuthenticatedMyReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-work-table': {
       id: '/_authenticated/my-work-table'
       path: '/my-work-table'
       fullPath: '/my-work-table'
       preLoaderRoute: typeof AuthenticatedMyWorkTableRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/proposals': {
+      id: '/_authenticated/proposals'
+      path: '/proposals'
+      fullPath: '/proposals'
+      preLoaderRoute: typeof AuthenticatedProposalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/support': {
@@ -1936,9 +2012,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
   AuthenticatedFollowUpsRoute: typeof AuthenticatedFollowUpsRoute
+  AuthenticatedInvoicesRoute: typeof AuthenticatedInvoicesRoute
   AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
   AuthenticatedMyLeadsRoute: typeof AuthenticatedMyLeadsRoute
+  AuthenticatedMyReportsRoute: typeof AuthenticatedMyReportsRoute
   AuthenticatedMyWorkTableRoute: typeof AuthenticatedMyWorkTableRoute
+  AuthenticatedProposalsRoute: typeof AuthenticatedProposalsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
   AuthenticatedTeamChatRoute: typeof AuthenticatedTeamChatRoute
@@ -1952,9 +2032,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDealsRoute: AuthenticatedDealsRoute,
   AuthenticatedFollowUpsRoute: AuthenticatedFollowUpsRoute,
+  AuthenticatedInvoicesRoute: AuthenticatedInvoicesRoute,
   AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
   AuthenticatedMyLeadsRoute: AuthenticatedMyLeadsRoute,
+  AuthenticatedMyReportsRoute: AuthenticatedMyReportsRoute,
   AuthenticatedMyWorkTableRoute: AuthenticatedMyWorkTableRoute,
+  AuthenticatedProposalsRoute: AuthenticatedProposalsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
   AuthenticatedTeamChatRoute: AuthenticatedTeamChatRoute,
