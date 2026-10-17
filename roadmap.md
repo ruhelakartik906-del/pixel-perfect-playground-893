@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] Ad routing setup, assignment history and unassigned queue — secure cumulative sequential quotas; preserve records
 - [x] CRM Automation, System Setup, Leads/Deals storage, Reports, Analytics, Custom Forms, Lead import
 - [x] Contacts & Companies pages (CRUD, search, export, safe company delete)
 - [x] Functional audit of CRM modules (Oct 16)
