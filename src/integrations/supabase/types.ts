@@ -2655,33 +2655,54 @@ export type Database = {
       sales_settings: {
         Row: {
           address: string
+          city: string
           company_name: string
           country: string
+          default_currency: string
           email: string
           gstin: string
           id: boolean
+          invoice_business_information: string
+          invoice_prefix: string
+          payment_instructions: string
           phone: string
           state: string
+          tax_percentage: number
+          tax_preference: string
         }
         Insert: {
           address?: string
+          city?: string
           company_name?: string
           country?: string
+          default_currency?: string
           email?: string
           gstin?: string
           id?: boolean
+          invoice_business_information?: string
+          invoice_prefix?: string
+          payment_instructions?: string
           phone?: string
           state?: string
+          tax_percentage?: number
+          tax_preference?: string
         }
         Update: {
           address?: string
+          city?: string
           company_name?: string
           country?: string
+          default_currency?: string
           email?: string
           gstin?: string
           id?: boolean
+          invoice_business_information?: string
+          invoice_prefix?: string
+          payment_instructions?: string
           phone?: string
           state?: string
+          tax_percentage?: number
+          tax_preference?: string
         }
         Relationships: []
       }
@@ -3367,6 +3388,7 @@ export type Database = {
         Args: { action: string; payload: Json }
         Returns: string
       }
+      save_business_settings: { Args: { _payload: Json }; Returns: undefined }
       support_access: { Args: { _ticket: string }; Returns: boolean }
       support_action: {
         Args: { _action: string; _payload: Json }
