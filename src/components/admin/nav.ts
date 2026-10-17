@@ -16,7 +16,10 @@ export const adminNav: NavGroup[] = [
   { label: "Dashboard", icon: LayoutDashboard, items: [{ label: "Dashboard Overview", path: "dashboard" }] },
   g("Ad Lead Routing", RouteIcon, "routing", ["Campaign & Ad Mapping", "Distribution Rules", "Lead Assignment History", "Unassigned Leads"], "NEW"),
   g("CRM", Users, "crm", ["Leads", "Deals", "Contacts", "Companies", "Proposals", "Tasks", "Follow-ups", "Calendar", "Automation", "Reports", "Analytics", "Custom Forms", "CRM System Setup"]),
-  g("Sales", ShoppingCart, "sales", ["Products & Services", "Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]),
+  { ...g("Sales", ShoppingCart, "sales", ["Products & Services", "Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]), items: [
+    { label: "Products & Services", path: "sales/products" },
+    ...g("Sales", ShoppingCart, "sales", ["Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]).items,
+  ] },
   g("User Management", UserCog, "users", ["Users", "Roles & Permissions"]),
   g("Communication", MessageSquare, "communication", ["Message Templates", "Workflows", "Broadcast", "Message Logs"]),
   g("WhatsApp", Phone, "whatsapp", ["WhatsApp Chat", "WhatsApp Templates"]),
@@ -28,7 +31,7 @@ export const adminNav: NavGroup[] = [
 ];
 
 // Routing Overview is the group landing page.
-adminNav[1]!.items.unshift({ label: "Routing Overview", path: "routing" });
+adminNav[1]?.items.unshift({ label: "Routing Overview", path: "routing" });
 
 export function titleForPath(splat: string) {
   for (const grp of adminNav) for (const it of grp.items) if (it.path === splat) return it.label;
