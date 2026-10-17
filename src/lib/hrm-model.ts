@@ -2,7 +2,7 @@ import { z } from 'zod';
 import Decimal from 'decimal.js';
 export const hrModules = ['branch','designation','holiday','attendance','leave','meeting','calendar','announcement','document','payroll'] as const;
 export type HrModule = typeof hrModules[number];
-export type HrRow = { id: string; [key: string]: any };
+export type HrRow = { id: string; [key: string]: any; name?: any; profile_id?: any; company_id?: any; branch_id?: any; department_id?: any; designation_id?: any; employee_id?: any; title?: any; email?: any; avatar_url?: any; is_active?: any; details?: any; status?: any; attendance_date?: any; salary_date?: any; salary_period?: any; basic?: any; allowances?: any; bonuses?: any; deductions?: any; gross?: any; net?: any; date?: any; start_date?: any; end_date?: any; start_at?: any; end_at?: any; start_time?: any; end_time?: any; check_in?: any; check_out?: any; check_in_time?: any; check_out_time?: any; reason?: any; notes?: any; kind?: any; manager_id?: any; code?: any; address?: any; city?: any; state?: any; postal_code?: any; phone?: any; description?: any; created_at?: any; created_by?: any; updated_at?: any; approver_id?: any; decided_at?: any; paid_at?: any; payment_reference?: any; source?: any; filename?: any; document_id?: any; path?: any; mime?: any; size?: any; year?: any; entitlement?: any; used?: any; role_ids?: any };
 export const hrTables: Record<HrModule, string> = { branch:'hr_branches',designation:'hr_designations',holiday:'hr_holidays',attendance:'hr_attendance',leave:'hr_leave_requests',meeting:'hr_meetings',calendar:'hr_schedules',announcement:'hr_announcements',document:'hr_documents',payroll:'hr_payroll' };
 export const money = z.coerce.number().finite().min(0).max(9999999999);
 const uuid = z.string().uuid(); const optionalId = uuid.nullable().optional();
@@ -21,7 +21,7 @@ export const recordSchemas = {
 };
 export function validateRecord(module:HrModule,payload:unknown){
  const schema=recordSchemas[module as keyof typeof recordSchemas]; if(!schema) throw new Error('Use the controlled attendance, leave or payroll action');
- const r=schema.parse(payload) as Record<string,any>;
+ const r=schema.parse(payload) as any;
  if(r.start_date && r.end_date && r.end_date<r.start_date) throw new Error('End date must follow start date');
  if(r.start_at && new Date(r.end_at)<=new Date(r.start_at)) throw new Error('End time must follow start time');
  if(['meeting','calendar'].includes(module) && (indiaDate(r.start_at)!==r.start_date || indiaDate(r.end_at)!==r.end_date)) throw new Error('Meeting dates and times must match');
@@ -42,4 +42,4 @@ export function attendanceCell(employee:HrRow,date:string,records:HrRow[],holida
  const leave=leaves.find(l=>l.employee_id===employee.id&&l.status==='approved'&&date>=l.start_date&&date<=l.end_date);if(leave)return {status:leave.half_day?'half_day':'leave',label:leave.half_day?'HD':'L',source:leave};
  return {status:'unrecorded',label:'—'};
 }
-export function calendarSources(schedules:HrRow[],meetings:HrRow[],holidays:HrRow[],leaves:HrRow[],year?:number){return [...schedules.filter(r=>r.status!=='cancelled').map(r=>({...r,source:'calendar'})),...meetings.filter(r=>r.status!=='cancelled').map(r=>({...r,source:'meeting'})),...holidays.filter(r=>r.status==='active').map(r=>({...r,source:'holiday',start_date:r.details?.recurring&&year?`${year}${r.start_date.slice(4)}`:r.start_date,end_date:r.details?.recurring&&year?`${year}${r.end_date.slice(4)}`:r.end_date})),...leaves.filter(r=>r.status==='approved').map(r=>({...r,source:'leave',title:`Approved ${r.kind} leave`}))];}
+export function calendarSources(schedules:HrRow[],meetings:HrRow[],holidays:HrRow[],leaves:HrRow[],year?:number):HrRow[]{return [...schedules.filter(r=>r.status!=='cancelled').map(r=>({...r,source:'calendar'})),...meetings.filter(r=>r.status!=='cancelled').map(r=>({...r,source:'meeting'})),...holidays.filter(r=>r.status==='active').map(r=>({...r,source:'holiday',start_date:r.details?.recurring&&year?`${year}${r.start_date.slice(4)}`:r.start_date,end_date:r.details?.recurring&&year?`${year}${r.end_date.slice(4)}`:r.end_date})),...leaves.filter(r=>r.status==='approved').map(r=>({...r,source:'leave',title:`Approved ${r.kind} leave`}))];}
