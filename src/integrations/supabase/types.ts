@@ -263,6 +263,56 @@ export type Database = {
           },
         ]
       }
+      credit_notes: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          id: string
+          invoice_id: string
+          issue_date: string
+          notes: string
+          number: string
+          reason: string
+          status: string
+          tax_adjustment: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          invoice_id: string
+          issue_date: string
+          notes?: string
+          number: string
+          reason: string
+          status?: string
+          tax_adjustment?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          invoice_id?: string
+          issue_date?: string
+          notes?: string
+          number?: string
+          reason?: string
+          status?: string
+          tax_adjustment?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_list_views: {
         Row: {
           columns: Json
@@ -519,6 +569,113 @@ export type Database = {
           },
         ]
       }
+      financial_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          detail: Json
+          entity_id: string | null
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string
+          created_at?: string
+          detail?: Json
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          detail?: Json
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          billing_details: Json
+          created_at: string
+          created_by: string
+          customer_id: string
+          discount_total: number
+          due_date: string
+          id: string
+          issue_date: string
+          items: Json
+          kind: string
+          notes: string
+          number: string
+          payment_terms: string
+          seller_details: Json
+          status: string
+          subtotal: number
+          tax_mode: string
+          tax_total: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          billing_details?: Json
+          created_at?: string
+          created_by?: string
+          customer_id: string
+          discount_total?: number
+          due_date: string
+          id?: string
+          issue_date: string
+          items?: Json
+          kind: string
+          notes?: string
+          number: string
+          payment_terms?: string
+          seller_details?: Json
+          status?: string
+          subtotal?: number
+          tax_mode?: string
+          tax_total?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_details?: Json
+          created_at?: string
+          created_by?: string
+          customer_id?: string
+          discount_total?: number
+          due_date?: string
+          id?: string
+          issue_date?: string
+          items?: Json
+          kind?: string
+          notes?: string
+          number?: string
+          payment_terms?: string
+          seller_details?: Json
+          status?: string
+          subtotal?: number
+          tax_mode?: string
+          tax_total?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "sales_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_activities: {
         Row: {
           actor_id: string | null
@@ -679,6 +836,50 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          authorized_by: string
+          created_at: string
+          id: string
+          invoice_id: string
+          method: string
+          notes: string
+          payment_date: string
+          reference: string
+        }
+        Insert: {
+          amount: number
+          authorized_by?: string
+          created_at?: string
+          id?: string
+          invoice_id: string
+          method: string
+          notes?: string
+          payment_date: string
+          reference: string
+        }
+        Update: {
+          amount?: number
+          authorized_by?: string
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          method?: string
+          notes?: string
+          payment_date?: string
+          reference?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products_services: {
         Row: {
           billing_frequency: string
@@ -783,6 +984,72 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue_entries: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string
+          customer_id: string
+          description: string
+          entry_date: string
+          id: string
+          invoice_id: string | null
+          method: string
+          notes: string
+          reference: string
+          status: string
+          title: string
+        }
+        Insert: {
+          amount: number
+          category?: string
+          created_at?: string
+          created_by?: string
+          customer_id: string
+          description?: string
+          entry_date: string
+          id?: string
+          invoice_id?: string | null
+          method: string
+          notes?: string
+          reference: string
+          status?: string
+          title: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string
+          customer_id?: string
+          description?: string
+          entry_date?: string
+          id?: string
+          invoice_id?: string | null
+          method?: string
+          notes?: string
+          reference?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_entries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "sales_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_entries_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales_customers: {
         Row: {
           address: string
@@ -857,6 +1124,39 @@ export type Database = {
           },
         ]
       }
+      sales_settings: {
+        Row: {
+          address: string
+          company_name: string
+          country: string
+          email: string
+          gstin: string
+          id: boolean
+          phone: string
+          state: string
+        }
+        Insert: {
+          address?: string
+          company_name?: string
+          country?: string
+          email?: string
+          gstin?: string
+          id?: boolean
+          phone?: string
+          state?: string
+        }
+        Update: {
+          address?: string
+          company_name?: string
+          country?: string
+          email?: string
+          gstin?: string
+          id?: boolean
+          phone?: string
+          state?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -894,6 +1194,10 @@ export type Database = {
       is_company_member: {
         Args: { _company: string; _user: string }
         Returns: boolean
+      }
+      sales_financial_action: {
+        Args: { action: string; payload: Json }
+        Returns: string
       }
     }
     Enums: {
