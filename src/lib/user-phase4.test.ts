@@ -4,6 +4,7 @@ import { invoiceTotals } from './sales-finance';
 import { credentialChangeSchema } from './settings-validation';
 const line={product_id:'',name:'Service',quantity:3,unit_price:0.1,discount_percent:0,tax_rate:18,cost_price:null};
 describe('Phase 4 safeguards',()=>{
+ it('rejects totals beyond ledger precision',()=>expect(commercialSchema.safeParse({company_id:'00000000-0000-4000-8000-000000000001',lead_id:'00000000-0000-4000-8000-000000000002',customer_id:null,deal_id:null,title:'Proposal',currency:'INR',issue_date:'2026-10-17',due_date:'2026-10-20',valid_until:'2026-10-20',tax_mode:'none',items:[{...line,quantity:1000000,unit_price:9999999999}],description:'',notes:'',payment_terms:'',seller:{},billing:{}}).success).toBe(false));
  it('uses decimal-safe currency totals',()=>expect(invoiceTotals([line],'igst').total).toBe(0.35));
  it('requires recorded evidence before sent status',()=>expect(canRecordProposal('draft','sent','')).toBe(false));
  it('does not accept drafts without recorded delivery',()=>expect(canRecordProposal('draft','accepted','customer email')).toBe(false));
