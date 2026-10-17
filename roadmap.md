@@ -10,20 +10,22 @@
 - [x] Sales Phase 4 implementation — Credit Notes: authorized credit limits, balances, audit history/PDF
 - [x] Sales Phase 5 implementation — Revenue: payment-backed totals and double-count prevention
 - [ ] Sales financial end-to-end verification — blocked: no confirmed isolated database; no live financial test writes
-- [ ] Meta/Make.com intake, automatic routing, follow-ups, attendance — not built
+- [ ] Meta/Make.com intake, automatic routing, follow-ups — not built
 - [x] Users, Role, Mail, Chat, WhatsApp Chat, Message Templates pages
 - [ ] Live email sending/inbox sync — needs a mail delivery integration
 - [ ] WhatsApp live messaging & Meta template sync — needs WhatsApp Business connection
 - [x] WhatsApp Workflows, Broadcast, Message Log, Integrations Cockpit, HRM Analytics, HRM Employees
 - [ ] Workflow execution engine & broadcast sending — needs WhatsApp Business connection
 - [ ] Make.com/Pabbly lead webhook endpoint — not built
-- [ ] Tasks, follow-ups, meetings, attendance tracking — not built (HRM shows Not tracked)
-- [ ] HRM Branch and Designation — extend existing records, scoped CRUD and dependencies
-- [ ] HRM Holiday — date validation and calendar/attendance source
-- [ ] HRM Attendance — monthly grid, self check-in/out, manual corrections and audits
-- [ ] HRM Leave — own requests, transactional approvals/balances and overlap safeguards
-- [ ] HRM Meetings and Calendar — shared source events and timezone-consistent views
-- [ ] HRM Announcements — private targeted audience publishing
-- [ ] HRM Documents — private storage, signed access and file versions
-- [ ] HRM Payroll — calculated drafts, evidence-backed paid/correction audit
-- [ ] HRM Analytics integration and safe read-only/automated verification report
+- [ ] Tasks and follow-ups tracking — not built
+- [x] HRM Branch and Designation — existing records extended, scoped CRUD and dependencies
+- [x] HRM Holiday — date validation and calendar/attendance source
+- [x] HRM Attendance — monthly grid, self check-in/out, manual corrections and audits
+- [x] HRM Leave — own requests, transactional approvals/balances and overlap safeguards
+- [x] HRM Meetings and Calendar — shared source events and timezone-consistent views
+- [x] HRM Announcements — targeted audience publishing (attachments/read indicators remain)
+- [x] HRM Documents — private storage, signed access and file versions
+- [x] HRM Payroll — calculated drafts, evidence-backed paid/correction audit
+- [x] HRM Analytics integration; ten routes/forms/refresh and nine CSV exports checked; 23 rule tests passed
+- [ ] HRM financial/write and employee/manager authorization verification — blocked: no confirmed isolated backend or linked employee test account
+- [ ] HRM remaining scope: leave/announcement attachments, read indicators, explicit payroll duplicate override and expanded analytics — unfinished this pass
