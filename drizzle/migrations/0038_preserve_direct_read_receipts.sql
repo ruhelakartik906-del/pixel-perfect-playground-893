@@ -1,0 +1,1 @@
+ALTER POLICY "Active chat scope" ON public.chat_messages WITH CHECK(public.messaging_allowed('chat.view') AND CASE WHEN group_id IS NOT NULL THEN public.chat_group_access(group_id) ELSE (sender_id=auth.uid() OR recipient_id=auth.uid()) AND public.can_chat_with(CASE WHEN sender_id=auth.uid() THEN recipient_id ELSE sender_id END) END);

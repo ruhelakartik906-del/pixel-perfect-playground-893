@@ -267,6 +267,13 @@
       "when": 1792239059304,
       "tag": "0037_template_delete_owner_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792239158991,
+      "tag": "0038_preserve_direct_read_receipts",
+      "breakpoints": true
     }
   ]
 }
