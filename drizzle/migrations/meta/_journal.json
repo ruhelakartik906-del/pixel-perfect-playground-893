@@ -64,6 +64,27 @@
       "when": 1792220532877,
       "tag": "0008_extend_contacts_companies_details",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792221606508,
+      "tag": "0009_sales_products_customers",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792221656833,
+      "tag": "0010_sales_product_image_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792222144827,
+      "tag": "0011_sales_financial_ledger",
+      "breakpoints": true
     }
   ]
 }

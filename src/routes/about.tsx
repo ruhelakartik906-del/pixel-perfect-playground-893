@@ -11,6 +11,8 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "Why we built Routiva: a focused CRM for businesses that grow through Meta ad leads." },
       { property: "og:title", content: "About Us — Routiva CRM" },
       { property: "og:description", content: "A focused CRM for ad-driven businesses." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: About,

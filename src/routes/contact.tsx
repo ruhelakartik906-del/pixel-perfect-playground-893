@@ -9,6 +9,8 @@ export const Route = createFileRoute("/contact")({
       { name: "description", content: "Send us a message to set up Routiva CRM for your team and Meta ad campaigns." },
       { property: "og:title", content: "Contact Us — Routiva CRM" },
       { property: "og:description", content: "Talk to the Routiva team." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

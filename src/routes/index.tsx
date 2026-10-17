@@ -14,6 +14,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Capture Facebook and Instagram leads, auto-assign them with per-ad quotas, and manage every enquiry in one CRM." },
       { property: "og:title", content: "Routiva CRM — Turn Every Ad Lead Into Business" },
       { property: "og:description", content: "Meta lead capture, smart ad-based routing and team follow-ups in one CRM." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,

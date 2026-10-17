@@ -9,6 +9,8 @@ export const Route = createFileRoute("/faq")({
       { name: "description", content: "Answers about Meta Ads integration, lead assignment, routing rules, permissions, attendance and security." },
       { property: "og:title", content: "FAQ & Help — Routiva CRM" },
       { property: "og:description", content: "Common questions about Routiva CRM." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (
