@@ -91,21 +91,33 @@ export type Database = {
       companies: {
         Row: {
           created_at: string
+          email: string
           id: string
+          industry: string
           is_active: boolean
+          location: string
           name: string
+          phone: string
         }
         Insert: {
           created_at?: string
+          email?: string
           id?: string
+          industry?: string
           is_active?: boolean
+          location?: string
           name: string
+          phone?: string
         }
         Update: {
           created_at?: string
+          email?: string
           id?: string
+          industry?: string
           is_active?: boolean
+          location?: string
           name?: string
+          phone?: string
         }
         Relationships: []
       }
@@ -167,6 +179,56 @@ export type Database = {
           phone?: string
         }
         Relationships: []
+      }
+      contacts: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          email: string
+          id: string
+          is_active: boolean
+          job_title: string
+          location: string
+          name: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean
+          job_title?: string
+          location?: string
+          name: string
+          phone?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean
+          job_title?: string
+          location?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_list_views: {
         Row: {

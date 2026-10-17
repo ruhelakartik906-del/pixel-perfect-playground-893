@@ -32,6 +32,8 @@ import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
 import { Route as AuthenticatedAdminCrmAutomationRouteImport } from './routes/_authenticated/admin/crm/automation'
+import { Route as AuthenticatedAdminCrmCompaniesRouteImport } from './routes/_authenticated/admin/crm/companies'
+import { Route as AuthenticatedAdminCrmContactsRouteImport } from './routes/_authenticated/admin/crm/contacts'
 import { Route as AuthenticatedAdminCrmCrmSystemSetupRouteImport } from './routes/_authenticated/admin/crm/crm-system-setup'
 import { Route as AuthenticatedAdminCrmCustomFormsRouteImport } from './routes/_authenticated/admin/crm/custom-forms'
 import { Route as AuthenticatedAdminCrmDealsRouteImport } from './routes/_authenticated/admin/crm/deals'
@@ -156,6 +158,18 @@ const AuthenticatedAdminCrmAutomationRoute =
     path: '/crm/automation',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminCrmCompaniesRoute =
+  AuthenticatedAdminCrmCompaniesRouteImport.update({
+    id: '/crm/companies',
+    path: '/crm/companies',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCrmContactsRoute =
+  AuthenticatedAdminCrmContactsRouteImport.update({
+    id: '/crm/contacts',
+    path: '/crm/contacts',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCrmCrmSystemSetupRoute =
   AuthenticatedAdminCrmCrmSystemSetupRouteImport.update({
     id: '/crm/crm-system-setup',
@@ -216,6 +230,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
+  '/admin/crm/companies': typeof AuthenticatedAdminCrmCompaniesRoute
+  '/admin/crm/contacts': typeof AuthenticatedAdminCrmContactsRoute
   '/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
@@ -245,6 +261,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
+  '/admin/crm/companies': typeof AuthenticatedAdminCrmCompaniesRoute
+  '/admin/crm/contacts': typeof AuthenticatedAdminCrmContactsRoute
   '/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
@@ -277,6 +295,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/_authenticated/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
+  '/_authenticated/admin/crm/companies': typeof AuthenticatedAdminCrmCompaniesRoute
+  '/_authenticated/admin/crm/contacts': typeof AuthenticatedAdminCrmContactsRoute
   '/_authenticated/admin/crm/crm-system-setup': typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   '/_authenticated/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/_authenticated/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
@@ -309,6 +329,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/crm/analytics'
     | '/admin/crm/automation'
+    | '/admin/crm/companies'
+    | '/admin/crm/contacts'
     | '/admin/crm/crm-system-setup'
     | '/admin/crm/custom-forms'
     | '/admin/crm/deals'
@@ -338,6 +360,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/crm/analytics'
     | '/admin/crm/automation'
+    | '/admin/crm/companies'
+    | '/admin/crm/contacts'
     | '/admin/crm/crm-system-setup'
     | '/admin/crm/custom-forms'
     | '/admin/crm/deals'
@@ -369,6 +393,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/admin/crm/analytics'
     | '/_authenticated/admin/crm/automation'
+    | '/_authenticated/admin/crm/companies'
+    | '/_authenticated/admin/crm/contacts'
     | '/_authenticated/admin/crm/crm-system-setup'
     | '/_authenticated/admin/crm/custom-forms'
     | '/_authenticated/admin/crm/deals'
@@ -559,6 +585,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCrmAutomationRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/crm/companies': {
+      id: '/_authenticated/admin/crm/companies'
+      path: '/crm/companies'
+      fullPath: '/admin/crm/companies'
+      preLoaderRoute: typeof AuthenticatedAdminCrmCompaniesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/crm/contacts': {
+      id: '/_authenticated/admin/crm/contacts'
+      path: '/crm/contacts'
+      fullPath: '/admin/crm/contacts'
+      preLoaderRoute: typeof AuthenticatedAdminCrmContactsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/crm/crm-system-setup': {
       id: '/_authenticated/admin/crm/crm-system-setup'
       path: '/crm/crm-system-setup'
@@ -610,6 +650,8 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCrmAnalyticsRoute: typeof AuthenticatedAdminCrmAnalyticsRoute
   AuthenticatedAdminCrmAutomationRoute: typeof AuthenticatedAdminCrmAutomationRoute
+  AuthenticatedAdminCrmCompaniesRoute: typeof AuthenticatedAdminCrmCompaniesRoute
+  AuthenticatedAdminCrmContactsRoute: typeof AuthenticatedAdminCrmContactsRoute
   AuthenticatedAdminCrmCrmSystemSetupRoute: typeof AuthenticatedAdminCrmCrmSystemSetupRoute
   AuthenticatedAdminCrmCustomFormsRoute: typeof AuthenticatedAdminCrmCustomFormsRoute
   AuthenticatedAdminCrmDealsRoute: typeof AuthenticatedAdminCrmDealsRoute
@@ -625,6 +667,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminCrmAnalyticsRoute: AuthenticatedAdminCrmAnalyticsRoute,
     AuthenticatedAdminCrmAutomationRoute: AuthenticatedAdminCrmAutomationRoute,
+    AuthenticatedAdminCrmCompaniesRoute: AuthenticatedAdminCrmCompaniesRoute,
+    AuthenticatedAdminCrmContactsRoute: AuthenticatedAdminCrmContactsRoute,
     AuthenticatedAdminCrmCrmSystemSetupRoute:
       AuthenticatedAdminCrmCrmSystemSetupRoute,
     AuthenticatedAdminCrmCustomFormsRoute:
