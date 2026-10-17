@@ -1,0 +1,1 @@
+CREATE POLICY "Authorized draft deletion read path" ON public.whatsapp_templates FOR SELECT TO authenticated USING(public.template_scope(company_id) AND public.messaging_allowed('template.delete') AND status='draft' AND sync_status='not_synced');
