@@ -225,6 +225,13 @@
       "when": 1792235667331,
       "tag": "0031_user_crm_lead_access",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1792236101183,
+      "tag": "0032_user_lead_status_actions",
+      "breakpoints": true
     }
   ]
 }
