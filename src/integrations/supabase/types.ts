@@ -679,6 +679,74 @@ export type Database = {
           },
         ]
       }
+      products_services: {
+        Row: {
+          billing_frequency: string
+          category_id: string | null
+          code: string
+          cost_price: number | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          image_path: string | null
+          is_active: boolean
+          kind: string
+          name: string
+          selling_price: number
+          service_duration: string
+          stock_quantity: number
+          tax_rate: number
+          updated_at: string
+        }
+        Insert: {
+          billing_frequency?: string
+          category_id?: string | null
+          code?: string
+          cost_price?: number | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          kind?: string
+          name: string
+          selling_price?: number
+          service_duration?: string
+          stock_quantity?: number
+          tax_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_frequency?: string
+          category_id?: string | null
+          code?: string
+          cost_price?: number | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          kind?: string
+          name?: string
+          selling_price?: number
+          service_duration?: string
+          stock_quantity?: number
+          tax_rate?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "crm_options"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_status: Database["public"]["Enums"]["account_status"]
@@ -715,6 +783,80 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_customers: {
+        Row: {
+          address: string
+          city: string
+          company_name: string
+          country: string
+          created_at: string
+          created_by: string
+          customer_number: number
+          email: string
+          gstin: string
+          id: string
+          is_active: boolean
+          kind: string
+          lead_id: string | null
+          name: string
+          notes: string
+          phone: string
+          postal_code: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          city?: string
+          company_name?: string
+          country?: string
+          created_at?: string
+          created_by?: string
+          customer_number?: never
+          email?: string
+          gstin?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          lead_id?: string | null
+          name: string
+          notes?: string
+          phone?: string
+          postal_code?: string
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          company_name?: string
+          country?: string
+          created_at?: string
+          created_by?: string
+          customer_number?: never
+          email?: string
+          gstin?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          lead_id?: string | null
+          name?: string
+          notes?: string
+          phone?: string
+          postal_code?: string
+          state?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_customers_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -741,6 +883,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_sales: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
