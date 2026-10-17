@@ -1,5 +1,6 @@
 # Admin roadmap
-- [ ] Admin Account & Security and Business Settings — reuse Auth and sales settings, own Super Admin authorization, preserve historical invoices; no real credential changes in tests
+- [x] Admin Account & Security and Business Settings — two Settings links, own active-Super-Admin functions, current-password reauthentication, existing seller settings extended; 16 tests and signed-in pages/profile no-op save/refresh/validation/mobile checks passed; no credentials changed
+- [ ] Settings live business save, email verification/password changes and second-account authorization verification — blocked: no real business details or isolated environment; real credentials must not change in tests. New currency/tax/prefix/instructions preferences persist but are not auto-applied by unchanged Sales forms.
 - [x] Support tickets — /support and /admin/support, private files/notes, audited conversations, unread indicators and filters; 17 tests and sole-account ticket/reply/status/reopen/refresh/upload/download checks passed; temporary records/files removed
 - [ ] Support multi-account and cross-company verification — blocked: sole account is Super Admin, zero companies; regular-user admin denial, other-owner/private-file denial, populated pagination and separate-session Realtime remain unverified
 - [x] Complete five pending HRM pages and six-item HRM sidebar from October 17 brief; Employees unchanged, no live records written; pages/forms/CSV/month navigation verified, audited bulk and leave reconciliation implemented

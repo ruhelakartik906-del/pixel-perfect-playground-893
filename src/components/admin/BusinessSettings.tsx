@@ -25,7 +25,7 @@ export function BusinessSettings() {
     const result = businessSettingsSchema.safeParse(values);
     if (!result.success) { setError(result.error.issues[0]?.message ?? 'Check your settings'); return; }
     setBusy(true);
-    try { await save({ data: result.data }); setValues(result.data); await queryClient.invalidateQueries({ queryKey: businessSettingsQuery.queryKey }); await queryClient.invalidateQueries({ queryKey: ['sales-data'] }); setSuccess('Business settings saved. Existing invoices and payments are unchanged.'); }
+    try { await save({ data: result.data }); setValues(result.data); await queryClient.invalidateQueries({ queryKey: businessSettingsQuery.queryKey }); await queryClient.invalidateQueries({ queryKey: ['admin-sales'] }); setSuccess('Business settings saved. Existing invoices and payments are unchanged.'); }
     catch (e) { setError(e instanceof Error ? e.message : 'Business settings could not be saved'); }
     finally { setBusy(false); }
   }
