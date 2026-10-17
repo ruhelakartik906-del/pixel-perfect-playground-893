@@ -30,6 +30,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
+import { Route as AuthenticatedAdminCommunicationChatRouteImport } from './routes/_authenticated/admin/communication/chat'
 import { Route as AuthenticatedAdminCommunicationMailRouteImport } from './routes/_authenticated/admin/communication/mail'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
 import { Route as AuthenticatedAdminCrmAutomationRouteImport } from './routes/_authenticated/admin/crm/automation'
@@ -49,6 +50,8 @@ import { Route as AuthenticatedAdminSalesProductsServicesRouteImport } from './r
 import { Route as AuthenticatedAdminSalesRevenueRouteImport } from './routes/_authenticated/admin/sales/revenue'
 import { Route as AuthenticatedAdminUsersRoleRouteImport } from './routes/_authenticated/admin/users/role'
 import { Route as AuthenticatedAdminUsersUsersRouteImport } from './routes/_authenticated/admin/users/users'
+import { Route as AuthenticatedAdminWhatsappMessageTemplatesRouteImport } from './routes/_authenticated/admin/whatsapp/message-templates'
+import { Route as AuthenticatedAdminWhatsappWhatsappChatRouteImport } from './routes/_authenticated/admin/whatsapp/whatsapp-chat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -153,6 +156,12 @@ const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/dashboard',
     path: '/dashboard',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCommunicationChatRoute =
+  AuthenticatedAdminCommunicationChatRouteImport.update({
+    id: '/communication/chat',
+    path: '/communication/chat',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminCommunicationMailRoute =
@@ -269,6 +278,18 @@ const AuthenticatedAdminUsersUsersRoute =
     path: '/users/users',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminWhatsappMessageTemplatesRoute =
+  AuthenticatedAdminWhatsappMessageTemplatesRouteImport.update({
+    id: '/whatsapp/message-templates',
+    path: '/whatsapp/message-templates',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminWhatsappWhatsappChatRoute =
+  AuthenticatedAdminWhatsappWhatsappChatRouteImport.update({
+    id: '/whatsapp/whatsapp-chat',
+    path: '/whatsapp/whatsapp-chat',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -291,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
@@ -309,6 +331,8 @@ export interface FileRoutesByFullPath {
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
+  '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
+  '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesByTo {
@@ -331,6 +355,7 @@ export interface FileRoutesByTo {
   '/admin/$': typeof AuthenticatedAdminSplatRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
@@ -349,6 +374,8 @@ export interface FileRoutesByTo {
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
+  '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
+  '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesById {
@@ -374,6 +401,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/_authenticated/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/_authenticated/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
   '/_authenticated/admin/crm/automation': typeof AuthenticatedAdminCrmAutomationRoute
@@ -392,6 +420,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/_authenticated/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/_authenticated/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
+  '/_authenticated/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
+  '/_authenticated/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRouteTypes {
@@ -417,6 +447,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin/'
+    | '/admin/communication/chat'
     | '/admin/communication/mail'
     | '/admin/crm/analytics'
     | '/admin/crm/automation'
@@ -435,6 +466,8 @@ export interface FileRouteTypes {
     | '/admin/sales/revenue'
     | '/admin/users/role'
     | '/admin/users/users'
+    | '/admin/whatsapp/message-templates'
+    | '/admin/whatsapp/whatsapp-chat'
     | '/admin/routing/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -457,6 +490,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/dashboard'
     | '/admin'
+    | '/admin/communication/chat'
     | '/admin/communication/mail'
     | '/admin/crm/analytics'
     | '/admin/crm/automation'
@@ -475,6 +509,8 @@ export interface FileRouteTypes {
     | '/admin/sales/revenue'
     | '/admin/users/role'
     | '/admin/users/users'
+    | '/admin/whatsapp/message-templates'
+    | '/admin/whatsapp/whatsapp-chat'
     | '/admin/routing'
   id:
     | '__root__'
@@ -499,6 +535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/$'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/communication/chat'
     | '/_authenticated/admin/communication/mail'
     | '/_authenticated/admin/crm/analytics'
     | '/_authenticated/admin/crm/automation'
@@ -517,6 +554,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sales/revenue'
     | '/_authenticated/admin/users/role'
     | '/_authenticated/admin/users/users'
+    | '/_authenticated/admin/whatsapp/message-templates'
+    | '/_authenticated/admin/whatsapp/whatsapp-chat'
     | '/_authenticated/admin/routing/'
   fileRoutesById: FileRoutesById
 }
@@ -688,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/communication/chat': {
+      id: '/_authenticated/admin/communication/chat'
+      path: '/communication/chat'
+      fullPath: '/admin/communication/chat'
+      preLoaderRoute: typeof AuthenticatedAdminCommunicationChatRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/communication/mail': {
       id: '/_authenticated/admin/communication/mail'
       path: '/communication/mail'
@@ -821,6 +867,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/whatsapp/message-templates': {
+      id: '/_authenticated/admin/whatsapp/message-templates'
+      path: '/whatsapp/message-templates'
+      fullPath: '/admin/whatsapp/message-templates'
+      preLoaderRoute: typeof AuthenticatedAdminWhatsappMessageTemplatesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/whatsapp/whatsapp-chat': {
+      id: '/_authenticated/admin/whatsapp/whatsapp-chat'
+      path: '/whatsapp/whatsapp-chat'
+      fullPath: '/admin/whatsapp/whatsapp-chat'
+      preLoaderRoute: typeof AuthenticatedAdminWhatsappWhatsappChatRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
@@ -828,6 +888,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSplatRoute: typeof AuthenticatedAdminSplatRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCommunicationChatRoute: typeof AuthenticatedAdminCommunicationChatRoute
   AuthenticatedAdminCommunicationMailRoute: typeof AuthenticatedAdminCommunicationMailRoute
   AuthenticatedAdminCrmAnalyticsRoute: typeof AuthenticatedAdminCrmAnalyticsRoute
   AuthenticatedAdminCrmAutomationRoute: typeof AuthenticatedAdminCrmAutomationRoute
@@ -846,6 +907,8 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSalesRevenueRoute: typeof AuthenticatedAdminSalesRevenueRoute
   AuthenticatedAdminUsersRoleRoute: typeof AuthenticatedAdminUsersRoleRoute
   AuthenticatedAdminUsersUsersRoute: typeof AuthenticatedAdminUsersUsersRoute
+  AuthenticatedAdminWhatsappMessageTemplatesRoute: typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
+  AuthenticatedAdminWhatsappWhatsappChatRoute: typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   AuthenticatedAdminRoutingIndexRoute: typeof AuthenticatedAdminRoutingIndexRoute
 }
 
@@ -854,6 +917,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSplatRoute: AuthenticatedAdminSplatRoute,
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminCommunicationChatRoute:
+      AuthenticatedAdminCommunicationChatRoute,
     AuthenticatedAdminCommunicationMailRoute:
       AuthenticatedAdminCommunicationMailRoute,
     AuthenticatedAdminCrmAnalyticsRoute: AuthenticatedAdminCrmAnalyticsRoute,
@@ -878,6 +943,10 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSalesRevenueRoute: AuthenticatedAdminSalesRevenueRoute,
     AuthenticatedAdminUsersRoleRoute: AuthenticatedAdminUsersRoleRoute,
     AuthenticatedAdminUsersUsersRoute: AuthenticatedAdminUsersUsersRoute,
+    AuthenticatedAdminWhatsappMessageTemplatesRoute:
+      AuthenticatedAdminWhatsappMessageTemplatesRoute,
+    AuthenticatedAdminWhatsappWhatsappChatRoute:
+      AuthenticatedAdminWhatsappWhatsappChatRoute,
     AuthenticatedAdminRoutingIndexRoute: AuthenticatedAdminRoutingIndexRoute,
   }
 

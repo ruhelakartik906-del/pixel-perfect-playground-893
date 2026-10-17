@@ -138,6 +138,7 @@ function MailPage() {
             <label className="grid gap-1 text-sm">Schedule send (optional)<input className="inp" type="datetime-local" value={compose.scheduled_at} onChange={(e) => setCompose({ ...compose, scheduled_at: e.target.value })} /></label>
             {!connected && <p className="text-xs text-muted-foreground">No mailbox connected — you can save drafts now; sending needs a connected mailbox.</p>}
             <div className="flex flex-wrap justify-end gap-2">
+              {compose.id && <ToolbarButton onClick={async () => { await db.from("mail_messages").update({ folder: "trash", previous_folder: "draft" }).eq("id", compose.id); setCompose(null); refresh(); toast.success("Draft moved to trash"); }}><Trash2 className="size-4" />Discard</ToolbarButton>}
               <ToolbarButton onClick={() => saveMsg("draft")}>Save draft</ToolbarButton>
               <ToolbarButton primary onClick={() => saveMsg("scheduled")}><Clock className="size-4" />Schedule</ToolbarButton>
               <span title="Live sending is not active yet"><ToolbarButton className="cursor-not-allowed opacity-50"><Send className="size-4" />Send now</ToolbarButton></span>
