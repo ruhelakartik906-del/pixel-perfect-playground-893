@@ -28,5 +28,7 @@
 - Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
 - Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
-- CRM work uses one shared UI for admin/employee routes and company-scoped records/history; locked version-checked RPCs authorize active admins or eligible assignees — why: atomic audit, consistent behavior and safe ownership.
+- Admin and user CRM work share company-scoped records and locked RPCs; unlinked personal tasks use additive owner-scoped storage — why: retain company-required Admin behavior while supporting private work without fictitious companies.
 - User CRM shares a workspace shell, authenticated assigned-record queries and locked lead RPCs — why: preserve assignment, original form answers and audited edits without duplicating admin pages.
+
+- User Phase 2 uses private owner-scoped table/row RPCs, existing audited deals and source-derived calendar events — why: no duplicate CRM records, tenant leaks or financial side effects.

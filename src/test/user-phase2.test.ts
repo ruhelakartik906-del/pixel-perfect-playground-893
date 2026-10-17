@@ -1,0 +1,16 @@
+import { describe,it,expect } from 'vitest';
+import { canDeleteWork,userTaskSchema,validateValues,calendarEvents,dealSchema } from '@/lib/user-phase2';
+const task={origin:'personal',kind:'task',company_id:'',assigned_to:'',lead_id:null,deal_id:null,title:'My task',notes:'',priority:'medium',status:'not_started',start_date:'2026-10-17',due_date:'2026-10-18',scheduled_at:null,interaction_type:null,checklist:[{text:'Call',done:false}]};
+describe('User Phase 2 rules',()=>{
+ it('personal tasks work without a company',()=>expect(userTaskSchema.safeParse(task).success).toBe(true));
+ it('personal tasks cannot link arbitrary company leads',()=>expect(userTaskSchema.safeParse({...task,lead_id:'11111111-1111-4111-8111-111111111111'}).success).toBe(false));
+ it('employee cannot delete Admin-created assignments',()=>expect(canDeleteWork({created_by:'admin',assigned_to:'employee'},'employee')).toBe(false));
+ it('owner may delete self-created tasks',()=>expect(canDeleteWork({created_by:'employee',assigned_to:'employee'},'employee')).toBe(true));
+ it('rejects empty checklist items',()=>expect(userTaskSchema.safeParse({...task,checklist:[{text:' ',done:false}]}).success).toBe(false));
+ it('requires due on or after start',()=>expect(userTaskSchema.safeParse({...task,due_date:'2026-10-16'}).success).toBe(false));
+ it('uses only table-local status options',()=>expect(validateValues([{id:'s',name:'Status',type:'status',options:[{id:'new',name:'New',color:'blue'}]}],{s:'global-crm-stage'})).toContain('select an option'));
+ it('rejects unsafe custom URLs',()=>expect(validateValues([{id:'url',name:'URL',type:'url',options:[]}],{url:'javascript:alert(1)'})).toContain('http'));
+ it('calendar derives task date without duplication',()=>{const e=calendarEvents([{id:'a',kind:'task',title:'A',due_date:'2026-10-20',scheduled_at:null,status:'completed',priority:'high'}],[]);expect(e).toHaveLength(1);expect(e[0]?.date).toBe('2026-10-20');expect(e[0]?.status).toBe('completed');});
+ it('follow-up calendar follows Kolkata date',()=>expect(calendarEvents([{id:'a',kind:'follow_up',title:'A',due_date:null,scheduled_at:'2026-10-17T19:00:00Z',status:'scheduled',priority:'low'}],[])[0]?.date).toBe('2026-10-18'));
+ it('deal won has no financial operation in its validated payload',()=>{const p=dealSchema.safeParse({company_id:'11111111-1111-4111-8111-111111111111',lead_id:null,stage_id:'11111111-1111-4111-8111-111111111111',title:'Deal',amount:100,negotiated_amount:null,final_amount:90,currency:'INR',service_name:'',description:'',notes:'',lost_reason:'',status:'won',expected_close_date:null,actual_close_date:null,payment:100});expect(p.success).toBe(true);if(p.success)expect('payment' in p.data).toBe(false);});
+});
