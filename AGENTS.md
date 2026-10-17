@@ -10,9 +10,9 @@
 <!-- LOVABLE:END -->
 
 - Public sections live in `src/components/site/`; root mounts header/footer outside workspaces — why: shared public chrome.
-- Routing allocation validation lives in `src/lib/routing.ts`; persisted assignments and rule changes use locked database RPCs through `ad-routing.functions.ts` — why: concurrency, idempotency, quota counters and audit history must remain atomic and server-authorized.
+- Routing validation lives in `src/lib/routing.ts`; assignments/rules use locked RPCs through `ad-routing.functions.ts` — why: authorized, atomic quotas, idempotency and audit.
 - Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
-- Master Admin panel lives under `src/routes/_authenticated/admin/` with nav config in `src/components/admin/nav.ts` and shared UI in `src/components/admin/ui.tsx`; the layout guard requires the `super_admin` role via `has_role` — why: admin access must be role-verified, not hidden links; unbuilt modules fall through to the `$` splat page so no link breaks.
+- Master Admin lives under `src/routes/_authenticated/admin/`; nav/UI use `src/components/admin/{nav.ts,ui.tsx}`; guard verifies `super_admin` via `has_role`, and unbuilt modules use the `$` splat — why: authorized access and working links.
 - The first Super Admin is provisioned only by the input-less server fn in `src/lib/provision-admin.functions.ts`, using the private `SUPER_ADMIN_EMAIL`/`SUPER_ADMIN_PASSWORD` secrets, and is a no-op once any super_admin exists; admins sign in at `/admin/login` (top-level route), users at `/login` — why: admin access never depends on public registration or hardcoded credentials.
 - CRM configuration (pipelines, lead/deal stages, sources/tags/categories/contract types, list-view columns) lives in DB tables edited at `/admin/crm/crm-system-setup`; Leads/Deals read these, never hardcoded lists — why: admins change setup without code. Reassignment by non-admins is blocked by a DB trigger, not UI.
 - Sales uses separate catalog/customer tables, protected route loaders calling `sales.functions.ts`, and the active-admin `can_manage_sales` policy; uploaded product images are private with signed URLs — why: financial access and tenant identity remain separate and role-verified.
@@ -31,4 +31,4 @@
 - Admin/user CRM work shares company-scoped records and locked RPCs; unlinked personal tasks use owner-scoped storage — why: preserve company-required Admin behavior and private work without fictitious companies.
 - User CRM uses assigned-record/owner-only RPCs, audited deals and source calendars; messaging shares Admin records with participant-checked group/receipt RPCs and private files, with provider actions blocked until verified — why: preserve identity/history without leaks or simulated delivery.
 
-- User commercial pages use permission- and company-scoped RPCs; proposals have evidence-backed decision history and the shared invoice ledger accepts user draft-only writes — why: preserve privileged issuance/payment controls and immutable financial history.
+- User commercial RPCs enforce permission/company scope, proposal decision evidence and draft-only shared invoice writes — why: preserve privileged finance and immutable history.
