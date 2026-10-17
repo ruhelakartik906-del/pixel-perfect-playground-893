@@ -25,10 +25,13 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RestrictedRouteImport } from './routes/restricted'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
 import { Route as AuthenticatedFollowUpsRouteImport } from './routes/_authenticated/follow-ups'
 import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
 import { Route as AuthenticatedMyLeadsRouteImport } from './routes/_authenticated/my-leads'
+import { Route as AuthenticatedMyWorkTableRouteImport } from './routes/_authenticated/my-work-table'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -171,9 +174,19 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDealsRoute = AuthenticatedDealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFollowUpsRoute = AuthenticatedFollowUpsRouteImport.update({
@@ -191,6 +204,12 @@ const AuthenticatedMyLeadsRoute = AuthenticatedMyLeadsRouteImport.update({
   path: '/my-leads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyWorkTableRoute =
+  AuthenticatedMyWorkTableRouteImport.update({
+    id: '/my-work-table',
+    path: '/my-work-table',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -575,10 +594,13 @@ export interface FileRoutesByFullPath {
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deals': typeof AuthenticatedDealsRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/my-leads': typeof AuthenticatedMyLeadsRoute
+  '/my-work-table': typeof AuthenticatedMyWorkTableRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
@@ -657,10 +679,13 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deals': typeof AuthenticatedDealsRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/my-leads': typeof AuthenticatedMyLeadsRoute
+  '/my-work-table': typeof AuthenticatedMyWorkTableRoute
   '/support': typeof AuthenticatedSupportRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
@@ -742,10 +767,13 @@ export interface FileRoutesById {
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/deals': typeof AuthenticatedDealsRoute
   '/_authenticated/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
   '/_authenticated/my-leads': typeof AuthenticatedMyLeadsRoute
+  '/_authenticated/my-work-table': typeof AuthenticatedMyWorkTableRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
   '/admin/login': typeof AdminLoginRoute
@@ -827,10 +855,13 @@ export interface FileRouteTypes {
     | '/restricted'
     | '/terms'
     | '/admin'
+    | '/calendar'
     | '/dashboard'
+    | '/deals'
     | '/follow-ups'
     | '/my-hr'
     | '/my-leads'
+    | '/my-work-table'
     | '/support'
     | '/tasks'
     | '/admin/login'
@@ -909,10 +940,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/restricted'
     | '/terms'
+    | '/calendar'
     | '/dashboard'
+    | '/deals'
     | '/follow-ups'
     | '/my-hr'
     | '/my-leads'
+    | '/my-work-table'
     | '/support'
     | '/tasks'
     | '/admin/login'
@@ -993,10 +1027,13 @@ export interface FileRouteTypes {
     | '/restricted'
     | '/terms'
     | '/_authenticated/admin'
+    | '/_authenticated/calendar'
     | '/_authenticated/dashboard'
+    | '/_authenticated/deals'
     | '/_authenticated/follow-ups'
     | '/_authenticated/my-hr'
     | '/_authenticated/my-leads'
+    | '/_authenticated/my-work-table'
     | '/_authenticated/support'
     | '/_authenticated/tasks'
     | '/admin/login'
@@ -1194,11 +1231,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/deals': {
+      id: '/_authenticated/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof AuthenticatedDealsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/follow-ups': {
@@ -1220,6 +1271,13 @@ declare module '@tanstack/react-router' {
       path: '/my-leads'
       fullPath: '/my-leads'
       preLoaderRoute: typeof AuthenticatedMyLeadsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-work-table': {
+      id: '/_authenticated/my-work-table'
+      path: '/my-work-table'
+      fullPath: '/my-work-table'
+      preLoaderRoute: typeof AuthenticatedMyWorkTableRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/support': {
@@ -1815,20 +1873,26 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
   AuthenticatedFollowUpsRoute: typeof AuthenticatedFollowUpsRoute
   AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
   AuthenticatedMyLeadsRoute: typeof AuthenticatedMyLeadsRoute
+  AuthenticatedMyWorkTableRoute: typeof AuthenticatedMyWorkTableRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDealsRoute: AuthenticatedDealsRoute,
   AuthenticatedFollowUpsRoute: AuthenticatedFollowUpsRoute,
   AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
   AuthenticatedMyLeadsRoute: AuthenticatedMyLeadsRoute,
+  AuthenticatedMyWorkTableRoute: AuthenticatedMyWorkTableRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
 }
