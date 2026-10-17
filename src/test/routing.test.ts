@@ -1,7 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { assigneeFor } from "@/lib/routing";
+import { assigneeFor, validateAllocations, validateVideoSource } from "@/lib/routing";
 
 describe("lead routing quotas", () => {
+  it("a specific video requires an actual Ad or Creative ID", () => {
+    expect(validateVideoSource({ creative_name: "Video A", ad_id: "", creative_id: "" })).toBe("A specific video requires its actual Ad ID or Creative ID");
+    expect(validateVideoSource({ creative_name: "Video A", ad_id: "real-ad-id", creative_id: "" })).toBeNull();
+    expect(validateVideoSource({ creative_name: "Video A", ad_id: "", creative_id: "real-creative-id" })).toBeNull();
+  });
+  it("Video A: first 5 to A, next 10 to D, remaining to C", () => {
+    const steps = [{ user: "A", limit: 5 }, { user: "D", limit: 10 }, { user: "C", limit: null }];
+    expect(assigneeFor(steps, 5)).toBe("A");
+    expect(assigneeFor(steps, 6)).toBe("D");
+    expect(assigneeFor(steps, 15)).toBe("D");
+    expect(assigneeFor(steps, 16)).toBe("C");
+  });
+  it("exhausted fixed quotas leave the lead unassigned", () => {
+    expect(assigneeFor([{ user: "A", limit: 5 }], 6)).toBe("");
+  });
+  it("supports unlimited sequential allocation steps", () => {
+    const steps = Array.from({ length: 50 }, (_, i) => ({ user: String(i), limit: 1 }));
+    expect(assigneeFor(steps, 50)).toBe("49");
+    expect(assigneeFor(steps, 51)).toBe("");
+  });
+  it("rejects zero or negative quotas", () => {
+    expect(validateAllocations([{ user_id: "A", quota: 0 }])).toBe("Quotas must be positive whole numbers");
+    expect(validateAllocations([{ user_id: "A", quota: -1 }])).toBe("Quotas must be positive whole numbers");
+  });
+  it("unlimited fallback must be last", () => {
+    expect(validateAllocations([{ user_id: "A", quota: null }, { user_id: "B", quota: 5 }])).toBe("Unlimited must be the last step");
+  });
   it("Video Ad A: first 5 to User A, then User D", () => {
     const steps = [{ user: "A", limit: 5 }, { user: "D", limit: null }];
     expect(assigneeFor(steps, 5)).toBe("A");

@@ -64,6 +64,11 @@ import { Route as AuthenticatedAdminHrmMeetingRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminHrmMeetingsRouteImport } from './routes/_authenticated/admin/hrm/meetings'
 import { Route as AuthenticatedAdminHrmPayrollRouteImport } from './routes/_authenticated/admin/hrm/payroll'
 import { Route as AuthenticatedAdminRoutingIndexRouteImport } from './routes/_authenticated/admin/routing/index'
+import { Route as AuthenticatedAdminRoutingAdRoutingSetupRouteImport } from './routes/_authenticated/admin/routing/ad-routing-setup'
+import { Route as AuthenticatedAdminRoutingCampaignAdMappingRouteImport } from './routes/_authenticated/admin/routing/campaign-ad-mapping'
+import { Route as AuthenticatedAdminRoutingDistributionRulesRouteImport } from './routes/_authenticated/admin/routing/distribution-rules'
+import { Route as AuthenticatedAdminRoutingLeadAssignmentHistoryRouteImport } from './routes/_authenticated/admin/routing/lead-assignment-history'
+import { Route as AuthenticatedAdminRoutingUnassignedLeadsRouteImport } from './routes/_authenticated/admin/routing/unassigned-leads'
 import { Route as AuthenticatedAdminSalesCreditNotesRouteImport } from './routes/_authenticated/admin/sales/credit-notes'
 import { Route as AuthenticatedAdminSalesCustomersRouteImport } from './routes/_authenticated/admin/sales/customers'
 import { Route as AuthenticatedAdminSalesInvoicesRouteImport } from './routes/_authenticated/admin/sales/invoices'
@@ -386,6 +391,36 @@ const AuthenticatedAdminRoutingIndexRoute =
     path: '/routing/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminRoutingAdRoutingSetupRoute =
+  AuthenticatedAdminRoutingAdRoutingSetupRouteImport.update({
+    id: '/routing/ad-routing-setup',
+    path: '/routing/ad-routing-setup',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRoutingCampaignAdMappingRoute =
+  AuthenticatedAdminRoutingCampaignAdMappingRouteImport.update({
+    id: '/routing/campaign-ad-mapping',
+    path: '/routing/campaign-ad-mapping',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRoutingDistributionRulesRoute =
+  AuthenticatedAdminRoutingDistributionRulesRouteImport.update({
+    id: '/routing/distribution-rules',
+    path: '/routing/distribution-rules',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRoutingLeadAssignmentHistoryRoute =
+  AuthenticatedAdminRoutingLeadAssignmentHistoryRouteImport.update({
+    id: '/routing/lead-assignment-history',
+    path: '/routing/lead-assignment-history',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRoutingUnassignedLeadsRoute =
+  AuthenticatedAdminRoutingUnassignedLeadsRouteImport.update({
+    id: '/routing/unassigned-leads',
+    path: '/routing/unassigned-leads',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSalesCreditNotesRoute =
   AuthenticatedAdminSalesCreditNotesRouteImport.update({
     id: '/sales/credit-notes',
@@ -519,6 +554,11 @@ export interface FileRoutesByFullPath {
   '/admin/hrm/meeting': typeof AuthenticatedAdminHrmMeetingRoute
   '/admin/hrm/meetings': typeof AuthenticatedAdminHrmMeetingsRoute
   '/admin/hrm/payroll': typeof AuthenticatedAdminHrmPayrollRoute
+  '/admin/routing/ad-routing-setup': typeof AuthenticatedAdminRoutingAdRoutingSetupRoute
+  '/admin/routing/campaign-ad-mapping': typeof AuthenticatedAdminRoutingCampaignAdMappingRoute
+  '/admin/routing/distribution-rules': typeof AuthenticatedAdminRoutingDistributionRulesRoute
+  '/admin/routing/lead-assignment-history': typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
+  '/admin/routing/unassigned-leads': typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -587,6 +627,11 @@ export interface FileRoutesByTo {
   '/admin/hrm/meeting': typeof AuthenticatedAdminHrmMeetingRoute
   '/admin/hrm/meetings': typeof AuthenticatedAdminHrmMeetingsRoute
   '/admin/hrm/payroll': typeof AuthenticatedAdminHrmPayrollRoute
+  '/admin/routing/ad-routing-setup': typeof AuthenticatedAdminRoutingAdRoutingSetupRoute
+  '/admin/routing/campaign-ad-mapping': typeof AuthenticatedAdminRoutingCampaignAdMappingRoute
+  '/admin/routing/distribution-rules': typeof AuthenticatedAdminRoutingDistributionRulesRoute
+  '/admin/routing/lead-assignment-history': typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
+  '/admin/routing/unassigned-leads': typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -658,6 +703,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/hrm/meeting': typeof AuthenticatedAdminHrmMeetingRoute
   '/_authenticated/admin/hrm/meetings': typeof AuthenticatedAdminHrmMeetingsRoute
   '/_authenticated/admin/hrm/payroll': typeof AuthenticatedAdminHrmPayrollRoute
+  '/_authenticated/admin/routing/ad-routing-setup': typeof AuthenticatedAdminRoutingAdRoutingSetupRoute
+  '/_authenticated/admin/routing/campaign-ad-mapping': typeof AuthenticatedAdminRoutingCampaignAdMappingRoute
+  '/_authenticated/admin/routing/distribution-rules': typeof AuthenticatedAdminRoutingDistributionRulesRoute
+  '/_authenticated/admin/routing/lead-assignment-history': typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
+  '/_authenticated/admin/routing/unassigned-leads': typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
   '/_authenticated/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/_authenticated/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/_authenticated/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
@@ -729,6 +779,11 @@ export interface FileRouteTypes {
     | '/admin/hrm/meeting'
     | '/admin/hrm/meetings'
     | '/admin/hrm/payroll'
+    | '/admin/routing/ad-routing-setup'
+    | '/admin/routing/campaign-ad-mapping'
+    | '/admin/routing/distribution-rules'
+    | '/admin/routing/lead-assignment-history'
+    | '/admin/routing/unassigned-leads'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
@@ -797,6 +852,11 @@ export interface FileRouteTypes {
     | '/admin/hrm/meeting'
     | '/admin/hrm/meetings'
     | '/admin/hrm/payroll'
+    | '/admin/routing/ad-routing-setup'
+    | '/admin/routing/campaign-ad-mapping'
+    | '/admin/routing/distribution-rules'
+    | '/admin/routing/lead-assignment-history'
+    | '/admin/routing/unassigned-leads'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
@@ -867,6 +927,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/hrm/meeting'
     | '/_authenticated/admin/hrm/meetings'
     | '/_authenticated/admin/hrm/payroll'
+    | '/_authenticated/admin/routing/ad-routing-setup'
+    | '/_authenticated/admin/routing/campaign-ad-mapping'
+    | '/_authenticated/admin/routing/distribution-rules'
+    | '/_authenticated/admin/routing/lead-assignment-history'
+    | '/_authenticated/admin/routing/unassigned-leads'
     | '/_authenticated/admin/sales/credit-notes'
     | '/_authenticated/admin/sales/customers'
     | '/_authenticated/admin/sales/invoices'
@@ -1289,6 +1354,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRoutingIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/routing/ad-routing-setup': {
+      id: '/_authenticated/admin/routing/ad-routing-setup'
+      path: '/routing/ad-routing-setup'
+      fullPath: '/admin/routing/ad-routing-setup'
+      preLoaderRoute: typeof AuthenticatedAdminRoutingAdRoutingSetupRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/routing/campaign-ad-mapping': {
+      id: '/_authenticated/admin/routing/campaign-ad-mapping'
+      path: '/routing/campaign-ad-mapping'
+      fullPath: '/admin/routing/campaign-ad-mapping'
+      preLoaderRoute: typeof AuthenticatedAdminRoutingCampaignAdMappingRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/routing/distribution-rules': {
+      id: '/_authenticated/admin/routing/distribution-rules'
+      path: '/routing/distribution-rules'
+      fullPath: '/admin/routing/distribution-rules'
+      preLoaderRoute: typeof AuthenticatedAdminRoutingDistributionRulesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/routing/lead-assignment-history': {
+      id: '/_authenticated/admin/routing/lead-assignment-history'
+      path: '/routing/lead-assignment-history'
+      fullPath: '/admin/routing/lead-assignment-history'
+      preLoaderRoute: typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/routing/unassigned-leads': {
+      id: '/_authenticated/admin/routing/unassigned-leads'
+      path: '/routing/unassigned-leads'
+      fullPath: '/admin/routing/unassigned-leads'
+      preLoaderRoute: typeof AuthenticatedAdminRoutingUnassignedLeadsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/sales/credit-notes': {
       id: '/_authenticated/admin/sales/credit-notes'
       path: '/sales/credit-notes'
@@ -1419,6 +1519,11 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminHrmMeetingRoute: typeof AuthenticatedAdminHrmMeetingRoute
   AuthenticatedAdminHrmMeetingsRoute: typeof AuthenticatedAdminHrmMeetingsRoute
   AuthenticatedAdminHrmPayrollRoute: typeof AuthenticatedAdminHrmPayrollRoute
+  AuthenticatedAdminRoutingAdRoutingSetupRoute: typeof AuthenticatedAdminRoutingAdRoutingSetupRoute
+  AuthenticatedAdminRoutingCampaignAdMappingRoute: typeof AuthenticatedAdminRoutingCampaignAdMappingRoute
+  AuthenticatedAdminRoutingDistributionRulesRoute: typeof AuthenticatedAdminRoutingDistributionRulesRoute
+  AuthenticatedAdminRoutingLeadAssignmentHistoryRoute: typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
+  AuthenticatedAdminRoutingUnassignedLeadsRoute: typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
   AuthenticatedAdminSalesCreditNotesRoute: typeof AuthenticatedAdminSalesCreditNotesRoute
   AuthenticatedAdminSalesCustomersRoute: typeof AuthenticatedAdminSalesCustomersRoute
   AuthenticatedAdminSalesInvoicesRoute: typeof AuthenticatedAdminSalesInvoicesRoute
@@ -1481,6 +1586,16 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminHrmMeetingRoute: AuthenticatedAdminHrmMeetingRoute,
     AuthenticatedAdminHrmMeetingsRoute: AuthenticatedAdminHrmMeetingsRoute,
     AuthenticatedAdminHrmPayrollRoute: AuthenticatedAdminHrmPayrollRoute,
+    AuthenticatedAdminRoutingAdRoutingSetupRoute:
+      AuthenticatedAdminRoutingAdRoutingSetupRoute,
+    AuthenticatedAdminRoutingCampaignAdMappingRoute:
+      AuthenticatedAdminRoutingCampaignAdMappingRoute,
+    AuthenticatedAdminRoutingDistributionRulesRoute:
+      AuthenticatedAdminRoutingDistributionRulesRoute,
+    AuthenticatedAdminRoutingLeadAssignmentHistoryRoute:
+      AuthenticatedAdminRoutingLeadAssignmentHistoryRoute,
+    AuthenticatedAdminRoutingUnassignedLeadsRoute:
+      AuthenticatedAdminRoutingUnassignedLeadsRoute,
     AuthenticatedAdminSalesCreditNotesRoute:
       AuthenticatedAdminSalesCreditNotesRoute,
     AuthenticatedAdminSalesCustomersRoute:

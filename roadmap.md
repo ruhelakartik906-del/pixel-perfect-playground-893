@@ -1,4 +1,6 @@
 # Admin roadmap
+- [x] Ad routing setup, assignment history and unassigned queue — locked routing RPCs, cumulative quotas, source priority and audit; pages/builder/CSV/redirects checked
+- [ ] Routing write/concurrency and non-admin authorization verification — blocked: no company or eligible company-linked user, no isolated test database
 - [x] CRM Automation, System Setup, Leads/Deals storage, Reports, Analytics, Custom Forms, Lead import
 - [x] Contacts & Companies pages (CRUD, search, export, safe company delete)
 - [x] Functional audit of CRM modules (Oct 16)
@@ -10,7 +12,7 @@
 - [x] Sales Phase 4 implementation — Credit Notes: authorized credit limits, balances, audit history/PDF
 - [x] Sales Phase 5 implementation — Revenue: payment-backed totals and double-count prevention
 - [ ] Sales financial end-to-end verification — blocked: no confirmed isolated database; no live financial test writes
-- [ ] Meta/Make.com intake, automatic routing, follow-ups — not built
+- [ ] Meta/Make.com intake and follow-ups — external intake not connected; internal routing engine built
 - [x] Users, Role, Mail, Chat, WhatsApp Chat, Message Templates pages
 - [ ] Live email sending/inbox sync — needs a mail delivery integration
 - [ ] WhatsApp live messaging & Meta template sync — needs WhatsApp Business connection
