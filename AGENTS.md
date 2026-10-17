@@ -30,3 +30,5 @@
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
 - Admin/user CRM work shares company-scoped records and locked RPCs; unlinked personal tasks use owner-scoped storage — why: preserve company-required Admin behavior and private work without fictitious companies.
 - User CRM uses assigned-record/owner-only RPCs, audited deals and source calendars; messaging shares Admin records with participant-checked group/receipt RPCs and private files, with provider actions blocked until verified — why: preserve identity/history without leaks or simulated delivery.
+
+- User commercial pages use permission- and company-scoped RPCs; proposals have evidence-backed decision history and the shared invoice ledger accepts user draft-only writes — why: preserve privileged issuance/payment controls and immutable financial history.
