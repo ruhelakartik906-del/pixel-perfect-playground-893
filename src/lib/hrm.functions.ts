@@ -11,12 +11,14 @@ export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireS
  const result=await Promise.all(tables.map(table=>readRows(table,table==='access_roles'?'name':'created_at')));
  const people=await context.supabase.rpc('hrm_people');if(people.error)throw new Error(people.error.message);
  const perms=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'super_admin'});
+ const manageable:typeof hrModules[number][]=[];
+ for(const module of hrModules){for(const company of result[1]||[]){const access=await context.supabase.rpc('hrm_allowed',{_module:`hr_${module}`,_action:'view',_company:company.id});if(access.error)throw new Error('HR permission check failed');if(access.data){manageable.push(module);break;}}}
  const extra:Record<string,HrRow[]>={};
  const extraTables=data.module==='calendar'?{holidays:'hr_holidays',leaves:'hr_leave_requests',meetings:'hr_meetings',schedules:'hr_schedules'}:['attendance','payroll'].includes(data.module)?{attendance:'hr_attendance',holidays:'hr_holidays',leaves:'hr_leave_requests'}:{};
  for(const [key,table] of Object.entries(extraTables))extra[key]=await readRows(table);
  if(data.module==='leave'){const r=await context.supabase.from('hr_leave_balances').select('*');if(r.error)throw new Error(r.error.message);extra['balances']=r.data;}
  if(data.module==='document'){const r=await context.supabase.from('hr_document_versions').select('*').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra['versions']=r.data;}
- return {rows:result[0]||[],companies:result[1]||[],branches:result[2]||[],designations:result[3]||[],departments:result[4]||[],roles:result[5]||[],people:(people.data||[]) as HrRow[],userId:context.userId,isAdmin:perms.data===true,extra};
+ return {rows:result[0]||[],companies:result[1]||[],branches:result[2]||[],designations:result[3]||[],departments:result[4]||[],roles:result[5]||[],people:(people.data||[]) as HrRow[],userId:context.userId,isAdmin:perms.data===true,manageable,extra};
 });
 export const mutateHrm=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:moduleSchema,action:z.enum(['save','delete']),id:z.string().uuid().optional(),payload:z.record(z.unknown()).optional()}).parse(v)).handler(async({context,data})=>{
  if(['attendance','leave','payroll'].includes(data.module))throw new Error('Use the audited action');
