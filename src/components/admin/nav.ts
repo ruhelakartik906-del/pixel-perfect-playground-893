@@ -26,7 +26,10 @@ export const adminNav: NavGroup[] = [
   { label: "Integrations", icon: Cable, badge: "NEW", items: [{ label: "Integrations", path: "integrations" }] },
   g("HRM", Briefcase, "hrm", ["Employees", "Attendance", "Holidays", "Leave Management", "Meetings", "Announcements"]),
   g("Job", FileText, "job", ["Jobs", "Job Candidates", "Job Onboarding", "Job Applications", "Offer Letters", "Interviews"]),
-  g("Setting", Settings, "settings", ["CRM Configuration", "Countries", "Currencies", "Tax", "E-Signature"]),
+  { label: "Settings", icon: Settings, items: [
+    { label: "Admin Account & Security", path: "settings/admin-account-security" },
+    { label: "Business Settings", path: "settings/business-settings" },
+  ] },
   { label: "Support", icon: Headphones, items: [{ label: "Support", path: "support" }] },
 ];
 
