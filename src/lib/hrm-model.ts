@@ -13,16 +13,17 @@ const common={company_id:uuid,branch_id:optionalId,title:text,details:details.de
 export const recordSchemas = {
  branch:z.object({name:text,company_id:uuid,manager_id:optionalId,code:z.string().max(40),email:z.union([z.literal(''),z.string().email()]),phone:z.string().max(30),address:z.string().max(1000),city:z.string().max(100),state:z.string().max(100),postal_code:z.string().max(20),is_active:z.boolean()}).strict(),
  designation:z.object({name:text,company_id:uuid,branch_id:optionalId,department_id:optionalId,description:z.string().max(4000),is_active:z.boolean()}).strict(),
- holiday:z.object({...common,start_date:date,end_date:date,kind:z.enum(['public','festival','company','other']),status:z.enum(['active','inactive'])}).strict(),
+ holiday:z.object({...common,start_date:date,end_date:date,kind:z.enum(['public','company','optional','festival','other']),status:z.enum(['active','inactive'])}).strict(),
  meeting:z.object({...common,department_id:optionalId,start_date:date,end_date:date,start_at:z.string().datetime({offset:true}),end_at:z.string().datetime({offset:true}),kind:z.literal('meeting'),status:z.enum(['scheduled','in_progress','completed','cancelled'])}).strict(),
  calendar:z.object({...common,start_date:date,end_date:date,start_at:z.string().datetime({offset:true}),end_at:z.string().datetime({offset:true}),kind:z.enum(['custom','internal_task']),status:z.enum(['scheduled','completed','cancelled'])}).strict(),
- announcement:z.object({...common,department_id:optionalId,start_date:date,end_date:date.nullable(),kind:z.enum(['normal','high','urgent']),status:z.enum(['draft','published','archived'])}).strict(),
+ announcement:z.object({...common,department_id:optionalId,start_date:date,end_date:date.nullable(),kind:z.enum(['normal','high','urgent']),status:z.enum(['draft','published','expired','archived'])}).strict(),
  document:z.object({...common,department_id:optionalId,end_date:date.nullable(),kind:z.string().min(1).max(80),status:z.enum(['active','archived'])}).strict(),
 };
 export function validateRecord(module:HrModule,payload:unknown){
  const schema=recordSchemas[module as keyof typeof recordSchemas]; if(!schema) throw new Error('Use the controlled attendance, leave or payroll action');
  const r=schema.parse(payload) as any;
  if(r.start_date && r.end_date && r.end_date<r.start_date) throw new Error('End date must follow start date');
+ if(module==='holiday')r.details.optional=r.kind==='optional'||!!r.details.optional;
  if(r.start_at && new Date(r.end_at)<=new Date(r.start_at)) throw new Error('End time must follow start time');
  if(['meeting','calendar'].includes(module) && (indiaDate(r.start_at)!==r.start_date || indiaDate(r.end_at)!==r.end_date)) throw new Error('Meeting dates and times must match');
  return r;
@@ -30,15 +31,18 @@ export function validateRecord(module:HrModule,payload:unknown){
 export function indiaDate(value:string|Date=new Date()){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));}
 export function indiaTimestamp(date:string,time:string){return `${date}T${time}:00+05:30`;}
 export function salaryTotals(basic:number|string,allowances:number|string,bonuses:number|string,deductions:number|string){const values=[basic,allowances,bonuses,deductions].map(v=>new Decimal(v||0));if(values.some(v=>!v.isFinite()||v.isNegative()))throw new Error('Salary amounts must be non-negative'); const gross=new Decimal(basic||0).plus(allowances||0).plus(bonuses||0).toDecimalPlaces(2);const net=gross.minus(deductions||0).toDecimalPlaces(2);if(net.isNegative())throw new Error('Deductions cannot exceed gross salary');return {gross:gross.toFixed(2),net:net.toFixed(2)};}
-export const attendanceSchema=z.object({employee_id:uuid,date, status:z.enum(['present','absent','half_day','leave']),reason:z.string().trim().min(3).max(2000),check_in:z.string().datetime({offset:true}).nullable(),check_out:z.string().datetime({offset:true}).nullable()}).strict().refine(v=>!v.check_out||(v.check_in && new Date(v.check_out)>=new Date(v.check_in)),'Check out must follow check in');
+export const attendanceSchema=z.object({employee_id:uuid,date, status:z.enum(['present','absent','half_day','leave','weekend']),reason:z.string().trim().min(3).max(2000),check_in:z.string().datetime({offset:true}).nullable(),check_out:z.string().datetime({offset:true}).nullable()}).strict().refine(v=>!v.check_out||(v.check_in && new Date(v.check_out)>=new Date(v.check_in)),'Check out must follow check in');
+export const bulkAttendanceSchema=z.object({employee_ids:z.array(uuid).min(1).max(500).transform(ids=>[...new Set(ids)].sort()),date,status:z.enum(['present','absent','half_day','leave','weekend']),reason:z.string().trim().min(3).max(2000)}).strict();
+export function announcementStatus(row:HrRow,today=indiaDate()){return row.status==='published'&&row.end_date&&row.end_date<today?'expired':row.status;}
+export function dateDuration(start:string,end:string,half=false){return half?0.5:Math.floor((Date.parse(end)-Date.parse(start))/86400000)+1;}
 export const leaveSchema=z.object({id:uuid.optional(),employee_id:uuid.optional(),self:z.boolean().optional(),kind:z.enum(['casual','sick','earned','unpaid','other']),start_date:date,end_date:date,half_day:z.boolean(),reason:z.string().trim().min(1).max(2000)}).strict().refine(v=>v.end_date>=v.start_date && (!v.half_day||v.start_date===v.end_date) && v.start_date.slice(0,4)===v.end_date.slice(0,4),'Use a valid date range within one year; half-day requests need one date');
 export const payrollSchema=z.object({id:uuid.optional(),employee_id:uuid,salary_period:date.refine(v=>v.endsWith('-01'),'Select a salary month'),salary_date:date,basic:money,allowances:money,bonuses:money,deductions:money,notes:z.string().max(2000)}).strict().superRefine((v,c)=>{if(v.deductions>v.basic+v.allowances+v.bonuses)c.addIssue({code:z.ZodIssueCode.custom,message:'Deductions exceed gross salary'});});
 export const allowedFiles=['application/pdf','image/png','image/jpeg','text/plain','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 export function validateFile(size:number,mime:string){if(size<1||size>10*1024*1024||!allowedFiles.includes(mime))throw new Error('Upload PDF, PNG, JPEG, TXT, DOCX or XLSX files up to 10 MB');}
 export function attendanceCell(employee:HrRow,date:string,records:HrRow[],holidays:HrRow[],leaves:HrRow[]){
- const recorded=records.find(r=>r.employee_id===employee.id && r.attendance_date===date); if(recorded)return {status:recorded.status,label:({present:'P',absent:'A',half_day:'HD',leave:'L'} as Record<string,string>)[recorded.status]||'—',record:recorded};
+ const recorded=records.find(r=>r.employee_id===employee.id && r.attendance_date===date && (!r.source_leave_id||leaves.some(l=>l.id===r.source_leave_id&&l.status==='approved'))); if(recorded)return {status:recorded.status,label:({present:'P',absent:'A',half_day:'HD',leave:'L',weekend:'WK'} as Record<string,string>)[recorded.status]||'—',record:recorded};
  const day=new Date(`${date}T12:00:00+05:30`).getUTCDay(); if(day===0||day===6)return {status:'weekend',label:'WK'};
- const holiday=holidays.find(h=>h.company_id===employee.company_id&&(!h.branch_id||h.branch_id===employee.branch_id)&&h.status==='active'&&!h.details?.optional&&((date>=h.start_date&&date<=h.end_date)||(h.details?.recurring&&date.slice(5)>=h.start_date.slice(5)&&date.slice(5)<=h.end_date.slice(5))));if(holiday)return {status:'holiday',label:'H',source:holiday};
+ const holiday=holidays.find(h=>h.company_id===employee.company_id&&(!h.branch_id||h.branch_id===employee.branch_id)&&h.status==='active'&&h.kind!=='optional'&&!h.details?.optional&&((date>=h.start_date&&date<=h.end_date)||(h.details?.recurring&&date.slice(5)>=h.start_date.slice(5)&&date.slice(5)<=h.end_date.slice(5))));if(holiday)return {status:'holiday',label:'H',source:holiday};
  const leave=leaves.find(l=>l.employee_id===employee.id&&l.status==='approved'&&date>=l.start_date&&date<=l.end_date);if(leave)return {status:leave.half_day?'half_day':'leave',label:leave.half_day?'HD':'L',source:leave};
  return {status:'unrecorded',label:'—'};
 }
