@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_roles: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          name: string
+          permissions: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          permissions?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          permissions?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       automation_executions: {
         Row: {
           created_at: string
@@ -85,6 +112,48 @@ export type Database = {
           status?: string
           trigger?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      chat_stars: {
+        Row: {
+          peer_id: string
+          user_id: string
+        }
+        Insert: {
+          peer_id: string
+          user_id?: string
+        }
+        Update: {
+          peer_id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -836,6 +905,123 @@ export type Database = {
           },
         ]
       }
+      mail_messages: {
+        Row: {
+          body: string
+          cc: string
+          created_at: string
+          delivery_status: string
+          folder: string
+          from_email: string
+          id: string
+          important: boolean
+          is_read: boolean
+          owner_id: string
+          previous_folder: string | null
+          scheduled_at: string | null
+          starred: boolean
+          subject: string
+          to_emails: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          cc?: string
+          created_at?: string
+          delivery_status?: string
+          folder?: string
+          from_email?: string
+          id?: string
+          important?: boolean
+          is_read?: boolean
+          owner_id?: string
+          previous_folder?: string | null
+          scheduled_at?: string | null
+          starred?: boolean
+          subject?: string
+          to_emails?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          cc?: string
+          created_at?: string
+          delivery_status?: string
+          folder?: string
+          from_email?: string
+          id?: string
+          important?: boolean
+          is_read?: boolean
+          owner_id?: string
+          previous_folder?: string | null
+          scheduled_at?: string | null
+          starred?: boolean
+          subject?: string
+          to_emails?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mailbox_secrets: {
+        Row: {
+          owner_id: string
+          password: string
+          updated_at: string
+        }
+        Insert: {
+          owner_id: string
+          password: string
+          updated_at?: string
+        }
+        Update: {
+          owner_id?: string
+          password?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mailbox_settings: {
+        Row: {
+          from_email: string
+          from_name: string
+          has_password: boolean
+          imap_host: string
+          imap_port: number
+          owner_id: string
+          smtp_host: string
+          smtp_port: number
+          smtp_secure: boolean
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          from_email?: string
+          from_name?: string
+          has_password?: boolean
+          imap_host?: string
+          imap_port?: number
+          owner_id?: string
+          smtp_host?: string
+          smtp_port?: number
+          smtp_secure?: boolean
+          updated_at?: string
+          username?: string
+        }
+        Update: {
+          from_email?: string
+          from_name?: string
+          has_password?: boolean
+          imap_host?: string
+          imap_port?: number
+          owner_id?: string
+          smtp_host?: string
+          smtp_port?: number
+          smtp_secure?: boolean
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -1157,6 +1343,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_access_roles: {
+        Row: {
+          created_at: string
+          role_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_access_roles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "access_roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_access_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1178,11 +1397,136 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_conversations: {
+        Row: {
+          contact_name: string
+          created_at: string
+          id: string
+          last_inbound_at: string | null
+          last_message_at: string | null
+          lead_id: string | null
+          unread_count: number
+          wa_phone: string
+        }
+        Insert: {
+          contact_name?: string
+          created_at?: string
+          id?: string
+          last_inbound_at?: string | null
+          last_message_at?: string | null
+          lead_id?: string | null
+          unread_count?: number
+          wa_phone: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          id?: string
+          last_inbound_at?: string | null
+          last_message_at?: string | null
+          lead_id?: string | null
+          unread_count?: number
+          wa_phone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_conversations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          direction: string
+          id: string
+          status: string
+          wa_message_id: string | null
+        }
+        Insert: {
+          body?: string
+          conversation_id: string
+          created_at?: string
+          direction: string
+          id?: string
+          status?: string
+          wa_message_id?: string | null
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          status?: string
+          wa_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_templates: {
+        Row: {
+          body: string
+          buttons: Json
+          category: string
+          created_at: string
+          footer: string
+          header: string
+          id: string
+          language: string
+          name: string
+          status: string
+          sync_status: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          buttons?: Json
+          category: string
+          created_at?: string
+          footer?: string
+          header?: string
+          id?: string
+          language?: string
+          name: string
+          status?: string
+          sync_status?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          buttons?: Json
+          category?: string
+          created_at?: string
+          footer?: string
+          header?: string
+          id?: string
+          language?: string
+          name?: string
+          status?: string
+          sync_status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_chat_with: { Args: { _other: string }; Returns: boolean }
       can_manage_sales: { Args: never; Returns: boolean }
       has_role: {
         Args: {

@@ -195,3 +195,16 @@
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
 }
+
+@utility inp {
+  height: 2.5rem;
+  width: 100%;
+  border-radius: var(--radius-md, 0.375rem);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  &:focus { box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-ring) 30%, transparent); }
+  &:disabled { opacity: 0.6; }
+}
