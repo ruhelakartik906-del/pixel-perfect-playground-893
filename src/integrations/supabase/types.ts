@@ -3546,6 +3546,16 @@ export type Database = {
         Returns: string
       }
       support_admin: { Args: never; Returns: boolean }
+      user_crm_company: { Args: { _company: string }; Returns: boolean }
+      user_lead_action: {
+        Args: {
+          _action: string
+          _id: string
+          _payload: Json
+          _updated_at: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       account_status: "pending" | "active" | "blocked"

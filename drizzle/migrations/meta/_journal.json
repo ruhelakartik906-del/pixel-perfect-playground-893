@@ -218,6 +218,13 @@
       "when": 1792234123466,
       "tag": "0030_enforce_task_due_date",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1792235667331,
+      "tag": "0031_user_crm_lead_access",
+      "breakpoints": true
     }
   ]
 }
