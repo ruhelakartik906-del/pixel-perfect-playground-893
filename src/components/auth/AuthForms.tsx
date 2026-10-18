@@ -66,6 +66,7 @@ function TextField<T extends Record<string, string>>({ form, setForm, errors, na
 }
 
 export function LoginForm() {
+  const hydrated = useHydrated();
   const navigate = useNavigate();
   const resolveAccess = useServerFn(resolveAuthAccess);
   const account = useExistingAccount();
@@ -130,12 +131,13 @@ export function LoginForm() {
         {loading === "email" ? <><Loader2 className="animate-spin" /> Signing in…</> : <><LockKeyhole /> Login</>}
       </Button>
       <div className="relative py-1"><Separator /><span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs font-semibold uppercase text-muted-foreground">or</span></div>
-      <Button type="button" variant="pill" size="xl" className="w-full" disabled={loading !== null || account.isPending || Boolean(account.data)} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
+      <Button type="button" variant="pill" size="xl" className="w-full" disabled={!hydrated || loading !== null || account.isPending || Boolean(account.data)} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
     </form>
   );
 }
 
 export function RegisterForm() {
+  const hydrated = useHydrated();
   const account = useExistingAccount();
   const navigate = useNavigate();
   const [form, setForm] = useState<RegisterForm>({ firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
@@ -211,7 +213,7 @@ export function RegisterForm() {
         </label>
         {errors.terms && <p className="mt-1 text-xs text-destructive">{errors.terms}</p>}
       </div>
-      <Button type="submit" variant="hero" size="xl" disabled={state === "submitting" || account.isPending || Boolean(account.data)}>{state === "submitting" ? <><Loader2 className="animate-spin" /> Creating account…</> : <><UserPlus /> Create account</>}</Button>
+      <Button type="submit" variant="hero" size="xl" disabled={!hydrated || state === "submitting" || account.isPending || Boolean(account.data)}>{state === "submitting" ? <><Loader2 className="animate-spin" /> Creating account…</> : <><UserPlus /> Create account</>}</Button>
     </form>
   );
 }
