@@ -177,9 +177,9 @@ export function RegisterForm() {
     return (
       <div className="py-8 text-center">
         <Mail className="mx-auto size-12 text-primary" />
-        <h2 className="mt-4 text-2xl font-bold">{signedUpWithSession ? "Account created" : "Check your email"}</h2>
-        <p className="mt-2 text-muted-foreground">{signedUpWithSession ? "Your account is waiting for authorized approval. No company access has been assigned." : "If this address is eligible for registration, a confirmation email will arrive. Already registered? Sign in or use Forgot password. CRM access requires approval."}</p>
-        <Button asChild variant="pill" size="xl" className="mt-6"><Link to={signedUpWithSession ? "/pending-approval" : "/login"}>{signedUpWithSession ? "View account status" : "Go to login"}</Link></Button>
+        <h2 className="mt-4 text-2xl font-bold">Check your email</h2>
+        <p className="mt-2 text-muted-foreground">If this address is eligible for registration, a confirmation email will arrive. Already registered? Sign in or use Forgot password.</p>
+        <Button asChild variant="pill" size="xl" className="mt-6"><Link to="/login">Go to login</Link></Button>
       </div>
     );
   }
