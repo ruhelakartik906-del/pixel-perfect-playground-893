@@ -12,7 +12,6 @@ import { managedSourceSchema, type ManagedSourceInput } from '@/lib/make-managem
 
 const empty: ManagedSourceInput = { name: '', platform: 'Facebook', company_id: '', account_id: '', page_id: '', form_id: '', campaign_id: '', ad_id: '', rule_id: null, active: true };
 const endpointPath = '/api/public/make-leads';
-const previewEndpoint = 'https://project--48e00644-857c-4d61-b9dc-512233910ecd-dev.lovable.app/api/public/make-leads';
 const sample = { facebook_lead_id: '123456789', name: 'Connection test', phone: '+46000000000', email: 'test@example.test', source: 'Facebook', page_id: '<PAGE_ID>', form_id: '<FORM_ID>', campaign_id: '<CAMPAIGN_ID_OR_EMPTY>', ad_id: '<AD_ID_OR_EMPTY>', form_answers: { service: 'Consultation' }, dry_run: true };
 function date(value: string | null | undefined) { return value ? new Date(value).toLocaleString() : '—'; }
 
@@ -21,15 +20,14 @@ export function MakeIntegration({ onBack }: { onBack: () => void }) {
   const qc = useQueryClient();
   const query = useQuery({ queryKey: ['make-management'], queryFn: () => load() });
   const data = query.data;
-  const [endpoint, setEndpoint] = useState(previewEndpoint);
+  const [endpoint, setEndpoint] = useState(endpointPath);
   const [busy, setBusy] = useState(false), [q, setQ] = useState(''), [company, setCompany] = useState('');
   const [source, setSource] = useState<ManagedSourceInput | null>(null);
   const [newKey, setNewKey] = useState<string | null>(null);
   const [testKey, setTestKey] = useState(''), [testSource, setTestSource] = useState('');
   const [testResult, setTestResult] = useState<{ status: 'Verified' | 'Setup Required' | 'Error'; message: string } | null>(null);
   useEffect(() => {
-    const url = new URL(window.location.href);
-    if (url.protocol === 'https:' && !url.hostname.startsWith('id-preview--')) setEndpoint(url.origin + endpointPath);
+    setEndpoint(window.location.origin + endpointPath);
   }, []);
   const refresh = () => qc.invalidateQueries({ queryKey: ['make-management'] });
   async function act(work: () => Promise<unknown>, success: string) {
@@ -69,8 +67,8 @@ export function MakeIntegration({ onBack }: { onBack: () => void }) {
       <section className="border-t pt-5"><h3 className="mb-3 text-lg font-semibold">Recent Lead Intake Logs</h3><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b bg-muted"><tr>{['Received','Source','Result','HTTP','Details'].map(h => <th className="p-3" key={h}>{h}</th>)}</tr></thead><tbody>{data.logs.map(l => <tr className="border-b" key={l.id}><td className="p-3">{date(l.created_at)}</td><td className="p-3">{data.sources.find(s => s.id === l.source_id)?.name ?? '—'}</td><td className="p-3">{l.status}{l.is_test ? ' (test)' : ''}</td><td className="p-3">{l.http_status}</td><td className="p-3">{l.code}</td></tr>)}</tbody></table>{!data.logs.length && <p className="py-4 text-muted-foreground">No intake requests recorded.</p>}</div></section>
       <section className="border-t pt-5"><h3 className="mb-3 text-lg font-semibold">Make.com Setup</h3><ol className="ml-5 list-decimal space-y-1 text-sm"><li>Create a Scenario → Facebook Lead Ads → Watch Leads.</li><li>Add HTTP → Make a request → POST to the published endpoint shown above.</li><li>Set <code>Authorization: Bearer &lt;API key&gt;</code> and <code>Content-Type: application/json</code>.</li><li>Map the JSON fields below. Keep Page/Form IDs aligned with an active source.</li><li>Use <code>dry_run: true</code> for a safe authenticated check, then use <code>false</code> for real leads.</li><li>Activate after verification. Page/Form selection and rotated credentials must also be updated in Make.com.</li></ol><pre className="mt-3 overflow-x-auto rounded bg-muted p-3 text-xs">{JSON.stringify(sample, null, 2)}</pre></section>
     </>}
-    <Dialog open={!!newKey} onOpenChange={open => { if (!open) setNewKey(null); }}><DialogContent><DialogHeader><DialogTitle><ShieldCheck className="mr-2 inline size-5" />New API key</DialogTitle></DialogHeader><p className="text-sm">Copy now. This full key is shown only once; closing this window removes it. Existing keys stay active until revoked.</p><code className="break-all rounded bg-muted p-3">{newKey}</code><Button onClick={() => newKey && copy(newKey)}><Copy className="size-4" />Copy Secret Key</Button><Button variant="outline" onClick={() => setNewKey(null)}>Done</Button></DialogContent></Dialog>
-    <Dialog open={!!source} onOpenChange={open => { if (!open) setSource(null); }}><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{source?.id ? 'Edit lead source' : 'Add lead source'}</DialogTitle></DialogHeader>{source && <form className="grid gap-3 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); const parsed = managedSourceSchema.safeParse(source); if (!parsed.success) { toast.error('Check required fields and numeric source IDs'); return; } act(async () => { await save({ data: parsed.data }); setSource(null); }, 'Source saved'); }}>
+    <Dialog open={!!newKey} onOpenChange={open => { if (!open) setNewKey(null); }}><DialogContent className="bg-card"><DialogHeader><DialogTitle><ShieldCheck className="mr-2 inline size-5" />New API key</DialogTitle></DialogHeader><p className="text-sm">Copy now. This full key is shown only once; closing this window removes it. Existing keys stay active until revoked.</p><code className="break-all rounded bg-muted p-3">{newKey}</code><Button onClick={() => newKey && copy(newKey)}><Copy className="size-4" />Copy Secret Key</Button><Button variant="outline" onClick={() => setNewKey(null)}>Done</Button></DialogContent></Dialog>
+    <Dialog open={!!source} onOpenChange={open => { if (!open) setSource(null); }}><DialogContent className="max-h-[90vh] overflow-y-auto bg-card sm:max-w-2xl"><DialogHeader><DialogTitle>{source?.id ? 'Edit lead source' : 'Add lead source'}</DialogTitle></DialogHeader>{source && <form className="grid gap-3 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); const parsed = managedSourceSchema.safeParse(source); if (!parsed.success) { toast.error('Check required fields and numeric source IDs'); return; } act(async () => { await save({ data: parsed.data }); setSource(null); }, 'Source saved'); }}>
       <label className="grid gap-1 text-sm">Source name<input className="inp" required maxLength={120} value={source.name} onChange={e => setSource({ ...source, name: e.target.value })} /></label>
       <label className="grid gap-1 text-sm">Platform<select className="inp" value={source.platform} onChange={e => setSource({ ...source, platform: e.target.value as ManagedSourceInput['platform'] })}>{['Facebook','Instagram','Website'].map(p => <option key={p}>{p}</option>)}</select></label>
       <label className="grid gap-1 text-sm">Company / Client<select className="inp" required disabled={!!source.id} value={source.company_id} onChange={e => setSource({ ...source, company_id: e.target.value, rule_id: null })}><option value="">Select company</option>{data?.companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
