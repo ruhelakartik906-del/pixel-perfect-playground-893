@@ -32,11 +32,11 @@ function safeRedirect(): string | null {
   return r && r.startsWith("/") && !r.startsWith("//") ? r : null;
 }
 
-function PasswordInput({ id, value, onChange, autoComplete, error }: { id: string; value: string; onChange: (value: string) => void; autoComplete: string; error?: string | undefined }) {
+function PasswordInput({ id, value, onChange, autoComplete, error, label = "Password" }: { id: string; value: string; onChange: (value: string) => void; autoComplete: string; error?: string | undefined; label?: string }) {
   const [visible, setVisible] = useState(false);
   return (
     <div>
-      <Label htmlFor={id} className="text-sm font-semibold">Password</Label>
+      <Label htmlFor={id} className="text-sm font-semibold">{label}</Label>
       <div className="relative mt-1.5">
         <Input id={id} type={visible ? "text" : "password"} value={value} onChange={(e) => onChange(e.target.value)} autoComplete={autoComplete} aria-invalid={!!error} className="h-11 rounded-xl pr-11" />
         <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1 size-9 rounded-full" onClick={() => setVisible((current) => !current)} aria-label={visible ? "Hide password" : "Show password"}>
