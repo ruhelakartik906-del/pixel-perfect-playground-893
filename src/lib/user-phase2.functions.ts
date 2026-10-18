@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { columnSchema,dealSchema,userTaskSchema } from './user-phase2';
 export const loadUserPhase2=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
- const db=context.supabase;const access=await db.rpc('user_workspace_allowed');if(access.error||!access.data)throw new Error('Active employee workspace access required');
+ const db=context.supabase;const access=await db.rpc('user_workspace_allowed');if(access.error||!access.data)throw new Error('Workspace access required');
  async function all<T>(fn:(offset:number)=>PromiseLike<{data:T[]|null;error:unknown}>){const rows:T[]=[];for(let o=0;;o+=1000){const r=await fn(o);if(r.error)throw new Error('Workspace records could not be loaded');rows.push(...r.data??[]);if((r.data?.length??0)<1000)return rows;}}
  const [companies,leads,deals,companyWork,personal,stages,meetings,history,personalHistory,dealHistory,tables,profile]=await Promise.all([
  all(o=>db.from('companies').select('id,name').eq('is_active',true).order('id').range(o,o+999)),
@@ -18,7 +18,7 @@ export const loadUserPhase2=createServerFn({method:'GET'}).middleware([requireSu
  all(o=>db.from('deal_activity_history').select('*').order('id').range(o,o+999)),
  all(o=>db.from('user_work_tables').select('*').order('updated_at').order('id').range(o,o+999)),
  db.from('profiles').select('full_name,email').eq('id',context.userId).single()]);
- const work=[...companyWork.map(w=>({...w,origin:'company' as const})),...personal.map(w=>({...w,kind:'task',origin:'personal' as const,assigned_to:w.owner_id,created_by:w.owner_id,company_id:'',lead_id:null,deal_id:null,scheduled_at:null,interaction_type:null}))];
+ const work=[...companyWork.map(w=>({...w,origin:'company' as const})),...personal.map(w=>({...w,origin:'personal' as const,assigned_to:w.owner_id,created_by:w.owner_id,company_id:'',lead_id:null,deal_id:null}))];
  const ownWork=new Set(work.map(w=>w.id)),ownDeals=new Set(deals.map(d=>d.id));
  return {userId:context.userId,name:profile.data?.full_name||profile.data?.email||'My account',companies,leads,deals,work,stages,meetings,tables,history:[...history.filter(h=>ownWork.has(h.work_id)),...personalHistory.filter(h=>ownWork.has(h.task_id)).map(h=>({...h,work_id:h.task_id}))],dealHistory:dealHistory.filter(h=>ownDeals.has(h.deal_id))};
 });
