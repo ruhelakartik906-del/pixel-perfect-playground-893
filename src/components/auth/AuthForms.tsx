@@ -134,7 +134,6 @@ export function RegisterForm() {
   const [form, setForm] = useState<RegisterForm>({ firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterForm, string>>>({});
   const [state, setState] = useState<"idle" | "submitting" | "sent">("idle");
-  const [signedUpWithSession, setSignedUpWithSession] = useState(false);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -169,7 +168,6 @@ export function RegisterForm() {
       await navigate({ to: "/dashboard", replace: true });
       return;
     }
-    setSignedUpWithSession(false);
     setState("sent");
   };
 
