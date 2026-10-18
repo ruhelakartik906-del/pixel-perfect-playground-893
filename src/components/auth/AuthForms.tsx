@@ -17,6 +17,13 @@ import { loginDestination } from "@/lib/auth-destination";
 import { resolveAuthAccess } from "@/lib/auth-access.functions";
 import { SessionNotice, useExistingAccount } from "@/components/auth/SessionNotice";
 
+// Keeps SSR and the first client render identical so hydration never mismatches on query state.
+function useHydrated() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  return hydrated;
+}
+
 function collectErrors<T extends Record<string, unknown>>(error: z.ZodError<T>) {
   const errors: Partial<Record<keyof T, string>> = {};
   error.issues.forEach((issue) => {
@@ -59,6 +66,7 @@ function TextField<T extends Record<string, string>>({ form, setForm, errors, na
 }
 
 export function LoginForm() {
+  const hydrated = useHydrated();
   const navigate = useNavigate();
   const resolveAccess = useServerFn(resolveAuthAccess);
   const account = useExistingAccount();
@@ -119,21 +127,22 @@ export function LoginForm() {
         </label>
         <Link to="/forgot-password" className="font-semibold text-primary hover:underline">Forgot password?</Link>
       </div>
-      <Button type="submit" variant="hero" size="xl" disabled={loading !== null || account.isPending || Boolean(account.data)}>
+      <Button type="submit" variant="hero" size="xl" disabled={!hydrated || loading !== null || account.isPending || Boolean(account.data)}>
         {loading === "email" ? <><Loader2 className="animate-spin" /> Signing in…</> : <><LockKeyhole /> Login</>}
       </Button>
       <div className="relative py-1"><Separator /><span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs font-semibold uppercase text-muted-foreground">or</span></div>
-      <Button type="button" variant="pill" size="xl" className="w-full" disabled={loading !== null || account.isPending || Boolean(account.data)} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
+      <Button type="button" variant="pill" size="xl" className="w-full" disabled={!hydrated || loading !== null || account.isPending || Boolean(account.data)} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
     </form>
   );
 }
 
 export function RegisterForm() {
+  const hydrated = useHydrated();
   const account = useExistingAccount();
+  const navigate = useNavigate();
   const [form, setForm] = useState<RegisterForm>({ firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterForm, string>>>({});
   const [state, setState] = useState<"idle" | "submitting" | "sent">("idle");
-  const [signedUpWithSession, setSignedUpWithSession] = useState(false);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -162,7 +171,12 @@ export function RegisterForm() {
       toast.error(error.message || "We couldn't create your account.");
       return;
     }
-    setSignedUpWithSession(Boolean(data.session));
+    if (data.session) {
+      // Email auto-confirmation is enabled: the new user is signed in immediately.
+      toast.success("Account created. Welcome to Routiva!");
+      await navigate({ to: "/dashboard", replace: true });
+      return;
+    }
     setState("sent");
   };
 
@@ -170,9 +184,9 @@ export function RegisterForm() {
     return (
       <div className="py-8 text-center">
         <Mail className="mx-auto size-12 text-primary" />
-        <h2 className="mt-4 text-2xl font-bold">{signedUpWithSession ? "Account created" : "Check your email"}</h2>
-        <p className="mt-2 text-muted-foreground">{signedUpWithSession ? "Your account is waiting for authorized approval. No company access has been assigned." : "If this address is eligible for registration, a confirmation email will arrive. Already registered? Sign in or use Forgot password. CRM access requires approval."}</p>
-        <Button asChild variant="pill" size="xl" className="mt-6"><Link to={signedUpWithSession ? "/pending-approval" : "/login"}>{signedUpWithSession ? "View account status" : "Go to login"}</Link></Button>
+        <h2 className="mt-4 text-2xl font-bold">Check your email</h2>
+        <p className="mt-2 text-muted-foreground">If this address is eligible for registration, a confirmation email will arrive. Already registered? Sign in or use Forgot password.</p>
+        <Button asChild variant="pill" size="xl" className="mt-6"><Link to="/login">Go to login</Link></Button>
       </div>
     );
   }
@@ -199,7 +213,7 @@ export function RegisterForm() {
         </label>
         {errors.terms && <p className="mt-1 text-xs text-destructive">{errors.terms}</p>}
       </div>
-      <Button type="submit" variant="hero" size="xl" disabled={state === "submitting" || account.isPending || Boolean(account.data)}>{state === "submitting" ? <><Loader2 className="animate-spin" /> Creating account…</> : <><UserPlus /> Create account</>}</Button>
+      <Button type="submit" variant="hero" size="xl" disabled={!hydrated || state === "submitting" || account.isPending || Boolean(account.data)}>{state === "submitting" ? <><Loader2 className="animate-spin" /> Creating account…</> : <><UserPlus /> Create account</>}</Button>
     </form>
   );
 }

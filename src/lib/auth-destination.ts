@@ -4,10 +4,10 @@ export type AuthDestination = '/admin/dashboard' | '/dashboard' | '/restricted' 
 
 export function authDestination(status: AccountStatus | null | undefined, roles: readonly string[]): AuthDestination {
   if (status === 'blocked') return '/restricted';
-  if (status !== 'active') return '/pending-approval';
-  if (roles.includes('super_admin')) return '/admin/dashboard';
-  if (roles.some(role => ['employee', 'manager', 'client'].includes(role))) return '/dashboard';
-  return '/pending-approval';
+  // Admin access still requires an active account.
+  if (roles.includes('super_admin')) return status === 'active' ? '/admin/dashboard' : '/pending-approval';
+  // Standard and pending users get the personal User Dashboard; company data stays gated per page.
+  return '/dashboard';
 }
 
 const userPaths = ['/dashboard', '/my-leads', '/my-work-table', '/deals', '/tasks', '/follow-ups', '/calendar', '/team-chat', '/whatsapp/chats', '/whatsapp/templates', '/proposals', '/invoices', '/my-reports', '/support', '/settings', '/my-hr'];

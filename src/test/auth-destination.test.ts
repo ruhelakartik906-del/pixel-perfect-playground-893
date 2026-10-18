@@ -15,10 +15,11 @@ describe('verified login destinations', () => {
   it('keeps pending Super Admin out of Admin', () => {
     expect(authDestination('pending', ['super_admin'])).toBe('/pending-approval');
   });
-  it('keeps missing profiles and unassigned roles pending', () => {
-    expect(authDestination(null, ['client'])).toBe('/pending-approval');
-    expect(authDestination('active', [])).toBe('/pending-approval');
-    expect(authDestination('active', ['admin'])).toBe('/pending-approval');
+  it('sends standard, pending and unassigned users to the personal User Dashboard', () => {
+    expect(authDestination(null, ['client'])).toBe('/dashboard');
+    expect(authDestination('pending', [])).toBe('/dashboard');
+    expect(authDestination('active', [])).toBe('/dashboard');
+    expect(authDestination('active', ['admin'])).toBe('/dashboard');
   });
   it.each(['//outside.test', '/\\outside.test', '/%2e%2e/admin/dashboard', '/admin/dashboard', '/login', '/register'])('rejects unsafe user redirect %s', path => {
     expect(loginDestination('/dashboard', path)).toBe('/dashboard');
