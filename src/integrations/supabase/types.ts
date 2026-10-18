@@ -2519,7 +2519,10 @@ export type Database = {
           form_answers: Json
           form_id: string | null
           id: string
+          intake_external_id: string | null
+          intake_rule_id: string | null
           intake_source: string | null
+          intake_source_id: string | null
           interest_level: string
           meta_account_id: string | null
           meta_ad_id: string | null
@@ -2552,7 +2555,10 @@ export type Database = {
           form_answers?: Json
           form_id?: string | null
           id?: string
+          intake_external_id?: string | null
+          intake_rule_id?: string | null
           intake_source?: string | null
+          intake_source_id?: string | null
           interest_level?: string
           meta_account_id?: string | null
           meta_ad_id?: string | null
@@ -2585,7 +2591,10 @@ export type Database = {
           form_answers?: Json
           form_id?: string | null
           id?: string
+          intake_external_id?: string | null
+          intake_rule_id?: string | null
           intake_source?: string | null
+          intake_source_id?: string | null
           interest_level?: string
           meta_account_id?: string | null
           meta_ad_id?: string | null
@@ -2612,6 +2621,20 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_intake_rule_id_fkey"
+            columns: ["intake_rule_id"]
+            isOneToOne: false
+            referencedRelation: "ad_routing_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_intake_source_id_fkey"
+            columns: ["intake_source_id"]
+            isOneToOne: false
+            referencedRelation: "make_lead_sources"
             referencedColumns: ["id"]
           },
           {
@@ -2753,6 +2776,160 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      make_api_keys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          key_hash: string
+          label: string
+          last_used_at: string | null
+          revoked_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_hash: string
+          label: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_hash?: string
+          label?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+        }
+        Relationships: []
+      }
+      make_intake_logs: {
+        Row: {
+          code: string
+          created_at: string
+          http_status: number
+          id: string
+          is_test: boolean
+          key_id: string | null
+          lead_id: string | null
+          source_id: string | null
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          http_status: number
+          id?: string
+          is_test?: boolean
+          key_id?: string | null
+          lead_id?: string | null
+          source_id?: string | null
+          status: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          http_status?: number
+          id?: string
+          is_test?: boolean
+          key_id?: string | null
+          lead_id?: string | null
+          source_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "make_intake_logs_key_id_fkey"
+            columns: ["key_id"]
+            isOneToOne: false
+            referencedRelation: "make_api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "make_intake_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "make_intake_logs_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "make_lead_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      make_lead_sources: {
+        Row: {
+          account_id: string
+          active: boolean
+          ad_id: string
+          archived: boolean
+          campaign_id: string
+          company_id: string
+          created_at: string
+          form_id: string
+          id: string
+          name: string
+          page_id: string
+          platform: string
+          rule_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          active?: boolean
+          ad_id?: string
+          archived?: boolean
+          campaign_id?: string
+          company_id: string
+          created_at?: string
+          form_id: string
+          id?: string
+          name: string
+          page_id: string
+          platform: string
+          rule_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          active?: boolean
+          ad_id?: string
+          archived?: boolean
+          campaign_id?: string
+          company_id?: string
+          created_at?: string
+          form_id?: string
+          id?: string
+          name?: string
+          page_id?: string
+          platform?: string
+          rule_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "make_lead_sources_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "make_lead_sources_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "ad_routing_rules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -4261,14 +4438,38 @@ export type Database = {
         Args: { _company: string; _user: string }
         Returns: boolean
       }
-      make_lead_intake: {
+      make_authenticated_intake: {
         Args: {
-          _account: string
-          _company: string
-          _dry_run?: boolean
+          _dry_run: boolean
+          _key: string
           _payload: Json
+          _source: string
         }
         Returns: Json
+      }
+      make_lead_intake:
+        | {
+            Args: {
+              _account: string
+              _company: string
+              _dry_run?: boolean
+              _payload: Json
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _account: string
+              _company: string
+              _dry_run: boolean
+              _payload: Json
+              _source: string
+            }
+            Returns: Json
+          }
+      make_source_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
       }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
       personal_attendance_action: { Args: { _action: string }; Returns: string }
