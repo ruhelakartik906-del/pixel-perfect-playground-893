@@ -1,37 +1,41 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { getRequest } from '@tanstack/react-start/server';
+import { invitationSchema, validateInvitationRedirect } from './admin-invitation';
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
-  const { data, error } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "super_admin" });
-  if (error || data !== true) throw new Error("Super Admin authorization required");
+  const { data, error } = await ctx.supabase.rpc("routing_admin");
+  if (error || data !== true) throw new Error("Active Super Admin authorization required");
 }
 
 /** Invite a user by email (Auth sends a secure set-password link). No password is ever handled here. */
 export const inviteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
-    email: z.string().trim().email().max(255),
-    full_name: z.string().trim().min(1).max(120),
-    phone: z.string().trim().max(30).default(""),
-    role: z.enum(["super_admin", "manager", "employee", "client"]),
-    access_role_id: z.string().uuid().nullable(),
-    company_id: z.string().uuid().nullable(),
-    redirect_to: z.string().url(),
-  }).parse(i))
+  .inputValidator((i: unknown) => invitationSchema.parse(i))
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
+    validateInvitationRedirect(data.redirect_to, getRequest().headers.get('origin'));
+    if (data.company_id) {
+      const company = await context.supabase.from('companies').select('id').eq('id', data.company_id).eq('is_active', true).maybeSingle();
+      if (company.error || !company.data) throw new Error('Select an active company');
+    }
+    if (data.access_role_id) {
+      const role = await context.supabase.from('access_roles').select('id').eq('id', data.access_role_id).maybeSingle();
+      if (role.error || !role.data) throw new Error('Select an existing permission role');
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inv, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
       data: { full_name: data.full_name, phone: data.phone }, redirectTo: data.redirect_to,
     });
     if (error || !inv.user) throw new Error(error?.message ?? "Invite failed");
     const id = inv.user.id;
-    await supabaseAdmin.from("profiles").upsert({ id, email: data.email, full_name: data.full_name, phone: data.phone, company_name: "", account_status: "active" });
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", id);
-    await supabaseAdmin.from("user_roles").insert({ user_id: id, role: data.role });
-    if (data.access_role_id) await supabaseAdmin.from("user_access_roles").upsert({ user_id: id, role_id: data.access_role_id });
-    if (data.company_id) await supabaseAdmin.from("company_members").insert({ user_id: id, company_id: data.company_id });
+    const setup = await supabaseAdmin.rpc('admin_complete_invitation', {
+      _actor: context.userId, _user: id, _email: data.email, _name: data.full_name, _phone: data.phone, _role: data.role,
+      ...(data.access_role_id ? { _access_role: data.access_role_id } : {}),
+      ...(data.company_id ? { _company: data.company_id } : {}),
+    });
+    if (setup.error || setup.data !== id) throw new Error('Invitation email was requested, but account setup did not complete. No requested role or membership was committed; review the pending account before retrying.');
     return { id };
   });
 
@@ -64,7 +68,9 @@ export const disconnectMailbox = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("mailbox_secrets").delete().eq("owner_id", context.userId);
-    await supabaseAdmin.from("mailbox_settings").delete().eq("owner_id", context.userId);
+    const secret = await supabaseAdmin.from("mailbox_secrets").delete().eq("owner_id", context.userId);
+    if (secret.error) throw new Error('Mailbox credentials could not be removed');
+    const settings = await supabaseAdmin.from("mailbox_settings").delete().eq("owner_id", context.userId);
+    if (settings.error) throw new Error('Mailbox settings could not be removed; retry disconnecting');
     return { ok: true };
   });

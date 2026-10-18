@@ -1,30 +1,36 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { readAllPages } from './backend-read';
 
 export const getSalesData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const access = await context.supabase.rpc("can_manage_sales");
     if (access.error || !access.data) throw new Error("Active Super Admin authorization is required");
-    const results = await Promise.all([
-      context.supabase.from("products_services").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("sales_customers").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("crm_options").select("id,name,is_active").eq("category", "category").order("position"),
-      context.supabase.from("leads").select("id,customer_name,email,phone,business_name,region").order("created_at", { ascending: false }),
-      context.supabase.from("deals").select("id,title,lead_id,amount,status"),
-      context.supabase.from("invoices").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("payments").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("credit_notes").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("revenue_entries").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("sales_settings").select("*").maybeSingle(),
-      context.supabase.from("financial_audit_logs").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("sales_proposals").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("proposal_events").select("*").order("created_at", { ascending: false }),
+    const db=context.supabase;
+    // Unique ID tie-breakers keep tied timestamps stable; batches stay within six connections.
+    const [products,customers,categories,leads,deals] = await Promise.all([
+      readAllPages((o,e)=>db.from('products_services').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('sales_customers').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('crm_options').select('id,name,is_active').eq('category','category').order('position').order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('leads').select('id,customer_name,email,phone,business_name,region').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('deals').select('id,title,lead_id,amount,status').is('deleted_at',null).order('id').range(o,e)),
     ]);
-    const error = results.find((result) => result.error)?.error;
-    if (error) throw new Error(error.message);
-    return { products: results[0].data ?? [], customers: results[1].data ?? [], categories: results[2].data ?? [], leads: results[3].data ?? [], deals: results[4].data ?? [], invoices: results[5].data ?? [], payments: results[6].data ?? [], credits: results[7].data ?? [], revenues: results[8].data ?? [], settings: results[9].data, audit: results[10].data ?? [], proposals: results[11].data ?? [], proposalEvents: results[12].data ?? [] };
+    const [invoices,payments,credits,revenues,settings] = await Promise.all([
+      readAllPages((o,e)=>db.from('invoices').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('payments').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('credit_notes').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('revenue_entries').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      db.from('sales_settings').select('*').maybeSingle(),
+    ]);
+    if(settings.error)throw new Error(settings.error.message);
+    const [audit,proposals,proposalEvents] = await Promise.all([
+      readAllPages((o,e)=>db.from('financial_audit_logs').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('sales_proposals').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+      readAllPages((o,e)=>db.from('proposal_events').select('*').order('created_at',{ascending:false}).order('id').range(o,e)),
+    ]);
+    return { products,customers,categories,leads,deals,invoices,payments,credits,revenues,settings:settings.data,audit,proposals,proposalEvents };
   });
 
 export const salesFinancialAction = createServerFn({ method: "POST" })

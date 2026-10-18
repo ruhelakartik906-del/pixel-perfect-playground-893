@@ -358,6 +358,13 @@
       "when": 1792316322706,
       "tag": "0050_atomic_spreadsheet_commits_and_table_cells",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1792318032983,
+      "tag": "0051_active_admin_and_atomic_invitation_setup",
+      "breakpoints": true
     }
   ]
 }
