@@ -54,6 +54,14 @@ describe('Make lead intake security and saves', () => {
     expect((await handleMakeIntake(request({ ...lead, [field]: binding.company_id }))).status).toBe(422); expect(mocks.rpc).not.toHaveBeenCalled();
   });
   it('does not accept an unauthorized campaign', async () => { expect((await handleMakeIntake(request({ ...lead, campaign_id: '99' }))).status).toBe(403); expect(mocks.rpc).not.toHaveBeenCalled(); });
+  it('rejects a disabled source before saving', async () => {
+    mocks.sources = [{ ...binding, id: '00000000-0000-4000-8000-000000000004', ad_id: '', active: false, archived: false }];
+    expect((await handleMakeIntake(request())).status).toBe(403); expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+  it('rejects a key revoked between authentication and the locked save', async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: '28000' } });
+    expect((await handleMakeIntake(request())).status).toBe(401);
+  });
   it('does not accept ambiguous source mappings', () => { expect(resolveIntakeSource([binding, binding], intakeSchema.parse(lead))).toBeUndefined(); });
   it('supports separate client campaigns with server-selected companies', () => {
     const second = { ...binding, campaign_id: '88', company_id: '00000000-0000-4000-8000-000000000002' };

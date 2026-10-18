@@ -12,7 +12,6 @@ import { managedSourceSchema, type ManagedSourceInput } from '@/lib/make-managem
 
 const empty: ManagedSourceInput = { name: '', platform: 'Facebook', company_id: '', account_id: '', page_id: '', form_id: '', campaign_id: '', ad_id: '', rule_id: null, active: true };
 const endpointPath = '/api/public/make-leads';
-const previewEndpoint = 'https://project--48e00644-857c-4d61-b9dc-512233910ecd-dev.lovable.app/api/public/make-leads';
 const sample = { facebook_lead_id: '123456789', name: 'Connection test', phone: '+46000000000', email: 'test@example.test', source: 'Facebook', page_id: '<PAGE_ID>', form_id: '<FORM_ID>', campaign_id: '<CAMPAIGN_ID_OR_EMPTY>', ad_id: '<AD_ID_OR_EMPTY>', form_answers: { service: 'Consultation' }, dry_run: true };
 function date(value: string | null | undefined) { return value ? new Date(value).toLocaleString() : '—'; }
 
@@ -21,15 +20,14 @@ export function MakeIntegration({ onBack }: { onBack: () => void }) {
   const qc = useQueryClient();
   const query = useQuery({ queryKey: ['make-management'], queryFn: () => load() });
   const data = query.data;
-  const [endpoint, setEndpoint] = useState(previewEndpoint);
+  const [endpoint, setEndpoint] = useState(endpointPath);
   const [busy, setBusy] = useState(false), [q, setQ] = useState(''), [company, setCompany] = useState('');
   const [source, setSource] = useState<ManagedSourceInput | null>(null);
   const [newKey, setNewKey] = useState<string | null>(null);
   const [testKey, setTestKey] = useState(''), [testSource, setTestSource] = useState('');
   const [testResult, setTestResult] = useState<{ status: 'Verified' | 'Setup Required' | 'Error'; message: string } | null>(null);
   useEffect(() => {
-    const url = new URL(window.location.href);
-    if (url.protocol === 'https:' && !url.hostname.startsWith('id-preview--')) setEndpoint(url.origin + endpointPath);
+    setEndpoint(window.location.origin + endpointPath);
   }, []);
   const refresh = () => qc.invalidateQueries({ queryKey: ['make-management'] });
   async function act(work: () => Promise<unknown>, success: string) {

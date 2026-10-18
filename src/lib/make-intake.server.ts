@@ -32,7 +32,6 @@ export async function handleMakeIntake(request: Request) {
   if (!authenticated) return loggedError(401, 'UNAUTHORIZED', 'Valid Bearer authorization required');
   const { db, keyId: authenticatedKeyId } = authenticated;
   keyId = authenticatedKeyId;
-  await db.from('make_api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', keyId).is('revoked_at', null);
   if (request.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !== 'application/json') {
     return loggedError(415, 'UNSUPPORTED_MEDIA_TYPE', 'Content-Type must be application/json');
   }
