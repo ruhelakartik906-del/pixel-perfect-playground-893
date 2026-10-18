@@ -2826,6 +2826,9 @@ export type Database = {
         Row: {
           checklist: Json
           created_at: string
+          created_by: string | null
+          customer_name: string
+          customer_phone: string
           deleted_at: string | null
           due_date: string
           id: string
@@ -2844,6 +2847,9 @@ export type Database = {
         Insert: {
           checklist?: Json
           created_at?: string
+          created_by?: string | null
+          customer_name?: string
+          customer_phone?: string
           deleted_at?: string | null
           due_date: string
           id?: string
@@ -2862,6 +2868,9 @@ export type Database = {
         Update: {
           checklist?: Json
           created_at?: string
+          created_by?: string | null
+          customer_name?: string
+          customer_phone?: string
           deleted_at?: string | null
           due_date?: string
           id?: string
@@ -2877,7 +2886,15 @@ export type Database = {
           updated_at?: string
           version?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "personal_crm_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       personal_task_history: {
         Row: {
@@ -3609,6 +3626,7 @@ export type Database = {
       user_work_grid_settings: {
         Row: {
           custom_values: Json
+          drafts: Json
           kind: string
           owner_id: string
           settings: Json
@@ -3616,6 +3634,7 @@ export type Database = {
         }
         Insert: {
           custom_values?: Json
+          drafts?: Json
           kind: string
           owner_id: string
           settings?: Json
@@ -3623,6 +3642,7 @@ export type Database = {
         }
         Update: {
           custom_values?: Json
+          drafts?: Json
           kind?: string
           owner_id?: string
           settings?: Json
@@ -4245,6 +4265,28 @@ export type Database = {
         Returns: string
       }
       save_business_settings: { Args: { _payload: Json }; Returns: undefined }
+      spreadsheet_commit: {
+        Args: { _draft: string; _page: string; _payload: Json }
+        Returns: string
+      }
+      spreadsheet_grid_action: {
+        Args: {
+          _action: string
+          _field?: string
+          _id?: string
+          _page: string
+          _value?: Json
+        }
+        Returns: Json
+      }
+      spreadsheet_table_cell: {
+        Args: { _field: string; _row: string; _table: string; _value: Json }
+        Returns: string
+      }
+      spreadsheet_work_cell: {
+        Args: { _field: string; _id: string; _origin: string; _value: Json }
+        Returns: string
+      }
       support_access: { Args: { _ticket: string }; Returns: boolean }
       support_action: {
         Args: { _action: string; _payload: Json }

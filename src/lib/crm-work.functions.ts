@@ -27,11 +27,14 @@ export const loadCrmWork = createServerFn({ method: "GET" }).middleware([require
     all((o) => db.from("deals").select("id,company_id,title").order("id").range(o,o+999)),
     admin.data ? all(o=>db.from('personal_crm_tasks').select('*').is('deleted_at',null).order('id').range(o,o+999)) : Promise.resolve([]),
   ]);
+  const [gridSettings,roles]=await Promise.all([db.from('user_work_grid_settings').select('*').eq('owner_id',context.userId),admin.data?db.from('user_roles').select('user_id,role'):Promise.resolve({data:[],error:null})]);
+  if(gridSettings.error||roles.error)throw new Error('Grid configuration could not be loaded');
+  const personalHistory=admin.data?await all(o=>db.from('personal_task_history').select('*').order('id').range(o,o+999)):[];
   const personalIds=personal.map(w=>w.id);
-  const combined=[...items,...personal.map(w=>({...w,assigned_to:w.owner_id,created_by:w.owner_id,company_id:'',lead_id:null,deal_id:null}))];
+  const combined=[...items,...personal.map(w=>({...w,assigned_to:w.owner_id,created_by:w.created_by??w.owner_id,company_id:'',lead_id:null,deal_id:null}))];
   const eligible = (await Promise.all(members.map(async (member) => { const result = await db.rpc("routing_eligible", { _user: member.user_id, _company: member.company_id }); if (result.error) throw new Error("Employee eligibility could not be checked"); return result.data ? member : null; }))).filter((m): m is NonNullable<typeof m> => m !== null);
   const authorizedCompanies = admin.data ? companies : companies.filter(c=>eligible.some(m=>m.company_id===c.id && m.user_id===context.userId));
-  return { items:combined, personalIds, companies: authorizedCompanies, leads: leads.filter(l=>authorizedCompanies.some(c=>c.id===l.company_id)), deals: deals.filter(d=>authorizedCompanies.some(c=>c.id===d.company_id)), people, eligible, history: history.filter(h=>items.some(i=>i.id===h.work_id)), isAdmin: admin.data === true, userId: context.userId };
+  return { gridSettings:gridSettings.data??[], roles:roles.data??[], items:combined, personalIds, companies: authorizedCompanies, leads: leads.filter(l=>authorizedCompanies.some(c=>c.id===l.company_id)), deals: deals.filter(d=>authorizedCompanies.some(c=>c.id===d.company_id)), people, eligible, history: [...history.filter(h=>items.some(i=>i.id===h.work_id)),...personalHistory.filter(h=>personalIds.includes(h.task_id)).map(h=>({...h,work_id:h.task_id}))], isAdmin: admin.data === true, userId: context.userId };
 });
 export const saveCrmWork = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => workSchema.parse(input)).handler(async ({ context, data }) => {
   const result = await context.supabase.rpc("crm_work_action", { _action: "save", _payload: data });

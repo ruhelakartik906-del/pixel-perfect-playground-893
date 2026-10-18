@@ -2,6 +2,8 @@ import { describe,it,expect } from 'vitest';
 import { canDeleteWork,userTaskSchema,validateValues,calendarEvents,dealSchema } from '@/lib/user-phase2';
 const task={origin:'personal',kind:'task',company_id:'',assigned_to:'',lead_id:null,deal_id:null,title:'My task',notes:'',priority:'medium',status:'not_started',start_date:'2026-10-17',due_date:'2026-10-18',scheduled_at:null,interaction_type:null,checklist:[{text:'Call',done:false}]};
 describe('User Phase 2 rules',()=>{
+ it('unfinished empty task rows cannot become operational tasks',()=>expect(userTaskSchema.safeParse({...task,title:''}).success).toBe(false));
+ it('personal follow-up keeps Rahul contact details without a company or lead',()=>{const p=userTaskSchema.parse({...task,kind:'follow_up',status:'scheduled',start_date:null,due_date:null,scheduled_at:'2026-10-20T04:30:00Z',interaction_type:'call',customer_name:'Rahul',customer_phone:'1234567890'});expect(p.customer_name).toBe('Rahul');expect(p.customer_phone).toBe('1234567890');expect(p.lead_id).toBeNull();});
  it('personal tasks work without a company',()=>expect(userTaskSchema.safeParse(task).success).toBe(true));
  it('personal follow-ups accept scheduled workflow status',()=>expect(userTaskSchema.safeParse({...task,kind:'follow_up',status:'scheduled',start_date:null,due_date:null,scheduled_at:'2026-10-18T10:00:00Z',interaction_type:'call'}).success).toBe(true));
  it('personal follow-ups reject task-only status',()=>expect(userTaskSchema.safeParse({...task,kind:'follow_up',status:'not_started',start_date:null,due_date:null,scheduled_at:'2026-10-18T10:00:00Z',interaction_type:'call'}).success).toBe(false));
