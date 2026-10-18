@@ -6,7 +6,7 @@ import { UserWorkspace } from '@/components/workspace/UserWorkspace';
 // Shown when a company-data page is opened by an account without employee workspace access yet.
 export function WorkspaceAccessError({ error }: ErrorComponentProps) {
   const message = error instanceof Error ? error.message : "";
-  const access = /workspace access|CRM access|Unauthorized/i.test(message);
+  const access = /access required|workspace access|CRM access|Unauthorized/i.test(message);
   return (
     <UserWorkspace>
       <div className="mx-auto mt-10 max-w-lg rounded-2xl border bg-card p-8 text-center shadow-card">
