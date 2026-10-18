@@ -9,9 +9,10 @@ describe("account access rules", () => {
     expect(workspacePathForStatus("blocked")).toBe("/restricted");
   });
 
-  it("requires registration terms and matching passwords", () => {
+  it("requires registration first/last name, terms and matching passwords", () => {
     const result = registerSchema.safeParse({
-      fullName: "Routiva User",
+      firstName: "Routiva",
+      lastName: "User",
       companyName: "Routiva",
       email: "user@example.com",
       phone: "+46701234567",
