@@ -10,7 +10,7 @@ vi.mock('@/integrations/supabase/auth-middleware', () => ({ requireSupabaseAuth:
 vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { auth: { admin: { inviteUserByEmail: mocks.invite } }, rpc: mocks.setup, from: mocks.adminFrom } }));
 import { inviteUser, saveMailbox, disconnectMailbox } from '@/lib/admin-users.functions';
 const context = { userId: '00000000-0000-4000-8000-000000000001', supabase: { rpc: mocks.rpc, from: mocks.from } };
-const draft = { email: 'invite@example.test', full_name: 'Invited user', phone: '', role: 'employee' as const, access_role_id: null, company_id: null, redirect_to: 'https://routiva.test/login' };
+const draft: ReturnType<typeof invitationSchema.parse> = { email: 'invite@example.test', full_name: 'Invited user', phone: '', role: 'employee', access_role_id: null, company_id: null, redirect_to: 'https://routiva.test/login' };
 type Invocation = (input: { context: typeof context; data: typeof draft }) => Promise<unknown>;
 const invite = inviteUser as unknown as Invocation;
 
@@ -38,12 +38,12 @@ describe('Administrative invitation safeguards', () => {
   });
   it('rejects a missing company before sending an invitation', async () => {
     const query = { select: () => query, eq: () => query, maybeSingle: async () => ({ data: null, error: null }) }; mocks.from.mockReturnValue(query);
-    await expect(invite({ context, data: { ...draft, company_id: '00000000-0000-4000-8000-000000000002' } as typeof draft })).rejects.toThrow('active company');
+    await expect(invite({ context, data: { ...draft, company_id: '00000000-0000-4000-8000-000000000002' } })).rejects.toThrow('active company');
     expect(mocks.invite).not.toHaveBeenCalled();
   });
   it('rejects a missing permission role before sending an invitation', async () => {
     const query = { select: () => query, eq: () => query, maybeSingle: async () => ({ data: null, error: null }) }; mocks.from.mockReturnValue(query);
-    await expect(invite({ context, data: { ...draft, access_role_id: '00000000-0000-4000-8000-000000000002' } as typeof draft })).rejects.toThrow('permission role');
+    await expect(invite({ context, data: { ...draft, access_role_id: '00000000-0000-4000-8000-000000000002' } })).rejects.toThrow('permission role');
     expect(mocks.invite).not.toHaveBeenCalled();
   });
   it('does not report success when atomic setup fails', async () => {
