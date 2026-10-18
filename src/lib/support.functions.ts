@@ -51,7 +51,12 @@ export const getSupportTicket = createServerFn({ method: 'GET' }).middleware([re
 });
 export const createSupportTicket = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => ticketSchema.parse(input)).handler(async ({ context, data }) => {
   const r = await context.supabase.rpc('support_action', { _action: 'create', _payload: data as Json });
-  if (r.error) throw new Error(r.error.message); return r.data;
+  if (r.error) throw new Error(r.error.message);
+  const id = z.string().uuid().safeParse(r.data);
+  if (!id.success) throw new Error('Ticket save was not confirmed. Please retry.');
+  const saved = await context.supabase.from('support_tickets').select('id').eq('id', id.data).eq('user_id', context.userId).single();
+  if (saved.error || !saved.data) throw new Error('Ticket was saved but could not be loaded. Refresh My Support before retrying.');
+  return saved.data.id;
 });
 export const replySupportTicket = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => replySchema.parse(input)).handler(async ({ context, data }) => {
   const r = await context.supabase.rpc('support_action', { _action: 'reply', _payload: data as Json });

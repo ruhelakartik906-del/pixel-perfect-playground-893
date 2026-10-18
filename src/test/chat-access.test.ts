@@ -17,14 +17,14 @@ const send = sendChat as unknown as (input: { context: typeof context; data: { p
 
 describe('Team Chat access boundary', () => {
   beforeEach(() => { vi.resetAllMocks(); });
-  it('returns an empty state for inactive users without querying people or messages', async () => {
+  it('returns an empty state for denied users without querying people or messages', async () => {
     rpc.mockResolvedValue({ data: false, error: null });
     const result = await load({ context });
     expect(result.available).toBe(false);
     expect(result.people).toEqual([]);
     expect(from).not.toHaveBeenCalled();
   });
-  it('loads active personal clients through scoped contact discovery, without a company directory', async () => {
+  it('loads eligible personal clients through public contact discovery, without company data', async () => {
     rpc.mockImplementation((name: string) => Promise.resolve({ data: name === 'messaging_allowed' ? true : name === 'chat_people' ? [{ id: 'admin' }] : false, error: null }));
     from.mockImplementation(() => {
       const query = { select: () => query, order: () => query, range: () => Promise.resolve({ data: [], error: null }), then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: [], error: null }).then(resolve) };
