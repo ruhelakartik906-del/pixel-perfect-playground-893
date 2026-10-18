@@ -3606,6 +3606,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_work_grid_settings: {
+        Row: {
+          custom_values: Json
+          kind: string
+          owner_id: string
+          settings: Json
+          updated_at: string
+        }
+        Insert: {
+          custom_values?: Json
+          kind: string
+          owner_id: string
+          settings?: Json
+          updated_at?: string
+        }
+        Update: {
+          custom_values?: Json
+          kind?: string
+          owner_id?: string
+          settings?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_work_grid_settings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_work_rows: {
         Row: {
           created_at: string
@@ -4279,6 +4311,16 @@ export type Database = {
       user_work_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
+      }
+      user_work_grid_save: {
+        Args: {
+          _column?: string
+          _kind: string
+          _record?: string
+          _settings?: Json
+          _value?: Json
+        }
+        Returns: undefined
       }
       user_workspace_allowed: { Args: never; Returns: boolean }
     }

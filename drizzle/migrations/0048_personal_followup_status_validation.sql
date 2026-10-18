@@ -1,0 +1,2 @@
+ALTER TABLE public.personal_crm_tasks DROP CONSTRAINT personal_crm_tasks_status_check;
+ALTER TABLE public.personal_crm_tasks ADD CONSTRAINT personal_work_status_kind_check CHECK ((kind='task' AND status IN ('not_started','in_progress','completed')) OR (kind='follow_up' AND status IN ('scheduled','completed','skipped')));

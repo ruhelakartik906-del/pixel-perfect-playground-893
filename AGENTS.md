@@ -29,7 +29,7 @@
 - Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
 - Admin/user CRM work shares company-scoped records and locked RPCs; unlinked personal tasks use owner-scoped storage — why: preserve company-required Admin behavior and private work without fictitious companies.
-- User CRM uses assigned-record/owner-only RPCs, audited deals and source calendars — why: preserve identity/history.
+- User CRM uses assigned/owner RPCs, audited deals and source calendars; work grids persist private display/custom cells separately — why: preserve history and assignment integrity.
 - Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only, while company groups retain membership gates — why: discovery must not grant private-record access.
 
 - User commercial RPCs enforce permission/company scope, proposal decision evidence and draft-only shared invoice writes — why: preserve privileged finance and immutable history.

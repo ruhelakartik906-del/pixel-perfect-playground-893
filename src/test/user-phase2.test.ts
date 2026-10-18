@@ -3,6 +3,8 @@ import { canDeleteWork,userTaskSchema,validateValues,calendarEvents,dealSchema }
 const task={origin:'personal',kind:'task',company_id:'',assigned_to:'',lead_id:null,deal_id:null,title:'My task',notes:'',priority:'medium',status:'not_started',start_date:'2026-10-17',due_date:'2026-10-18',scheduled_at:null,interaction_type:null,checklist:[{text:'Call',done:false}]};
 describe('User Phase 2 rules',()=>{
  it('personal tasks work without a company',()=>expect(userTaskSchema.safeParse(task).success).toBe(true));
+ it('personal follow-ups accept scheduled workflow status',()=>expect(userTaskSchema.safeParse({...task,kind:'follow_up',status:'scheduled',start_date:null,due_date:null,scheduled_at:'2026-10-18T10:00:00Z',interaction_type:'call'}).success).toBe(true));
+ it('personal follow-ups reject task-only status',()=>expect(userTaskSchema.safeParse({...task,kind:'follow_up',status:'not_started',start_date:null,due_date:null,scheduled_at:'2026-10-18T10:00:00Z',interaction_type:'call'}).success).toBe(false));
  it('personal tasks cannot link arbitrary company leads',()=>expect(userTaskSchema.safeParse({...task,lead_id:'11111111-1111-4111-8111-111111111111'}).success).toBe(false));
  it('employee cannot delete Admin-created assignments',()=>expect(canDeleteWork({created_by:'admin',assigned_to:'employee'},'employee')).toBe(false));
  it('owner may delete self-created tasks',()=>expect(canDeleteWork({created_by:'employee',assigned_to:'employee'},'employee')).toBe(true));

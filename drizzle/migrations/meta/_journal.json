@@ -330,6 +330,20 @@
       "when": 1792311390297,
       "tag": "0046_nonblocked_chat_and_support_access",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1792313548211,
+      "tag": "0047_user_grid_presentation",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1792314521284,
+      "tag": "0048_personal_followup_status_validation",
+      "breakpoints": true
     }
   ]
 }

@@ -17,7 +17,7 @@ export const loadCrmWork = createServerFn({ method: "GET" }).middleware([require
     const rows: T[] = [];
     for (let offset = 0; ; offset += 1000) { const result = await fetchPage(offset); if (result.error) throw new Error("CRM records could not be loaded"); const page = result.data ?? []; rows.push(...page); if (page.length < 1000) return rows; }
   }
-  const [items, companies, leads, people, members, history, deals] = await Promise.all([
+  const [items, companies, leads, people, members, history, deals, personal] = await Promise.all([
     all((o) => (admin.data ? db.from("crm_work_items").select("*") : db.from("crm_work_items").select("*").eq("assigned_to",context.userId)).is("deleted_at", null).order("id").range(o,o+999)),
     all((o) => db.from("companies").select("id,name,is_active").eq("is_active",true).order("id").range(o,o+999)),
     all((o) => db.from("leads").select("id,company_id,customer_name,phone,email,business_name,source_id").order("id").range(o,o+999)),
@@ -25,10 +25,13 @@ export const loadCrmWork = createServerFn({ method: "GET" }).middleware([require
     all((o) => (admin.data ? db.from("company_members").select("user_id,company_id") : db.from("company_members").select("user_id,company_id").eq("user_id",context.userId)).order("id").range(o,o+999)),
     all((o) => db.from("crm_work_history").select("*").order("id").range(o,o+999)),
     all((o) => db.from("deals").select("id,company_id,title").order("id").range(o,o+999)),
+    admin.data ? all(o=>db.from('personal_crm_tasks').select('*').is('deleted_at',null).order('id').range(o,o+999)) : Promise.resolve([]),
   ]);
+  const personalIds=personal.map(w=>w.id);
+  const combined=[...items,...personal.map(w=>({...w,assigned_to:w.owner_id,created_by:w.owner_id,company_id:'',lead_id:null,deal_id:null}))];
   const eligible = (await Promise.all(members.map(async (member) => { const result = await db.rpc("routing_eligible", { _user: member.user_id, _company: member.company_id }); if (result.error) throw new Error("Employee eligibility could not be checked"); return result.data ? member : null; }))).filter((m): m is NonNullable<typeof m> => m !== null);
   const authorizedCompanies = admin.data ? companies : companies.filter(c=>eligible.some(m=>m.company_id===c.id && m.user_id===context.userId));
-  return { items, companies: authorizedCompanies, leads: leads.filter(l=>authorizedCompanies.some(c=>c.id===l.company_id)), deals: deals.filter(d=>authorizedCompanies.some(c=>c.id===d.company_id)), people, eligible, history: history.filter(h=>items.some(i=>i.id===h.work_id)), isAdmin: admin.data === true, userId: context.userId };
+  return { items:combined, personalIds, companies: authorizedCompanies, leads: leads.filter(l=>authorizedCompanies.some(c=>c.id===l.company_id)), deals: deals.filter(d=>authorizedCompanies.some(c=>c.id===d.company_id)), people, eligible, history: history.filter(h=>items.some(i=>i.id===h.work_id)), isAdmin: admin.data === true, userId: context.userId };
 });
 export const saveCrmWork = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => workSchema.parse(input)).handler(async ({ context, data }) => {
   const result = await context.supabase.rpc("crm_work_action", { _action: "save", _payload: data });

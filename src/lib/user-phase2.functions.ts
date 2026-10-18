@@ -2,10 +2,11 @@ import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { columnSchema,dealSchema,userTaskSchema } from './user-phase2';
+import { gridSettingsSchema } from './work-grid';
 export const loadUserPhase2=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  const db=context.supabase;const access=await db.rpc('user_workspace_allowed');if(access.error||!access.data)throw new Error('Workspace access required');
  async function all<T>(fn:(offset:number)=>PromiseLike<{data:T[]|null;error:unknown}>){const rows:T[]=[];for(let o=0;;o+=1000){const r=await fn(o);if(r.error)throw new Error('Workspace records could not be loaded');rows.push(...r.data??[]);if((r.data?.length??0)<1000)return rows;}}
- const [companies,leads,deals,companyWork,personal,stages,meetings,history,personalHistory,dealHistory,tables,profile]=await Promise.all([
+ const [companies,leads,deals,companyWork,personal,stages,meetings,history,personalHistory,dealHistory,tables,profile,gridSettings]=await Promise.all([
  all(o=>db.from('companies').select('id,name').eq('is_active',true).order('id').range(o,o+999)),
  all(o=>db.from('leads').select('id,company_id,customer_name,phone,email,business_name').eq('assigned_to',context.userId).order('id').range(o,o+999)),
  all(o=>db.from('deals').select('*').eq('assigned_to',context.userId).is('deleted_at',null).order('id').range(o,o+999)),
@@ -16,11 +17,12 @@ export const loadUserPhase2=createServerFn({method:'GET'}).middleware([requireSu
  all(o=>db.from('crm_work_history').select('*').order('id').range(o,o+999)),
  all(o=>db.from('personal_task_history').select('*').order('id').range(o,o+999)),
  all(o=>db.from('deal_activity_history').select('*').order('id').range(o,o+999)),
- all(o=>db.from('user_work_tables').select('*').order('updated_at').order('id').range(o,o+999)),
- db.from('profiles').select('full_name,email').eq('id',context.userId).single()]);
+ all(o=>db.from('user_work_tables').select('*').eq('owner_id',context.userId).order('updated_at').order('id').range(o,o+999)),
+ db.from('profiles').select('full_name,email').eq('id',context.userId).single(),db.from('user_work_grid_settings').select('*').eq('owner_id',context.userId)]);
+ if(gridSettings.error)throw new Error('Grid settings could not be loaded');
  const work=[...companyWork.map(w=>({...w,origin:'company' as const})),...personal.map(w=>({...w,origin:'personal' as const,assigned_to:w.owner_id,created_by:w.owner_id,company_id:'',lead_id:null,deal_id:null}))];
  const ownWork=new Set(work.map(w=>w.id)),ownDeals=new Set(deals.map(d=>d.id));
- return {userId:context.userId,name:profile.data?.full_name||profile.data?.email||'My account',companies,leads,deals,work,stages,meetings,tables,history:[...history.filter(h=>ownWork.has(h.work_id)),...personalHistory.filter(h=>ownWork.has(h.task_id)).map(h=>({...h,work_id:h.task_id}))],dealHistory:dealHistory.filter(h=>ownDeals.has(h.deal_id))};
+ return {userId:context.userId,name:profile.data?.full_name||profile.data?.email||'My account',gridSettings:gridSettings.data??[],companies,leads,deals,work,stages,meetings,tables,history:[...history.filter(h=>ownWork.has(h.work_id)),...personalHistory.filter(h=>ownWork.has(h.task_id)).map(h=>({...h,work_id:h.task_id}))],dealHistory:dealHistory.filter(h=>ownDeals.has(h.deal_id))};
 });
 export type Phase2Data=Awaited<ReturnType<typeof loadUserPhase2>>;
 export const saveUserWork=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>userTaskSchema.parse(v)).handler(async({context,data})=>{const r=await context.supabase.rpc('user_work_action',{_action:'save',_payload:data});if(r.error)throw new Error(r.error.message);return r.data;});
@@ -32,3 +34,5 @@ export const loadTableRows=createServerFn({method:'GET'}).middleware([requireSup
  const r=await context.supabase.rpc('user_table_rows_page',{_table:data.id,_page:data.page,_q:data.q,_sort:data.sort,_descending:data.descending,_filter:data.filter,_value:data.value});if(r.error)throw new Error('Table rows could not be loaded');
  const result=r.data as {rows:import('@/integrations/supabase/types').Database['public']['Tables']['user_work_rows']['Row'][];count:number};return result;
 });
+
+export const saveWorkGrid=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({kind:z.enum(['task','follow_up']),settings:gridSettingsSchema.optional(),record:z.string().uuid().optional(),column:z.string().optional(),value:z.unknown().optional()}).parse(v)).handler(async({context,data})=>{const r=await context.supabase.rpc('user_work_grid_save',{_kind:data.kind,_settings:data.settings as import('@/integrations/supabase/types').Json,...(data.record?{_record:data.record}:{}),...(data.column?{_column:data.column}:{}),_value:data.value as import('@/integrations/supabase/types').Json});if(r.error)throw new Error(r.error.message);return {ok:true};});
