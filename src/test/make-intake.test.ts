@@ -2,8 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { intakeSchema, resolveIntakeSource, sourceBindingsSchema } from '@/lib/make-intake';
 import { handleMakeIntake } from '@/lib/make-intake.server';
 
-const mocks = vi.hoisted(() => ({ rpc: vi.fn() }));
-vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { rpc: mocks.rpc } }));
+const mocks = vi.hoisted(() => ({ rpc: vi.fn(), sources: [] as unknown[], log: vi.fn(), chain: {} as any }));
+vi.mock('@/lib/make-management.server', () => {
+  const db = { rpc: mocks.rpc, from: (table: string) => {
+    const chain: any = { update: () => chain, eq: () => chain, is: () => Promise.resolve({ error: null }), insert: mocks.log, select: () => chain, then: (resolve: any) => Promise.resolve({ data: mocks.sources, error: null }).then(resolve) };
+    return chain;
+  } };
+  return { makeAdminClient: async () => db, authenticateMakeKey: async (supplied: string) => {
+    if (!process.env['MAKE_LEAD_INTAKE_TOKEN']) throw new Error('unconfigured');
+    return supplied === process.env['MAKE_LEAD_INTAKE_TOKEN'] ? { db, keyId: '00000000-0000-4000-8000-000000000003' } : null;
+  } };
+});
 vi.mock('@/lib/make-intake', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lib/make-intake')>();
   return { ...actual, verifyIntakeToken: async (supplied: string, expected: string) => supplied === expected };
@@ -18,6 +27,8 @@ describe('Make lead intake security and saves', () => {
     vi.stubEnv('MAKE_LEAD_INTAKE_TOKEN', 'test-only-credential');
     vi.stubEnv('MAKE_LEAD_INTAKE_SOURCES', JSON.stringify([binding]));
     mocks.rpc.mockReset();
+    mocks.log.mockReset(); mocks.log.mockResolvedValue({ error: null });
+    mocks.sources = [{ ...binding, id: '00000000-0000-4000-8000-000000000004', name: 'Test source', platform: 'Facebook', ad_id: '', active: true, archived: false }];
     mocks.rpc.mockResolvedValue({ data: { status: 'created', lead_id: 'new-lead', routing_status: 'assigned' }, error: null });
   });
   it('denies unauthenticated requests before saving', async () => {
@@ -34,7 +45,7 @@ describe('Make lead intake security and saves', () => {
   it('rejects malformed JSON', async () => { expect((await handleMakeIntake(request('{'))).status).toBe(400); expect(mocks.rpc).not.toHaveBeenCalled(); });
   it('rejects non-JSON content', async () => { expect((await handleMakeIntake(request(lead, true, 'text/plain'))).status).toBe(415); expect(mocks.rpc).not.toHaveBeenCalled(); });
   it('rejects requests larger than 64 KiB', async () => { expect((await handleMakeIntake(request({ ...lead, form_answers: { huge: 'a'.repeat(65536) } }))).status).toBe(413); expect(mocks.rpc).not.toHaveBeenCalled(); });
-  it.each(['name', 'phone', 'source', 'facebook_lead_id', 'page_id', 'form_id', 'campaign_id', 'ad_id'])('requires %s', field => {
+  it.each(['name', 'phone', 'source', 'facebook_lead_id', 'page_id', 'form_id'])('requires %s', field => {
     const body: Record<string, unknown> = { ...lead }; delete body[field]; expect(intakeSchema.safeParse(body).success).toBe(false);
   });
   it('allows leads without email', () => { const { email, ...body } = lead; expect(intakeSchema.parse(body).email).toBe(''); });
@@ -51,7 +62,7 @@ describe('Make lead intake security and saves', () => {
   });
   it('saves through the single transactional RPC using trusted source fields', async () => {
     const response = await handleMakeIntake(request()); expect(response.status).toBe(201); expect(mocks.rpc).toHaveBeenCalledTimes(1);
-    expect(mocks.rpc).toHaveBeenCalledWith('make_lead_intake', { _company: binding.company_id, _account: '66', _payload: lead, _dry_run: false });
+    expect(mocks.rpc).toHaveBeenCalledWith('make_authenticated_intake', { _key: '00000000-0000-4000-8000-000000000003', _source: '00000000-0000-4000-8000-000000000004', _payload: lead, _dry_run: false });
     expect(await response.json()).toEqual({ success: true, status: 'created', lead_id: 'new-lead', routing_status: 'assigned' });
   });
   it('returns idempotent duplicate results without another routing call', async () => {
