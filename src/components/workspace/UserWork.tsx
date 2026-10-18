@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient,useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import { Plus,Pencil,Trash2,CheckCheck,History,ChevronLeft,ChevronRight,Settings2 } from 'lucide-react';
@@ -38,6 +39,7 @@ export function UserWorkEditor({kind,item,date,onClose}:{kind:'task'|'follow_up'
 export function UserWork({kind}:{kind:'task'|'follow_up'}){
  const {data}=useSuspenseQuery(phase2Query),qc=useQueryClient(),change=useServerFn(changeUserWork),save=useServerFn(saveUserWork),saveGrid=useServerFn(saveWorkGrid);
  const [columnsOpen,setColumnsOpen]=useState(false);
+ useEffect(()=>{const channel=supabase.channel(`user-work-grid-${data.userId}-${kind}`).on('postgres_changes',{event:'*',schema:'public',table:'crm_work_items',filter:`assigned_to=eq.${data.userId}`},()=>void qc.invalidateQueries({queryKey:phase2Query.queryKey})).subscribe();return()=>{void supabase.removeChannel(channel);};},[data.userId,kind,qc]);
  const settings=data.gridSettings.find(g=>g.kind===kind),columns=workColumns(kind,settings?.settings).map(c=>c.id==='status'&&!c.options.length?{...c,options:(kind==='task'?['not_started','in_progress','completed']:['scheduled','completed','skipped']).map(id=>({id,name:display(id),color:'blue' as const}))}:c),shown=columns.filter(c=>!c.hidden);
  const persistColumns=async(next:GridColumn[])=>{try{await saveGrid({data:{kind,settings:{columns:next}}});await qc.invalidateQueries({queryKey:phase2Query.queryKey});}catch(e){toast.error(e instanceof Error?e.message:'Could not save columns');throw e;}};
  const [q,setQ]=useState(''),[tab,setTab]=useState('all'),[priority,setPriority]=useState(''),[status,setStatus]=useState(''),[type,setType]=useState(''),[date,setDate]=useState(''),[view,setView]=useState('list'),[page,setPage]=useState(1),[editor,setEditor]=useState<{item?:UserWorkItem}|null>(null),[detail,setDetail]=useState<UserWorkItem|null>(null),[deleting,setDeleting]=useState<UserWorkItem|null>(null),[busy,setBusy]=useState(false);
