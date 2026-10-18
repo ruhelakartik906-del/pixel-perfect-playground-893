@@ -5,7 +5,8 @@ import { UserWorkspace } from '@/components/workspace/UserWorkspace';
 
 // Shown when a company-data page is opened by an account without employee workspace access yet.
 export function WorkspaceAccessError({ error }: ErrorComponentProps) {
-  const access = /workspace access|CRM access|Unauthorized/i.test(error?.message ?? '');
+  const message = error instanceof Error ? error.message : "";
+  const access = /workspace access|CRM access|Unauthorized/i.test(message);
   return (
     <UserWorkspace>
       <div className="mx-auto mt-10 max-w-lg rounded-2xl border bg-card p-8 text-center shadow-card">
@@ -14,7 +15,7 @@ export function WorkspaceAccessError({ error }: ErrorComponentProps) {
         <p className="mt-2 text-muted-foreground">
           {access
             ? 'Your account is active, but an administrator has not yet linked you to a company as an employee. Your personal dashboard is still available.'
-            : error?.message || 'Please try again.'}
+            : message || 'Please try again.'}
         </p>
         <Button asChild className="mt-6"><Link to="/dashboard">Go to my dashboard</Link></Button>
       </div>
