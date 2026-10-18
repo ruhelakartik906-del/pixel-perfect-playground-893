@@ -66,19 +66,18 @@ export async function handleMakeIntake(request: Request) {
   sourceId = binding.id;
   const { dry_run, ...payload } = lead;
   try {
-    // No privileged client is loaded until the caller and its configured source have been verified.
-    const { data, error: failure } = await db.rpc('make_lead_intake', {
-      _company: binding.company_id, _account: binding.account_id, _payload: payload as Json, _dry_run: dry_run, _source: binding.id,
+    // Key revocation, source state, save and redacted success log are checked atomically.
+    const { data, error: failure } = await db.rpc('make_authenticated_intake', {
+      _key: keyId, _payload: payload as Json, _dry_run: dry_run, _source: binding.id,
     });
     if (failure) {
+      if (failure.code === '28000') return loggedError(401, 'UNAUTHORIZED', 'Key is unavailable or revoked');
       if (failure.code === '42501') return loggedError(403, 'SOURCE_NOT_ALLOWED', 'Configured source or company is unavailable');
       if (failure.code === '23505') return loggedError(409, 'LEAD_SOURCE_CONFLICT', 'Lead ID conflicts with existing source data');
       if (failure.code === '22023') return loggedError(422, 'INVALID_INPUT', 'Lead payload was rejected');
       return loggedError(503, 'SAVE_UNAVAILABLE', 'Lead was not confirmed saved; retry with the same Facebook lead ID');
     }
     if (!data || typeof data !== 'object' || Array.isArray(data)) return loggedError(503, 'SAVE_UNAVAILABLE', 'Lead save could not be confirmed');
-    const resultStatus = data['status'];
-    await db.from('make_intake_logs').insert({ key_id: keyId, source_id: sourceId, status: resultStatus === 'created' ? 'created' : resultStatus === 'duplicate' ? 'duplicate' : 'validated', http_status: resultStatus === 'created' ? 201 : 200, code: 'OK', lead_id: typeof data['lead_id'] === 'string' ? data['lead_id'] : null, is_test: dry_run });
     return reply(data['status'] === 'created' ? 201 : 200, { success: true, ...data });
   } catch { return loggedError(503, 'SAVE_UNAVAILABLE', 'Lead intake temporarily unavailable; retry with the same Facebook lead ID'); }
 }

@@ -44,7 +44,7 @@ export function MakeIntegration({ onBack }: { onBack: () => void }) {
     if (!selected || !testKey) { setTestResult({ status: 'Setup Required', message: 'Select an active source and enter an API key.' }); return; }
     setBusy(true);
     try {
-      const response = await fetch(endpoint, { method: 'POST', headers: { Authorization: `Bearer ${testKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...sample, page_id: selected.page_id, form_id: selected.form_id, campaign_id: selected.campaign_id, ad_id: selected.ad_id }) });
+      const response = await fetch(endpointPath, { method: 'POST', headers: { Authorization: `Bearer ${testKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...sample, page_id: selected.page_id, form_id: selected.form_id, campaign_id: selected.campaign_id, ad_id: selected.ad_id }) });
       const result = await response.json();
       const verified = response.ok && result.success === true && result.dry_run === true && result.status === 'validated';
       setTestResult({ status: verified ? 'Verified' : response.status === 503 ? 'Setup Required' : 'Error', message: verified ? 'Authenticated endpoint and source check passed. No lead was created; routing and Facebook delivery are not tested.' : typeof result.error?.message === 'string' ? result.error.message : 'Authenticated check did not pass.' });
