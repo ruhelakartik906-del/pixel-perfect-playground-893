@@ -17,6 +17,13 @@ import { loginDestination } from "@/lib/auth-destination";
 import { resolveAuthAccess } from "@/lib/auth-access.functions";
 import { SessionNotice, useExistingAccount } from "@/components/auth/SessionNotice";
 
+// Keeps SSR and the first client render identical so hydration never mismatches on query state.
+function useHydrated() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  return hydrated;
+}
+
 function collectErrors<T extends Record<string, unknown>>(error: z.ZodError<T>) {
   const errors: Partial<Record<keyof T, string>> = {};
   error.issues.forEach((issue) => {
@@ -119,7 +126,7 @@ export function LoginForm() {
         </label>
         <Link to="/forgot-password" className="font-semibold text-primary hover:underline">Forgot password?</Link>
       </div>
-      <Button type="submit" variant="hero" size="xl" disabled={loading !== null || account.isPending || Boolean(account.data)}>
+      <Button type="submit" variant="hero" size="xl" disabled={!hydrated || loading !== null || account.isPending || Boolean(account.data)}>
         {loading === "email" ? <><Loader2 className="animate-spin" /> Signing in…</> : <><LockKeyhole /> Login</>}
       </Button>
       <div className="relative py-1"><Separator /><span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs font-semibold uppercase text-muted-foreground">or</span></div>
