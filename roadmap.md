@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] Public registration/login — investigate current session and verified role/status redirects; preserve safe client signup, profiles, email verification and authorized company access; verify public links and auth flows.
 - [x] Admin Sales Reports and Analytics — authorized paginated ledger reads, currency-separated reports/six charts, date/customer filters, table search/sort/pagination and CSV/Excel/PDF; Job navigation removed; 19 focused tests, signed-in empty pages/filters/downloads/mobile and Dashboard/Invoices/My Reports checks passed; no financial writes.
 - [ ] Sales reporting populated charts/tables/pagination and cross-account authorization — blocked: no populated financial records or second authorized account; standalone revenue excluded because currency is not recorded. Historical balances use current issued/void credit state, as no reversal-effective-date field exists.
 - [x] User Panel Phase 4 — proposals, shared invoice draft-only RPC, scoped reports/exports, reused Support, own profile/preferences/photo/credential services and secure Logout; five signed-in pages/forms, preference save/refresh and Logout verified
