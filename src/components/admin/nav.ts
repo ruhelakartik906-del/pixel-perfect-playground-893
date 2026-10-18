@@ -18,7 +18,7 @@ export const adminNav: NavGroup[] = [
   g("CRM", Users, "crm", ["Leads", "Deals", "Contacts", "Companies", "Tasks", "Follow-ups", "Automation", "Reports", "Analytics", "Custom Forms", "CRM System Setup"]),
   { ...g("Sales", ShoppingCart, "sales", ["Products & Services", "Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]), items: [
     { label: "Products & Services", path: "sales/products" },
-    ...g("Sales", ShoppingCart, "sales", ["Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]).items,
+    ...g("Sales", ShoppingCart, "sales", ["Customers", "Proposals", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]).items,
   ] },
   g("User Management", UserCog, "users", ["Users", "Role"]),
   g("Communication", MessageSquare, "communication", ["Mail", "Chat"]),
