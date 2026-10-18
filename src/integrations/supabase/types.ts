@@ -4265,6 +4265,10 @@ export type Database = {
         Returns: string
       }
       save_business_settings: { Args: { _payload: Json }; Returns: undefined }
+      spreadsheet_commit: {
+        Args: { _draft: string; _page: string; _payload: Json }
+        Returns: string
+      }
       spreadsheet_grid_action: {
         Args: {
           _action: string
@@ -4274,6 +4278,10 @@ export type Database = {
           _value?: Json
         }
         Returns: Json
+      }
+      spreadsheet_table_cell: {
+        Args: { _field: string; _row: string; _table: string; _value: Json }
+        Returns: string
       }
       spreadsheet_work_cell: {
         Args: { _field: string; _id: string; _origin: string; _value: Json }

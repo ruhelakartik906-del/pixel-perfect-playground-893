@@ -351,6 +351,13 @@
       "when": 1792316054615,
       "tag": "0049_spreadsheet_drafts_and_standalone_assignments",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792316322706,
+      "tag": "0050_atomic_spreadsheet_commits_and_table_cells",
+      "breakpoints": true
     }
   ]
 }
