@@ -1,5 +1,6 @@
 # Admin roadmap
-- [ ] Make.com intake only: authenticated public POST, secret source-to-company bindings, Facebook deduplication, atomic existing routing, focused verification and exact URL/setup instructions.
+- [x] Make.com intake implementation: public POST with backend token/source bindings, canonical Facebook ID deduplication and atomic existing routing; 35 focused tests passed, build OK, public/user RPC execution denied, hosted preview returns closed SETUP_REQUIRED. No pages, WhatsApp or live lead data changed.
+- [ ] Make.com activation/acceptance: token and real source bindings required; no active companies/routing rules. Production publishing declined. Authorized save/duplicate/concurrency and Admin–User readback remain UNVERIFIED until isolated company/eligible recipients and setup exist.
 - [x] Highest-priority backend pass: active-admin policies/profile identity guard, restrictive lead/deal/company access, atomic invitation setup and complete stable Sales reads. 58 focused tests passed; deployed invitation execution denied to public/standard roles; pending Client personal Tasks allowed/Admin denied; authorized Admin Tasks/Invoices/Proposals load without runtime errors. No live operational/financial records changed; WhatsApp untouched.
 - [ ] Invitation delivery/atomic setup and populated Admin–User acceptance remain UNVERIFIED: no invitation sent, no eligible active standard recipient or isolated company/financial/HRM data. Authorized Admin session is now available; older entries claiming no Admin session describe historical checks only.
 - [ ] Remaining backend completion: populated CRM/commercial/HRM acceptance, automation executor, authoritative reports and non-WhatsApp provider infrastructure; report credential/session blockers rather than claiming full completion.
@@ -46,7 +47,7 @@
 - [ ] WhatsApp live messaging & Meta template sync — needs WhatsApp Business connection
 - [x] WhatsApp Workflows, Broadcast, Message Log, Integrations Cockpit, HRM Analytics, HRM Employees
 - [ ] Workflow execution engine & broadcast sending — needs WhatsApp Business connection
-- [ ] Make.com/Pabbly lead webhook endpoint — not built
+- [x] Make.com lead webhook endpoint implemented; Pabbly not changed. Activation and end-to-end verification remain setup-dependent above.
 - [x] CRM Tasks and Follow-ups: shared admin/employee views, company-scoped records/RPC, real counts, forms, history, CSV, pagination and List/Kanban; 17 tests and signed-in empty-state/form/CSV/refresh/mobile checks passed
 - [ ] CRM work populated persistence, concurrency and employee/cross-company authorization verification — blocked: zero companies/memberships and no isolated employee test environment; no live test rows created
 - [x] HRM Branch and Designation — existing records extended, scoped CRUD and dependencies
