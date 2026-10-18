@@ -28,13 +28,14 @@ describe('verified login destinations', () => {
     expect(loginDestination('/pending-approval', '/tasks')).toBe('/pending-approval');
     expect(loginDestination('/restricted', '/admin/dashboard')).toBe('/restricted');
   });
-  it('requires the five public signup fields without requiring or trusting company/role metadata', () => {
-    const input = { fullName: 'Test User', email: 'person@example.test', phone: '+919876543210', password: 'StrongPass123', confirmPassword: 'StrongPass123', terms: true, role: 'super_admin', company_id: 'unrelated' };
+  it('requires the public signup fields without requiring or trusting company/role metadata', () => {
+    const input = { firstName: 'Test', lastName: 'User', email: 'person@example.test', phone: '+919876543210', password: 'StrongPass123', confirmPassword: 'StrongPass123', terms: true, role: 'super_admin', company_id: 'unrelated' };
     const result = registerSchema.parse(input);
     expect(result).not.toHaveProperty('role');
     expect(result).not.toHaveProperty('company_id');
-    expect(result.fullName).toBe('Test User');
-    for (const key of ['fullName', 'email', 'phone', 'password', 'confirmPassword']) {
+    expect(result.firstName).toBe('Test');
+    expect(result.lastName).toBe('User');
+    for (const key of ['firstName', 'lastName', 'email', 'phone', 'password', 'confirmPassword']) {
       expect(registerSchema.safeParse({ ...input, [key]: '' }).success).toBe(false);
     }
   });
