@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] Admin Sales Reports and Analytics — reuse authorized ledger reads, currency-separated date-filtered reports/charts/exports; remove Job navigation only; no financial writes.
 - [x] User Panel Phase 4 — proposals, shared invoice draft-only RPC, scoped reports/exports, reused Support, own profile/preferences/photo/credential services and secure Logout; five signed-in pages/forms, preference save/refresh and Logout verified
 - [ ] Phase 4 populated proposal/invoice CRUD, PDF/print and accepted-to-draft conversion, employee/company permissions, photo download and real credential verification — blocked: no companies/memberships/employees or isolated financial test environment; no financial/customer records or credentials changed. Report exports and profile preferences can be tested safely; external notification delivery remains disconnected.
 - [x] User Panel Phase 3 — three connected pages/nav, shared Team Chat direct/group/files, truthful WhatsApp setup/history and shared local template drafts; 34 tests passed, user/Admin pages and mobile navigation checked, draft create/edit/refresh/Admin sharing/delete verified; temporary draft removed
