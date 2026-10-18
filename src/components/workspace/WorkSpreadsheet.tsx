@@ -10,7 +10,7 @@ import { EditableGrid,GridCell,GridSettings } from './EditableGrid';
 import { workColumns,type GridColumn } from '@/lib/work-grid';
 import { localDay,scheduleInput,scheduleUtc } from '@/lib/crm-work';
 import { userTaskSchema,validateValues } from '@/lib/user-phase2';
-import { gridAction,saveSpreadsheetCell,assignSpreadsheetWork } from '@/lib/spreadsheet.functions';
+import { gridAction,saveSpreadsheetCell,commitSpreadsheet } from '@/lib/spreadsheet.functions';
 import { saveUserWork } from '@/lib/user-phase2.functions';
 import type { ReactNode } from 'react';
 
@@ -19,7 +19,7 @@ type Settings={kind:string;settings:unknown;custom_values:unknown;drafts:unknown
 type Person={id:string;full_name:string;account_status:string};
 export function WorkSpreadsheet({kind,admin=false,userId,rows,settings,people=[],leads=[],companies=[],eligible=[],roles=[],actions}:{kind:'task'|'follow_up';admin?:boolean;userId:string;rows:Work[];settings:Settings[];people?:Person[];leads?:{id:string;customer_name:string;phone:string;company_id:string|null}[];companies?:{id:string;name:string}[];eligible?:{user_id:string;company_id:string}[];roles?:{user_id:string;role:string}[];actions:(w:Work)=>ReactNode}){
  const page=admin?(kind==='task'?'admin_task':'admin_follow_up'):kind;
- const entry=settings.find(s=>s.kind===page),qc=useQueryClient(),grid=useServerFn(gridAction),cellSave=useServerFn(saveSpreadsheetCell),save=useServerFn(saveUserWork),assign=useServerFn(assignSpreadsheetWork);
+ const entry=settings.find(s=>s.kind===page),qc=useQueryClient(),grid=useServerFn(gridAction),cellSave=useServerFn(saveSpreadsheetCell),commit=useServerFn(commitSpreadsheet);
  const [open,setOpen]=useState(false),[userSearch,setUserSearch]=useState('');
  const queue=useRef(Promise.resolve()),[drafts,setDrafts]=useState<Record<string,Record<string,unknown>>>(()=>(entry?.drafts??{}) as Record<string,Record<string,unknown>>);
  const [localColumns,setLocalColumns]=useState<GridColumn[]|null>(null);
@@ -33,7 +33,7 @@ export function WorkSpreadsheet({kind,admin=false,userId,rows,settings,people=[]
  const addColumn=()=>{const next=[...columns,{id:crypto.randomUUID(),name:'New column',type:'text' as const,width:180,custom:true,hidden:false,options:[]}];setLocalColumns(next);void persistColumns(next).catch(e=>toast.error(e.message));};
  const addRow=()=>{const id=crypto.randomUUID(),value={origin:'personal',company_id:'',assigned_to:admin?'':userId,title:'',notes:'',customer_name:'',customer_phone:'',priority:'medium',status:kind==='task'?'not_started':'scheduled',start_date:localDay(),due_date:localDay(),scheduled_date:localDay(),scheduled_time:'10:00',interaction_type:'call'};setDrafts(d=>({...d,[id]:value}));void serialized(async()=>{await grid({data:{page,action:'add',id,value}});}).catch(e=>toast.error(e.message));};
  const deleteDraft=(id:string)=>serialized(async()=>{await grid({data:{page,action:'delete_draft',id}});setDrafts(d=>{const next={...d};delete next[id];return next;});});
- const commitDraft=(id:string)=>serialized(async()=>{const d=drafts[id];if(!d)return;const origin=d['company_id']?'company':'personal';const parsed=userTaskSchema.parse({...d,origin,kind,lead_id:d['lead_id']||null,deal_id:null,checklist:[],start_date:kind==='task'?d['start_date']:null,due_date:kind==='task'?d['due_date']:null,scheduled_at:kind==='follow_up'?scheduleUtc(`${d['scheduled_date']}T${d['scheduled_time']}`):null,interaction_type:kind==='follow_up'?d['interaction_type']:null});const record=await (admin?assign({data:parsed}):save({data:parsed}));for(const c of columns.filter(c=>c.custom))if(d[c.id]!==undefined)await grid({data:{page,action:'custom',id:record,field:c.id,value:d[c.id]}});await grid({data:{page,action:'delete_draft',id}});setDrafts(all=>{const next={...all};delete next[id];return next;});await refresh();toast.success(admin?'Assignment saved':'Record saved');});
+ const commitDraft=(id:string)=>serialized(async()=>{const d=drafts[id];if(!d)return;if(admin&&!d['assigned_to'])throw new Error('Select an eligible active user');const origin=d['company_id']?'company':'personal';const parsed=userTaskSchema.parse({...d,origin,kind,lead_id:d['lead_id']||null,deal_id:null,checklist:[],start_date:kind==='task'?d['start_date']:null,due_date:kind==='task'?d['due_date']:null,scheduled_at:kind==='follow_up'?scheduleUtc(`${d['scheduled_date']}T${d['scheduled_time']}`):null,interaction_type:kind==='follow_up'?d['interaction_type']:null});await commit({data:{page,draft:id,payload:parsed}});setDrafts(all=>{const next={...all};delete next[id];return next;});await refresh();toast.success(admin?'Assignment saved':'Record saved');});
  const name=(id:string)=>people.find(p=>p.id===id)?.full_name||id;
  const render=(w:Work|undefined,id:string,c:GridColumn)=>{
   const draft=drafts[id],isDraft=!w,key=c.id,origin=w?.company_id?'company':'personal',related=leads.find(l=>l.id===w?.lead_id);
