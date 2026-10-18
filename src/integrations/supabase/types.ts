@@ -4125,6 +4125,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_complete_invitation: {
+        Args: {
+          _access_role?: string
+          _actor: string
+          _company?: string
+          _email: string
+          _name: string
+          _phone: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user: string
+        }
+        Returns: string
+      }
       can_chat_with: { Args: { _other: string }; Returns: boolean }
       can_manage_sales: { Args: never; Returns: boolean }
       chat_company_actor: { Args: { _user: string }; Returns: boolean }
