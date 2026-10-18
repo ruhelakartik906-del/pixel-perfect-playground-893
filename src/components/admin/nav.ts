@@ -1,5 +1,5 @@
 import {
-  Briefcase, Cable, FileText, Headphones, LayoutDashboard, MessageSquare, Phone, Route as RouteIcon,
+  Briefcase, Cable, Headphones, LayoutDashboard, MessageSquare, Phone, Route as RouteIcon,
   Settings, ShoppingCart, UserCog, Users, type LucideIcon,
 } from "lucide-react";
 
@@ -25,7 +25,6 @@ export const adminNav: NavGroup[] = [
   g("WhatsApp", Phone, "whatsapp", ["WhatsApp Chat", "Message Templates", "Workflows", "Broadcast", "Message Log"]),
   { label: "Integrations", icon: Cable, badge: "NEW", items: [{ label: "Integrations", path: "integrations" }] },
   g("HRM", Briefcase, "hrm", ["Employees", "Attendance", "Holidays", "Leave Management", "Meetings", "Announcements"]),
-  g("Job", FileText, "job", ["Jobs", "Job Candidates", "Job Onboarding", "Job Applications", "Offer Letters", "Interviews"]),
   { label: "Settings", icon: Settings, items: [
     { label: "Admin Account & Security", path: "settings/admin-account-security" },
     { label: "Business Settings", path: "settings/business-settings" },

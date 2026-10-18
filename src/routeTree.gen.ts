@@ -86,11 +86,13 @@ import { Route as AuthenticatedAdminRoutingCampaignAdMappingRouteImport } from '
 import { Route as AuthenticatedAdminRoutingDistributionRulesRouteImport } from './routes/_authenticated/admin/routing/distribution-rules'
 import { Route as AuthenticatedAdminRoutingLeadAssignmentHistoryRouteImport } from './routes/_authenticated/admin/routing/lead-assignment-history'
 import { Route as AuthenticatedAdminRoutingUnassignedLeadsRouteImport } from './routes/_authenticated/admin/routing/unassigned-leads'
+import { Route as AuthenticatedAdminSalesAnalyticsRouteImport } from './routes/_authenticated/admin/sales/analytics'
 import { Route as AuthenticatedAdminSalesCreditNotesRouteImport } from './routes/_authenticated/admin/sales/credit-notes'
 import { Route as AuthenticatedAdminSalesCustomersRouteImport } from './routes/_authenticated/admin/sales/customers'
 import { Route as AuthenticatedAdminSalesInvoicesRouteImport } from './routes/_authenticated/admin/sales/invoices'
 import { Route as AuthenticatedAdminSalesProductsRouteImport } from './routes/_authenticated/admin/sales/products'
 import { Route as AuthenticatedAdminSalesProductsServicesRouteImport } from './routes/_authenticated/admin/sales/products-services'
+import { Route as AuthenticatedAdminSalesReportsRouteImport } from './routes/_authenticated/admin/sales/reports'
 import { Route as AuthenticatedAdminSalesRevenueRouteImport } from './routes/_authenticated/admin/sales/revenue'
 import { Route as AuthenticatedAdminSettingsAdminAccountSecurityRouteImport } from './routes/_authenticated/admin/settings/admin-account-security'
 import { Route as AuthenticatedAdminSettingsBusinessSettingsRouteImport } from './routes/_authenticated/admin/settings/business-settings'
@@ -531,6 +533,12 @@ const AuthenticatedAdminRoutingUnassignedLeadsRoute =
     path: '/routing/unassigned-leads',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSalesAnalyticsRoute =
+  AuthenticatedAdminSalesAnalyticsRouteImport.update({
+    id: '/sales/analytics',
+    path: '/sales/analytics',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSalesCreditNotesRoute =
   AuthenticatedAdminSalesCreditNotesRouteImport.update({
     id: '/sales/credit-notes',
@@ -559,6 +567,12 @@ const AuthenticatedAdminSalesProductsServicesRoute =
   AuthenticatedAdminSalesProductsServicesRouteImport.update({
     id: '/sales/products-services',
     path: '/sales/products-services',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSalesReportsRoute =
+  AuthenticatedAdminSalesReportsRouteImport.update({
+    id: '/sales/reports',
+    path: '/sales/reports',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminSalesRevenueRoute =
@@ -698,11 +712,13 @@ export interface FileRoutesByFullPath {
   '/admin/routing/distribution-rules': typeof AuthenticatedAdminRoutingDistributionRulesRoute
   '/admin/routing/lead-assignment-history': typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
   '/admin/routing/unassigned-leads': typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
+  '/admin/sales/analytics': typeof AuthenticatedAdminSalesAnalyticsRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
+  '/admin/sales/reports': typeof AuthenticatedAdminSalesReportsRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   '/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
@@ -790,11 +806,13 @@ export interface FileRoutesByTo {
   '/admin/routing/distribution-rules': typeof AuthenticatedAdminRoutingDistributionRulesRoute
   '/admin/routing/lead-assignment-history': typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
   '/admin/routing/unassigned-leads': typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
+  '/admin/sales/analytics': typeof AuthenticatedAdminSalesAnalyticsRoute
   '/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
+  '/admin/sales/reports': typeof AuthenticatedAdminSalesReportsRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   '/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
@@ -885,11 +903,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/routing/distribution-rules': typeof AuthenticatedAdminRoutingDistributionRulesRoute
   '/_authenticated/admin/routing/lead-assignment-history': typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
   '/_authenticated/admin/routing/unassigned-leads': typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
+  '/_authenticated/admin/sales/analytics': typeof AuthenticatedAdminSalesAnalyticsRoute
   '/_authenticated/admin/sales/credit-notes': typeof AuthenticatedAdminSalesCreditNotesRoute
   '/_authenticated/admin/sales/customers': typeof AuthenticatedAdminSalesCustomersRoute
   '/_authenticated/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
   '/_authenticated/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/_authenticated/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
+  '/_authenticated/admin/sales/reports': typeof AuthenticatedAdminSalesReportsRoute
   '/_authenticated/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/_authenticated/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   '/_authenticated/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
@@ -980,11 +1000,13 @@ export interface FileRouteTypes {
     | '/admin/routing/distribution-rules'
     | '/admin/routing/lead-assignment-history'
     | '/admin/routing/unassigned-leads'
+    | '/admin/sales/analytics'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
     | '/admin/sales/products'
     | '/admin/sales/products-services'
+    | '/admin/sales/reports'
     | '/admin/sales/revenue'
     | '/admin/settings/admin-account-security'
     | '/admin/settings/business-settings'
@@ -1072,11 +1094,13 @@ export interface FileRouteTypes {
     | '/admin/routing/distribution-rules'
     | '/admin/routing/lead-assignment-history'
     | '/admin/routing/unassigned-leads'
+    | '/admin/sales/analytics'
     | '/admin/sales/credit-notes'
     | '/admin/sales/customers'
     | '/admin/sales/invoices'
     | '/admin/sales/products'
     | '/admin/sales/products-services'
+    | '/admin/sales/reports'
     | '/admin/sales/revenue'
     | '/admin/settings/admin-account-security'
     | '/admin/settings/business-settings'
@@ -1166,11 +1190,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/routing/distribution-rules'
     | '/_authenticated/admin/routing/lead-assignment-history'
     | '/_authenticated/admin/routing/unassigned-leads'
+    | '/_authenticated/admin/sales/analytics'
     | '/_authenticated/admin/sales/credit-notes'
     | '/_authenticated/admin/sales/customers'
     | '/_authenticated/admin/sales/invoices'
     | '/_authenticated/admin/sales/products'
     | '/_authenticated/admin/sales/products-services'
+    | '/_authenticated/admin/sales/reports'
     | '/_authenticated/admin/sales/revenue'
     | '/_authenticated/admin/settings/admin-account-security'
     | '/_authenticated/admin/settings/business-settings'
@@ -1744,6 +1770,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRoutingUnassignedLeadsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/sales/analytics': {
+      id: '/_authenticated/admin/sales/analytics'
+      path: '/sales/analytics'
+      fullPath: '/admin/sales/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminSalesAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/sales/credit-notes': {
       id: '/_authenticated/admin/sales/credit-notes'
       path: '/sales/credit-notes'
@@ -1777,6 +1810,13 @@ declare module '@tanstack/react-router' {
       path: '/sales/products-services'
       fullPath: '/admin/sales/products-services'
       preLoaderRoute: typeof AuthenticatedAdminSalesProductsServicesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/sales/reports': {
+      id: '/_authenticated/admin/sales/reports'
+      path: '/sales/reports'
+      fullPath: '/admin/sales/reports'
+      preLoaderRoute: typeof AuthenticatedAdminSalesReportsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/sales/revenue': {
@@ -1896,11 +1936,13 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminRoutingDistributionRulesRoute: typeof AuthenticatedAdminRoutingDistributionRulesRoute
   AuthenticatedAdminRoutingLeadAssignmentHistoryRoute: typeof AuthenticatedAdminRoutingLeadAssignmentHistoryRoute
   AuthenticatedAdminRoutingUnassignedLeadsRoute: typeof AuthenticatedAdminRoutingUnassignedLeadsRoute
+  AuthenticatedAdminSalesAnalyticsRoute: typeof AuthenticatedAdminSalesAnalyticsRoute
   AuthenticatedAdminSalesCreditNotesRoute: typeof AuthenticatedAdminSalesCreditNotesRoute
   AuthenticatedAdminSalesCustomersRoute: typeof AuthenticatedAdminSalesCustomersRoute
   AuthenticatedAdminSalesInvoicesRoute: typeof AuthenticatedAdminSalesInvoicesRoute
   AuthenticatedAdminSalesProductsRoute: typeof AuthenticatedAdminSalesProductsRoute
   AuthenticatedAdminSalesProductsServicesRoute: typeof AuthenticatedAdminSalesProductsServicesRoute
+  AuthenticatedAdminSalesReportsRoute: typeof AuthenticatedAdminSalesReportsRoute
   AuthenticatedAdminSalesRevenueRoute: typeof AuthenticatedAdminSalesRevenueRoute
   AuthenticatedAdminSettingsAdminAccountSecurityRoute: typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   AuthenticatedAdminSettingsBusinessSettingsRoute: typeof AuthenticatedAdminSettingsBusinessSettingsRoute
@@ -1973,6 +2015,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminRoutingLeadAssignmentHistoryRoute,
     AuthenticatedAdminRoutingUnassignedLeadsRoute:
       AuthenticatedAdminRoutingUnassignedLeadsRoute,
+    AuthenticatedAdminSalesAnalyticsRoute:
+      AuthenticatedAdminSalesAnalyticsRoute,
     AuthenticatedAdminSalesCreditNotesRoute:
       AuthenticatedAdminSalesCreditNotesRoute,
     AuthenticatedAdminSalesCustomersRoute:
@@ -1981,6 +2025,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSalesProductsRoute: AuthenticatedAdminSalesProductsRoute,
     AuthenticatedAdminSalesProductsServicesRoute:
       AuthenticatedAdminSalesProductsServicesRoute,
+    AuthenticatedAdminSalesReportsRoute: AuthenticatedAdminSalesReportsRoute,
     AuthenticatedAdminSalesRevenueRoute: AuthenticatedAdminSalesRevenueRoute,
     AuthenticatedAdminSettingsAdminAccountSecurityRoute:
       AuthenticatedAdminSettingsAdminAccountSecurityRoute,
