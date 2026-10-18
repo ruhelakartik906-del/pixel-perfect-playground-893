@@ -2519,6 +2519,7 @@ export type Database = {
           form_answers: Json
           form_id: string | null
           id: string
+          intake_source: string | null
           interest_level: string
           meta_account_id: string | null
           meta_ad_id: string | null
@@ -2551,6 +2552,7 @@ export type Database = {
           form_answers?: Json
           form_id?: string | null
           id?: string
+          intake_source?: string | null
           interest_level?: string
           meta_account_id?: string | null
           meta_ad_id?: string | null
@@ -2583,6 +2585,7 @@ export type Database = {
           form_answers?: Json
           form_id?: string | null
           id?: string
+          intake_source?: string | null
           interest_level?: string
           meta_account_id?: string | null
           meta_ad_id?: string | null
