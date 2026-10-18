@@ -1,0 +1,20 @@
+import { describe, expect, it } from 'vitest';
+import { buildSalesReport, previousWindow, salesWindow, sortReportRows, type ReportData } from '@/lib/sales-report-model';
+import { adminNav } from '@/components/admin/nav';
+const invoice=(id:string,status='unpaid',currency='INR'):ReportData['invoices'][number]=>({id,status,currency,total:1050,subtotal:1000,tax_total:50,discount_total:0,customer_id:'c',billing_details:{name:'Historic customer'},seller_details:{},number:id,issue_date:'2026-10-01',due_date:'2026-10-10',items:[{product_id:'p',name:'Service',quantity:2,unit_price:500,discount_percent:0}],created_at:'2026-10-01',created_by:'u',updated_at:'2026-10-01',kind:'tax',tax_mode:'igst',notes:'',payment_terms:'',company_id:null,deal_id:null,lead_id:null,proposal_id:null});
+const payment=(id:string,invoice_id:string,amount:number,date='2026-10-05'):ReportData['payments'][number]=>({id,invoice_id,amount,payment_date:date,method:'bank_transfer',reference:'evidence',notes:'',authorized_by:'u',created_at:date});
+const credit=(status:string):ReportData['credits'][number]=>({id:status,invoice_id:'issued',amount:100,issue_date:'2026-10-06',status,tax_adjustment:5,number:status,reason:'Adjustment',notes:'',created_at:'2026-10-06',created_by:'u'});
+const data:ReportData={invoices:[invoice('issued'),invoice('draft','draft'),invoice('cancelled','cancelled'),invoice('usd','unpaid','USD')],payments:[payment('a','issued',400),payment('b','usd',300)],credits:[credit('issued'),credit('void')],customers:[{id:'c',name:'Renamed customer'}]};
+const report=()=>buildSalesReport(data,'2026-10-01','2026-10-18','INR');
+describe('Admin Sales reporting safeguards',()=>{
+ it('excludes drafts and cancelled invoices from issued values and receivables',()=>{expect(report().metrics).toMatchObject({count:3,invoiced:1050,outstanding:550,overdue:550});});
+ it('counts persisted payments only, never unpaid status as collections',()=>{expect(report().metrics.collected).toBe(400);expect(buildSalesReport({...data,payments:[]},'2026-10-01','2026-10-18','INR').metrics.collected).toBe(0);});
+ it('keeps currencies separate for invoices and linked payments',()=>{expect(buildSalesReport(data,'2026-10-01','2026-10-18','USD').metrics).toMatchObject({invoiced:1050,collected:300,outstanding:750});});
+ it('only issued credits reduce outstanding; void credits do not',()=>{expect(report().metrics.credits).toBe(100);expect(report().invoices[0].credited).toBe(100);});
+ it('filters receipt dates independently and excludes future balance payments',()=>{const r=buildSalesReport({...data,payments:[...data.payments,payment('future','issued',50,'2026-11-01')]},'2026-10-06','2026-10-18','INR');expect(r.metrics.collected).toBe(0);expect(report().invoices[0].paid).toBe(400);});
+ it('aggregates snapshot product quantities and tax-exclusive net sales',()=>{expect(report().products).toEqual([{name:'Service',quantity:2,net:1000,count:1}]);expect(report().invoices[0].customer).toBe('Historic customer');});
+ it('uses inclusive presets and equal-length prior periods',()=>{expect(salesWindow('7','2026-10-18')).toEqual({from:'2026-10-12',to:'2026-10-18'});expect(previousWindow('2026-10-12','2026-10-18')).toEqual({from:'2026-10-05',to:'2026-10-11'});expect(salesWindow('90','2026-05-31').from).toBe('2026-02-28');});
+ it('returns truthful zero and empty results when there are no records',()=>{const r=buildSalesReport({invoices:[],payments:[],credits:[],customers:[]},'2026-10-01','2026-10-18','INR');expect(r.metrics.invoiced).toBe(0);expect(r.trend).toEqual([]);});
+ it('sorts monetary cells numerically for reports and exports',()=>{expect(sortReportRows([['a',100],['b',20]],1,false)).toEqual([['b',20],['a',100]]);});
+ it('removes Job navigation while preserving HRM and Integrations',()=>{expect(adminNav.some(g=>g.label==='Job'||g.items.some(i=>i.path.startsWith('job/')))).toBe(false);expect(adminNav.find(g=>g.label==='HRM')?.items.length).toBe(6);expect(adminNav.find(g=>g.label==='Integrations')?.items[0]?.path).toBe('integrations');});
+});
