@@ -24,8 +24,8 @@ function ChatPage() {
   const qc = useQueryClient();
   const [sharedView,setSharedView] = useState(false);
   const me = useQuery({ queryKey: ["me-id"], queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? "" }).data ?? "";
-  const people = useQuery({ queryKey: ["chat-people"], queryFn: async () => { const r = await db.from("profiles").select("id,full_name,email,avatar_url,account_status").order("full_name"); if (r.error) throw r.error; return r.data as P[]; } });
-  const msgs = useQuery({ queryKey: ["chat-msgs"], queryFn: async () => { const r = await db.from("chat_messages").select("*").order("created_at").limit(5000); if (r.error) throw r.error; return r.data as M[]; } });
+  const people = useQuery({ queryKey: ["chat-people"], queryFn: async () => { const r = await supabase.rpc("chat_people"); if (r.error) throw r.error; return (r.data ?? []).map(p => ({...p, account_status: "eligible"})) as P[]; } });
+  const msgs = useQuery({ queryKey: ["chat-msgs"], queryFn: async () => { const r = await db.from("chat_messages").select("*").is("group_id", null).order("created_at").limit(5000); if (r.error) throw r.error; return r.data as M[]; } });
   const stars = useQuery({ queryKey: ["chat-stars"], queryFn: async () => { const r = await db.from("chat_stars").select("peer_id"); if (r.error) throw r.error; return new Set((r.data as any[]).map((x) => x.peer_id as string)); } });
   const [tab, setTab] = useState<"all" | "online" | "starred">("all");
   const [q, setQ] = useState("");
@@ -45,12 +45,12 @@ function ChatPage() {
   }, [me, qc]);
 
   const self = people.data?.find((p) => p.id === me);
-  const others = (people.data ?? []).filter((p) => p.id !== me && p.account_status === "active");
+  const others = (people.data ?? []).filter((p) => p.id !== me && p.account_status !== "blocked");
   const lastWith = (id: string) => [...(msgs.data ?? [])].reverse().find((m) => (m.sender_id === id && m.recipient_id === me) || (m.recipient_id === id && m.sender_id === me));
   const unread = (id: string) => (msgs.data ?? []).filter((m) => m.sender_id === id && m.recipient_id === me && !m.read_at).length;
   const contacts = useMemo(() => others
     .filter((p) => tab === "all" || (tab === "online" ? online.has(p.id) : stars.data?.has(p.id)))
-    .filter((p) => !q || `${p.full_name} ${p.email}`.toLowerCase().includes(q.toLowerCase()))
+    .filter((p) => !q || `${p.full_name} ${p.id}`.toLowerCase().includes(q.toLowerCase()))
     .sort((a, b) => (lastWith(b.id)?.created_at ?? "").localeCompare(lastWith(a.id)?.created_at ?? "")), [others, tab, q, online, stars.data, msgs.data]);
   const thread = (msgs.data ?? []).filter((m) => peer && ((m.sender_id === peer && m.recipient_id === me) || (m.recipient_id === peer && m.sender_id === me)));
   const peerP = others.find((p) => p.id === peer);
@@ -135,7 +135,7 @@ function ChatPage() {
       </main>
       <Dialog open={picker} onOpenChange={setPicker}>
         <DialogContent><DialogHeader><DialogTitle>Start new chat</DialogTitle></DialogHeader>
-          <div className="max-h-96 space-y-1 overflow-y-auto">{others.map((p) => <button key={p.id} onClick={() => { setPeer(p.id); setPicker(false); setTab("all"); }} className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"><Av p={p} size="size-9" /><span><b>{p.full_name || p.email}</b><span className="block text-xs text-muted-foreground">{p.email}</span></span></button>)}
+          <div className="max-h-96 space-y-1 overflow-y-auto">{others.map((p) => <button key={p.id} onClick={() => { setPeer(p.id); setPicker(false); setTab("all"); }} className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"><Av p={p} size="size-9" /><span><b>{p.full_name || p.email}</b><span className="block text-xs text-muted-foreground">@{p.id}</span></span></button>)}
             {others.length === 0 && <p className="text-sm text-muted-foreground">No other active users yet.</p>}</div>
         </DialogContent>
       </Dialog>
