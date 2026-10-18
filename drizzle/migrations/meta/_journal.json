@@ -309,6 +309,13 @@
       "when": 1792307909689,
       "tag": "0043_personal_commercial_drafts",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1792308441509,
+      "tag": "0044_personal_workspace_access",
+      "breakpoints": true
     }
   ]
 }
