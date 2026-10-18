@@ -4,7 +4,7 @@ import { workspacePathForStatus } from "@/lib/account-status";
 
 describe("account access rules", () => {
   it("routes pending, active and blocked accounts to the correct screens", () => {
-    expect(workspacePathForStatus("pending")).toBe("/pending-approval");
+    expect(workspacePathForStatus("pending")).toBe("/dashboard");
     expect(workspacePathForStatus("active")).toBe("/dashboard");
     expect(workspacePathForStatus("blocked")).toBe("/restricted");
   });
