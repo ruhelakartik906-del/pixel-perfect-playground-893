@@ -379,6 +379,13 @@
       "when": 1792327439727,
       "tag": "0053_preserve_intake_source_and_answers",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1792329314446,
+      "tag": "0054_make_managed_configuration",
+      "breakpoints": true
     }
   ]
 }
