@@ -4075,6 +4075,7 @@ export type Database = {
     Functions: {
       can_chat_with: { Args: { _other: string }; Returns: boolean }
       can_manage_sales: { Args: never; Returns: boolean }
+      chat_company_actor: { Args: { _user: string }; Returns: boolean }
       chat_group_access: { Args: { _group: string }; Returns: boolean }
       chat_group_action: {
         Args: { _action: string; _payload: Json }
@@ -4095,6 +4096,7 @@ export type Database = {
         Args: { _body: string; _client: string; _group: string; _peer: string }
         Returns: string
       }
+      chat_support_staff: { Args: { _user: string }; Returns: boolean }
       commercial_line_totals: {
         Args: { _items: Json; _mode: string }
         Returns: Json
