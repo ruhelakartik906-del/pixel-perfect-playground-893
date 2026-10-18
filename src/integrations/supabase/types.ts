@@ -4258,6 +4258,15 @@ export type Database = {
         Args: { _company: string; _user: string }
         Returns: boolean
       }
+      make_lead_intake: {
+        Args: {
+          _account: string
+          _company: string
+          _dry_run?: boolean
+          _payload: Json
+        }
+        Returns: Json
+      }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
       personal_attendance_action: { Args: { _action: string }; Returns: string }
       route_lead: {
