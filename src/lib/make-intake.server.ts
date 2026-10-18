@@ -61,6 +61,6 @@ export async function handleMakeIntake(request: Request) {
       return error(503, 'SAVE_UNAVAILABLE', 'Lead was not confirmed saved; retry with the same Facebook lead ID');
     }
     if (!data || typeof data !== 'object' || Array.isArray(data)) return error(503, 'SAVE_UNAVAILABLE', 'Lead save could not be confirmed');
-    return reply(data.status === 'created' ? 201 : 200, { success: true, ...data });
+    return reply(data['status'] === 'created' ? 201 : 200, { success: true, ...data });
   } catch { return error(503, 'SAVE_UNAVAILABLE', 'Lead intake temporarily unavailable; retry with the same Facebook lead ID'); }
 }

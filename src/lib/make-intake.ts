@@ -26,7 +26,10 @@ export function resolveIntakeSource(bindings: z.infer<typeof sourceBindingsSchem
 /** Compare fixed-size digests so neither token length nor early mismatches determine comparison time. */
 export async function verifyIntakeToken(supplied: string, expected: string) {
   const encoder = new TextEncoder();
-  const [left, right] = await Promise.all([supplied, expected].map(value => crypto.subtle.digest('SHA-256', encoder.encode(value))));
+  const [left, right] = await Promise.all([
+    crypto.subtle.digest('SHA-256', encoder.encode(supplied)),
+    crypto.subtle.digest('SHA-256', encoder.encode(expected)),
+  ]);
   const a = new Uint8Array(left), b = new Uint8Array(right);
   let difference = 0;
   for (let i = 0; i < a.length; i++) difference |= (a[i] ?? 0) ^ (b[i] ?? 0);
