@@ -19,10 +19,12 @@ export const getSalesData = createServerFn({ method: "GET" })
       context.supabase.from("revenue_entries").select("*").order("created_at", { ascending: false }),
       context.supabase.from("sales_settings").select("*").maybeSingle(),
       context.supabase.from("financial_audit_logs").select("*").order("created_at", { ascending: false }),
+      context.supabase.from("sales_proposals").select("*").order("created_at", { ascending: false }),
+      context.supabase.from("proposal_events").select("*").order("created_at", { ascending: false }),
     ]);
     const error = results.find((result) => result.error)?.error;
     if (error) throw new Error(error.message);
-    return { products: results[0].data ?? [], customers: results[1].data ?? [], categories: results[2].data ?? [], leads: results[3].data ?? [], deals: results[4].data ?? [], invoices: results[5].data ?? [], payments: results[6].data ?? [], credits: results[7].data ?? [], revenues: results[8].data ?? [], settings: results[9].data, audit: results[10].data ?? [] };
+    return { products: results[0].data ?? [], customers: results[1].data ?? [], categories: results[2].data ?? [], leads: results[3].data ?? [], deals: results[4].data ?? [], invoices: results[5].data ?? [], payments: results[6].data ?? [], credits: results[7].data ?? [], revenues: results[8].data ?? [], settings: results[9].data, audit: results[10].data ?? [], proposals: results[11].data ?? [], proposalEvents: results[12].data ?? [] };
   });
 
 export const salesFinancialAction = createServerFn({ method: "POST" })

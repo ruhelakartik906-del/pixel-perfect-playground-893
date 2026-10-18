@@ -92,6 +92,7 @@ import { Route as AuthenticatedAdminSalesCustomersRouteImport } from './routes/_
 import { Route as AuthenticatedAdminSalesInvoicesRouteImport } from './routes/_authenticated/admin/sales/invoices'
 import { Route as AuthenticatedAdminSalesProductsRouteImport } from './routes/_authenticated/admin/sales/products'
 import { Route as AuthenticatedAdminSalesProductsServicesRouteImport } from './routes/_authenticated/admin/sales/products-services'
+import { Route as AuthenticatedAdminSalesProposalsRouteImport } from './routes/_authenticated/admin/sales/proposals'
 import { Route as AuthenticatedAdminSalesReportsRouteImport } from './routes/_authenticated/admin/sales/reports'
 import { Route as AuthenticatedAdminSalesRevenueRouteImport } from './routes/_authenticated/admin/sales/revenue'
 import { Route as AuthenticatedAdminSettingsAdminAccountSecurityRouteImport } from './routes/_authenticated/admin/settings/admin-account-security'
@@ -569,6 +570,12 @@ const AuthenticatedAdminSalesProductsServicesRoute =
     path: '/sales/products-services',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSalesProposalsRoute =
+  AuthenticatedAdminSalesProposalsRouteImport.update({
+    id: '/sales/proposals',
+    path: '/sales/proposals',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSalesReportsRoute =
   AuthenticatedAdminSalesReportsRouteImport.update({
     id: '/sales/reports',
@@ -718,6 +725,7 @@ export interface FileRoutesByFullPath {
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
+  '/admin/sales/proposals': typeof AuthenticatedAdminSalesProposalsRoute
   '/admin/sales/reports': typeof AuthenticatedAdminSalesReportsRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
@@ -812,6 +820,7 @@ export interface FileRoutesByTo {
   '/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
   '/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
+  '/admin/sales/proposals': typeof AuthenticatedAdminSalesProposalsRoute
   '/admin/sales/reports': typeof AuthenticatedAdminSalesReportsRoute
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
@@ -909,6 +918,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sales/invoices': typeof AuthenticatedAdminSalesInvoicesRoute
   '/_authenticated/admin/sales/products': typeof AuthenticatedAdminSalesProductsRoute
   '/_authenticated/admin/sales/products-services': typeof AuthenticatedAdminSalesProductsServicesRoute
+  '/_authenticated/admin/sales/proposals': typeof AuthenticatedAdminSalesProposalsRoute
   '/_authenticated/admin/sales/reports': typeof AuthenticatedAdminSalesReportsRoute
   '/_authenticated/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/_authenticated/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
@@ -1006,6 +1016,7 @@ export interface FileRouteTypes {
     | '/admin/sales/invoices'
     | '/admin/sales/products'
     | '/admin/sales/products-services'
+    | '/admin/sales/proposals'
     | '/admin/sales/reports'
     | '/admin/sales/revenue'
     | '/admin/settings/admin-account-security'
@@ -1100,6 +1111,7 @@ export interface FileRouteTypes {
     | '/admin/sales/invoices'
     | '/admin/sales/products'
     | '/admin/sales/products-services'
+    | '/admin/sales/proposals'
     | '/admin/sales/reports'
     | '/admin/sales/revenue'
     | '/admin/settings/admin-account-security'
@@ -1196,6 +1208,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sales/invoices'
     | '/_authenticated/admin/sales/products'
     | '/_authenticated/admin/sales/products-services'
+    | '/_authenticated/admin/sales/proposals'
     | '/_authenticated/admin/sales/reports'
     | '/_authenticated/admin/sales/revenue'
     | '/_authenticated/admin/settings/admin-account-security'
@@ -1812,6 +1825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSalesProductsServicesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/sales/proposals': {
+      id: '/_authenticated/admin/sales/proposals'
+      path: '/sales/proposals'
+      fullPath: '/admin/sales/proposals'
+      preLoaderRoute: typeof AuthenticatedAdminSalesProposalsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/sales/reports': {
       id: '/_authenticated/admin/sales/reports'
       path: '/sales/reports'
@@ -1942,6 +1962,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSalesInvoicesRoute: typeof AuthenticatedAdminSalesInvoicesRoute
   AuthenticatedAdminSalesProductsRoute: typeof AuthenticatedAdminSalesProductsRoute
   AuthenticatedAdminSalesProductsServicesRoute: typeof AuthenticatedAdminSalesProductsServicesRoute
+  AuthenticatedAdminSalesProposalsRoute: typeof AuthenticatedAdminSalesProposalsRoute
   AuthenticatedAdminSalesReportsRoute: typeof AuthenticatedAdminSalesReportsRoute
   AuthenticatedAdminSalesRevenueRoute: typeof AuthenticatedAdminSalesRevenueRoute
   AuthenticatedAdminSettingsAdminAccountSecurityRoute: typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
@@ -2025,6 +2046,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSalesProductsRoute: AuthenticatedAdminSalesProductsRoute,
     AuthenticatedAdminSalesProductsServicesRoute:
       AuthenticatedAdminSalesProductsServicesRoute,
+    AuthenticatedAdminSalesProposalsRoute:
+      AuthenticatedAdminSalesProposalsRoute,
     AuthenticatedAdminSalesReportsRoute: AuthenticatedAdminSalesReportsRoute,
     AuthenticatedAdminSalesRevenueRoute: AuthenticatedAdminSalesRevenueRoute,
     AuthenticatedAdminSettingsAdminAccountSecurityRoute:

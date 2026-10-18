@@ -2257,6 +2257,8 @@ export type Database = {
           company_id: string | null
           created_at: string
           created_by: string
+          created_by_email: string
+          created_by_name: string
           currency: string
           customer_id: string
           deal_id: string | null
@@ -2284,6 +2286,8 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           created_by?: string
+          created_by_email?: string
+          created_by_name?: string
           currency?: string
           customer_id: string
           deal_id?: string | null
@@ -2311,6 +2315,8 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           created_by?: string
+          created_by_email?: string
+          created_by_name?: string
           currency?: string
           customer_id?: string
           deal_id?: string | null
@@ -3162,9 +3168,11 @@ export type Database = {
       }
       sales_proposals: {
         Row: {
-          company_id: string
+          company_id: string | null
           created_at: string
           created_by: string
+          created_by_email: string
+          created_by_name: string
           currency: string
           customer_id: string | null
           deal_id: string | null
@@ -3183,9 +3191,11 @@ export type Database = {
           version: number
         }
         Insert: {
-          company_id: string
+          company_id?: string | null
           created_at?: string
           created_by?: string
+          created_by_email?: string
+          created_by_name?: string
           currency?: string
           customer_id?: string | null
           deal_id?: string | null
@@ -3204,9 +3214,11 @@ export type Database = {
           version?: number
         }
         Update: {
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           created_by?: string
+          created_by_email?: string
+          created_by_name?: string
           currency?: string
           customer_id?: string | null
           deal_id?: string | null
@@ -4194,6 +4206,8 @@ export type Database = {
         }
         Returns: string
       }
+      user_personal_commercial: { Args: never; Returns: boolean }
+      user_personal_invoice_draft: { Args: { _payload: Json }; Returns: string }
       user_proposal_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
