@@ -5,7 +5,7 @@ type Tables = Database['public']['Tables'];
 export type ReportData = { invoices: Tables['invoices']['Row'][]; payments: Tables['payments']['Row'][]; credits: Tables['credit_notes']['Row'][]; customers: Pick<Tables['sales_customers']['Row'], 'id' | 'name'>[] };
 export type ReportSearch = { period: string; from: string; to: string; currency: string; section: string; q: string; status: string; customer: string; sort: number; desc: boolean; page: number; size: number };
 export function reportSearch(s: Record<string, unknown>): ReportSearch {
-  return { period: ['today','7','30','90','year','custom'].includes(String(s.period)) ? String(s.period) : '30', from: String(s.from ?? ''), to: String(s.to ?? ''), currency: String(s.currency ?? ''), section: ['invoices','payments','customers','products','credits'].includes(String(s.section)) ? String(s.section) : 'invoices', q: String(s.q ?? ''), status: String(s.status ?? ''), customer: String(s.customer ?? ''), sort: Math.max(0, Number(s.sort) || 0), desc: s.desc === true || s.desc === 'true', page: Math.max(1, Math.floor(Number(s.page) || 1)), size: [10,25,50].includes(Number(s.size)) ? Number(s.size) : 10 };
+  return { period: ['today','7','30','90','year','custom'].includes(String(s['period'])) ? String(s['period']) : '30', from: String(s['from'] ?? ''), to: String(s['to'] ?? ''), currency: String(s['currency'] ?? ''), section: ['invoices','payments','customers','products','credits'].includes(String(s['section'])) ? String(s['section']) : 'invoices', q: String(s['q'] ?? ''), status: String(s['status'] ?? ''), customer: String(s['customer'] ?? ''), sort: Math.max(0, Number(s['sort']) || 0), desc: s['desc'] === true || s['desc'] === 'true', page: Math.max(1, Math.floor(Number(s['page']) || 1)), size: [10,25,50].includes(Number(s['size'])) ? Number(s['size']) : 10 };
 }
 export function salesToday() { const parts=new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());return ['year','month','day'].map(k=>parts.find(p=>p.type===k)?.value).join('-'); }
 export function salesWindow(period: string, today: string, from = '', to = '') {
@@ -21,7 +21,7 @@ export function reportMoney(value: number, currency: string) { try { return new 
 export function buildSalesReport(data: ReportData, from: string, to: string, currency: string) {
   const inRange = (date:string) => date >= from && date <= to;
   const byId = new Map(data.invoices.map(i=>[i.id,i]));
-  const name = (i: ReportData['invoices'][number]) => { const billing=i.billing_details; return billing && typeof billing==='object' && !Array.isArray(billing) && typeof billing.name==='string' ? billing.name : data.customers.find(c=>c.id===i.customer_id)?.name ?? 'Unknown customer'; };
+  const name = (i: ReportData['invoices'][number]) => { const billing=i.billing_details; return billing && typeof billing==='object' && !Array.isArray(billing) && typeof billing['name']==='string' ? billing['name'] : data.customers.find(c=>c.id===i.customer_id)?.name ?? 'Unknown customer'; };
   const active = (i: ReportData['invoices'][number]) => !['draft','cancelled'].includes(i.status);
   const payments = data.payments.flatMap(p=>{const i=byId.get(p.invoice_id); return i && active(i) && i.currency===currency && inRange(p.payment_date) ? [{...p,customer:name(i),customerId:i.customer_id,invoice:i.number}] : [];});
   const invoices = data.invoices.filter(i=>i.currency===currency&&inRange(i.issue_date)).map(i=>{
@@ -37,10 +37,10 @@ export function buildSalesReport(data: ReportData, from: string, to: string, cur
   const customers=[...customerIds].map(id=>{const inv=issued.filter(i=>i.customer_id===id),pay=payments.filter(p=>p.customerId===id);return {id,name:inv[0]?.customer??pay[0]?.customer??'Unknown customer',count:inv.length,total:sumMoney(inv.map(i=>i.total)),collected:sumMoney(pay.map(p=>p.amount)),outstanding:sumMoney(inv.map(i=>i.outstanding))};});
   const productMap=new Map<string,{name:string;quantity:number;net:number;ids:Set<string>}>();
   for(const i of issued) for(const item of Array.isArray(i.items)?i.items:[]) {
-    if(!item||typeof item!=='object'||Array.isArray(item)||typeof item.name!=='string')continue;
-    const key=String(item.product_id||item.name), old=productMap.get(key)??{name:item.name,quantity:0,net:0,ids:new Set<string>()};
-    const quantity=Number(item.quantity)||0;
-    const net=new Decimal(quantity).mul(Number(item.unit_price)||0).mul(new Decimal(1).minus(new Decimal(Number(item.discount_percent)||0).div(100))).toDecimalPlaces(2).toNumber();
+    if(!item||typeof item!=='object'||Array.isArray(item)||typeof item['name']!=='string')continue;
+    const key=String(item['product_id']||item['name']), old=productMap.get(key)??{name:item['name'],quantity:0,net:0,ids:new Set<string>()};
+    const quantity=Number(item['quantity'])||0;
+    const net=new Decimal(quantity).mul(Number(item['unit_price'])||0).mul(new Decimal(1).minus(new Decimal(Number(item['discount_percent'])||0).div(100))).toDecimalPlaces(2).toNumber();
     old.quantity=new Decimal(old.quantity).plus(quantity).toNumber();old.net=sumMoney([old.net,net]);old.ids.add(i.id);productMap.set(key,old);
   }
   const products=[...productMap.values()].map(p=>({name:p.name,quantity:p.quantity,net:p.net,count:p.ids.size}));
