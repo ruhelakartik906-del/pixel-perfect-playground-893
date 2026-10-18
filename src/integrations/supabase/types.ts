@@ -2795,6 +2795,33 @@ export type Database = {
           },
         ]
       }
+      personal_attendance: {
+        Row: {
+          attendance_date: string
+          check_in: string
+          check_out: string | null
+          created_at: string
+          id: string
+          owner_id: string
+        }
+        Insert: {
+          attendance_date: string
+          check_in?: string
+          check_out?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+        }
+        Update: {
+          attendance_date?: string
+          check_in?: string
+          check_out?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
       personal_crm_tasks: {
         Row: {
           checklist: Json
@@ -2802,9 +2829,12 @@ export type Database = {
           deleted_at: string | null
           due_date: string
           id: string
+          interaction_type: string | null
+          kind: string
           notes: string
           owner_id: string
           priority: string
+          scheduled_at: string | null
           start_date: string
           status: string
           title: string
@@ -2817,9 +2847,12 @@ export type Database = {
           deleted_at?: string | null
           due_date: string
           id?: string
+          interaction_type?: string | null
+          kind?: string
           notes?: string
           owner_id?: string
           priority?: string
+          scheduled_at?: string | null
           start_date: string
           status?: string
           title: string
@@ -2832,9 +2865,12 @@ export type Database = {
           deleted_at?: string | null
           due_date?: string
           id?: string
+          interaction_type?: string | null
+          kind?: string
           notes?: string
           owner_id?: string
           priority?: string
+          scheduled_at?: string | null
           start_date?: string
           status?: string
           title?: string
@@ -4156,6 +4192,7 @@ export type Database = {
         Returns: boolean
       }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
+      personal_attendance_action: { Args: { _action: string }; Returns: string }
       route_lead: {
         Args: { _lead: string; _manual_user?: string }
         Returns: Json
