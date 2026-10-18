@@ -47,6 +47,7 @@ import { Route as AuthenticatedAdminIntegrationsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin/support'
 import { Route as AuthenticatedWhatsappChatsRouteImport } from './routes/_authenticated/whatsapp.chats'
 import { Route as AuthenticatedWhatsappTemplatesRouteImport } from './routes/_authenticated/whatsapp.templates'
+import { Route as ApiPublicMakeLeadsRouteImport } from './routes/api/public/make-leads'
 import { Route as AuthenticatedAdminCommunicationChatRouteImport } from './routes/_authenticated/admin/communication/chat'
 import { Route as AuthenticatedAdminCommunicationMailRouteImport } from './routes/_authenticated/admin/communication/mail'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
@@ -300,6 +301,11 @@ const AuthenticatedWhatsappTemplatesRoute =
     path: '/whatsapp/templates',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicMakeLeadsRoute = ApiPublicMakeLeadsRouteImport.update({
+  id: '/api/public/make-leads',
+  path: '/api/public/make-leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminCommunicationChatRoute =
   AuthenticatedAdminCommunicationChatRouteImport.update({
     id: '/communication/chat',
@@ -680,6 +686,7 @@ export interface FileRoutesByFullPath {
   '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
   '/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
+  '/api/public/make-leads': typeof ApiPublicMakeLeadsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -775,6 +782,7 @@ export interface FileRoutesByTo {
   '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
   '/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
+  '/api/public/make-leads': typeof ApiPublicMakeLeadsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -873,6 +881,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
   '/_authenticated/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
+  '/api/public/make-leads': typeof ApiPublicMakeLeadsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/_authenticated/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
@@ -971,6 +980,7 @@ export interface FileRouteTypes {
     | '/admin/support'
     | '/whatsapp/chats'
     | '/whatsapp/templates'
+    | '/api/public/make-leads'
     | '/admin/'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -1066,6 +1076,7 @@ export interface FileRouteTypes {
     | '/admin/support'
     | '/whatsapp/chats'
     | '/whatsapp/templates'
+    | '/api/public/make-leads'
     | '/admin'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
@@ -1163,6 +1174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/support'
     | '/_authenticated/whatsapp/chats'
     | '/_authenticated/whatsapp/templates'
+    | '/api/public/make-leads'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/communication/chat'
     | '/_authenticated/admin/communication/mail'
@@ -1240,6 +1252,7 @@ export interface RootRouteChildren {
   RestrictedRoute: typeof RestrictedRoute
   TermsRoute: typeof TermsRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  ApiPublicMakeLeadsRoute: typeof ApiPublicMakeLeadsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1509,6 +1522,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/whatsapp/templates'
       preLoaderRoute: typeof AuthenticatedWhatsappTemplatesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/make-leads': {
+      id: '/api/public/make-leads'
+      path: '/api/public/make-leads'
+      fullPath: '/api/public/make-leads'
+      preLoaderRoute: typeof ApiPublicMakeLeadsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/communication/chat': {
       id: '/_authenticated/admin/communication/chat'
@@ -2134,6 +2154,7 @@ const rootRouteChildren: RootRouteChildren = {
   RestrictedRoute: RestrictedRoute,
   TermsRoute: TermsRoute,
   AdminLoginRoute: AdminLoginRoute,
+  ApiPublicMakeLeadsRoute: ApiPublicMakeLeadsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

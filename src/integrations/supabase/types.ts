@@ -2519,6 +2519,7 @@ export type Database = {
           form_answers: Json
           form_id: string | null
           id: string
+          intake_source: string | null
           interest_level: string
           meta_account_id: string | null
           meta_ad_id: string | null
@@ -2551,6 +2552,7 @@ export type Database = {
           form_answers?: Json
           form_id?: string | null
           id?: string
+          intake_source?: string | null
           interest_level?: string
           meta_account_id?: string | null
           meta_ad_id?: string | null
@@ -2583,6 +2585,7 @@ export type Database = {
           form_answers?: Json
           form_id?: string | null
           id?: string
+          intake_source?: string | null
           interest_level?: string
           meta_account_id?: string | null
           meta_ad_id?: string | null
@@ -4257,6 +4260,15 @@ export type Database = {
       is_company_member: {
         Args: { _company: string; _user: string }
         Returns: boolean
+      }
+      make_lead_intake: {
+        Args: {
+          _account: string
+          _company: string
+          _dry_run?: boolean
+          _payload: Json
+        }
+        Returns: Json
       }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
       personal_attendance_action: { Args: { _action: string }; Returns: string }

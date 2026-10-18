@@ -10,9 +10,9 @@
 <!-- LOVABLE:END -->
 
 - Public sections live in `src/components/site/`; root mounts header/footer outside workspaces — why: shared public chrome.
-- Routing validation lives in `src/lib/routing.ts`; assignments/rules use locked RPCs through `ad-routing.functions.ts` — why: authorized, atomic quotas, idempotency and audit.
+- Routing uses locked RPCs; Make intake uses a public server route with backend token/source bindings and a service-only atomic Leads RPC — why: scoped companies, deduplication and transactional quotas.
 - Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
-- Master Admin lives under `src/routes/_authenticated/admin/`; nav/UI use `src/components/admin/{nav.ts,ui.tsx}`; guard verifies `super_admin` via `has_role`, and unbuilt modules use the `$` splat — why: authorized access and working links.
+- Master Admin uses protected admin routes, shared nav/UI, a role guard and fallback splat — why: authorized access and working links.
 - First Super Admin provisioning uses only private secrets via `provision-admin.functions.ts` and stops once one exists; logins share authenticated `auth-access.functions.ts` with stored roles/status — why: public signup cannot grant privileges, and blocked/pending checks precede role redirects.
 - CRM configuration (pipelines, lead/deal stages, sources/tags/categories/contract types, list-view columns) lives in DB tables edited at `/admin/crm/crm-system-setup`; Leads/Deals read these, never hardcoded lists — why: admins change setup without code. Reassignment by non-admins is blocked by a DB trigger, not UI.
 - Sales uses separate catalog/customers, `can_manage_sales`, private images and stable full pagination in six-connection batches — why: scoped access and complete shared records/totals.
