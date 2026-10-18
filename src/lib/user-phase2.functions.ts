@@ -20,7 +20,7 @@ export const loadUserPhase2=createServerFn({method:'GET'}).middleware([requireSu
  all(o=>db.from('user_work_tables').select('*').eq('owner_id',context.userId).order('updated_at').order('id').range(o,o+999)),
  db.from('profiles').select('full_name,email').eq('id',context.userId).single(),db.from('user_work_grid_settings').select('*').eq('owner_id',context.userId)]);
  if(gridSettings.error)throw new Error('Grid settings could not be loaded');
- const work=[...companyWork.map(w=>({...w,origin:'company' as const})),...personal.map(w=>({...w,origin:'personal' as const,assigned_to:w.owner_id,created_by:w.owner_id,company_id:'',lead_id:null,deal_id:null}))];
+ const work=[...companyWork.map(w=>({...w,origin:'company' as const})),...personal.map(w=>({...w,origin:'personal' as const,assigned_to:w.owner_id,created_by:w.created_by??w.owner_id,company_id:'',lead_id:null,deal_id:null}))];
  const ownWork=new Set(work.map(w=>w.id)),ownDeals=new Set(deals.map(d=>d.id));
  return {userId:context.userId,name:profile.data?.full_name||profile.data?.email||'My account',gridSettings:gridSettings.data??[],companies,leads,deals,work,stages,meetings,tables,history:[...history.filter(h=>ownWork.has(h.work_id)),...personalHistory.filter(h=>ownWork.has(h.task_id)).map(h=>({...h,work_id:h.task_id}))],dealHistory:dealHistory.filter(h=>ownDeals.has(h.deal_id))};
 });
