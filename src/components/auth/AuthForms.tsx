@@ -130,6 +130,7 @@ export function LoginForm() {
 
 export function RegisterForm() {
   const account = useExistingAccount();
+  const navigate = useNavigate();
   const [form, setForm] = useState<RegisterForm>({ firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterForm, string>>>({});
   const [state, setState] = useState<"idle" | "submitting" | "sent">("idle");
@@ -162,7 +163,13 @@ export function RegisterForm() {
       toast.error(error.message || "We couldn't create your account.");
       return;
     }
-    setSignedUpWithSession(Boolean(data.session));
+    if (data.session) {
+      // Email auto-confirmation is enabled: the new user is signed in immediately.
+      toast.success("Account created. Welcome to Routiva!");
+      await navigate({ to: "/dashboard", replace: true });
+      return;
+    }
+    setSignedUpWithSession(false);
     setState("sent");
   };
 
