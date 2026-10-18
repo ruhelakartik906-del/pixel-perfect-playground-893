@@ -130,7 +130,7 @@ export function LoginForm() {
 
 export function RegisterForm() {
   const account = useExistingAccount();
-  const [form, setForm] = useState<RegisterForm>({ fullName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
+  const [form, setForm] = useState<RegisterForm>({ firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterForm, string>>>({});
   const [state, setState] = useState<"idle" | "submitting" | "sent">("idle");
   const [signedUpWithSession, setSignedUpWithSession] = useState(false);
@@ -149,7 +149,12 @@ export function RegisterForm() {
       password: result.data.password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: result.data.fullName, phone: result.data.phone },
+        data: {
+          full_name: [result.data.firstName, result.data.lastName].filter(Boolean).join(" "),
+          first_name: result.data.firstName,
+          last_name: result.data.lastName,
+          phone: result.data.phone,
+        },
       },
     });
     if (error) {
@@ -176,7 +181,8 @@ export function RegisterForm() {
     <form onSubmit={submit} noValidate className="grid gap-4">
       <SessionNotice account={account} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField form={{ fullName: form.fullName }} setForm={(next) => setForm({ ...form, fullName: next.fullName })} errors={errors as Partial<Record<"fullName", string>>} name="fullName" label="Full name" autoComplete="name" />
+        <TextField form={{ firstName: form.firstName }} setForm={(next) => setForm({ ...form, firstName: next.firstName })} errors={errors as Partial<Record<"firstName", string>>} name="firstName" label="First Name" autoComplete="given-name" />
+        <TextField form={{ lastName: form.lastName }} setForm={(next) => setForm({ ...form, lastName: next.lastName })} errors={errors as Partial<Record<"lastName", string>>} name="lastName" label="Last Name" autoComplete="family-name" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField form={{ email: form.email }} setForm={(next) => setForm({ ...form, email: next.email })} errors={errors as Partial<Record<"email", string>>} name="email" label="Email" type="email" autoComplete="email" />
@@ -184,7 +190,7 @@ export function RegisterForm() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <PasswordInput id="new-password" value={form.password} onChange={(password) => setForm({ ...form, password })} autoComplete="new-password" error={errors.password} />
-        <PasswordInput id="confirm-password" value={form.confirmPassword} onChange={(confirmPassword) => setForm({ ...form, confirmPassword })} autoComplete="new-password" error={errors.confirmPassword} />
+        <PasswordInput id="confirm-password" value={form.confirmPassword} onChange={(confirmPassword) => setForm({ ...form, confirmPassword })} autoComplete="new-password" error={errors.confirmPassword} label="Confirm Password" />
       </div>
       <div>
         <label className="flex items-start gap-3 text-sm text-muted-foreground">
