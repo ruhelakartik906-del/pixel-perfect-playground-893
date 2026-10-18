@@ -9,15 +9,19 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { AccessDenied, RoutePending } from "@/components/auth/RouteStates";
+import { resolveAuthAccess } from '@/lib/auth-access.functions';
 
 export const Route = createFileRoute("/_authenticated/admin")({
   ssr: false,
   beforeLoad: async ({ location }) => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) throw redirect({ to: "/admin/login" });
-    const { data: isAdmin, error } = await supabase.rpc("has_role", { _user_id: u.user.id, _role: "super_admin" });
+    const access = await resolveAuthAccess();
+    if (access.destination === '/restricted' || access.destination === '/pending-approval') {
+      throw redirect({ to: access.destination, replace: true });
+    }
     return {
-      isAdmin: !error && isAdmin === true,
+      isAdmin: access.destination === '/admin/dashboard',
       adminEmail: u.user.email ?? "",
       adminName: (u.user.user_metadata?.['full_name'] as string | undefined) ?? "Admin",
     };

@@ -8,7 +8,6 @@ export const phoneSchema = z
 export const registerSchema = z
   .object({
     fullName: z.string().trim().min(2, "Please enter your full name").max(100, "Full name must be under 100 characters"),
-    companyName: z.string().trim().min(1, "Please enter your company name").max(120, "Company name must be under 120 characters"),
     email: z.string().trim().email("Please enter a valid email").max(255, "Email must be under 255 characters"),
     phone: phoneSchema,
     password: z.string().min(8, "Password must be at least 8 characters").max(72, "Password is too long"),

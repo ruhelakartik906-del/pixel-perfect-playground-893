@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useExistingAccount } from '@/components/auth/SessionNotice';
+import { toast } from 'sonner';
 
 export const productLinks = [
   { label: "CRM Overview", hash: "overview", icon: LayoutDashboard, desc: "One workspace for every enquiry" },
@@ -65,25 +67,19 @@ function MenuItem({ icon: Icon, label, desc }: { icon: typeof Menu; label: strin
 
 export function SiteHeader() {
   const [mobile, setMobile] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
+  const account = useExistingAccount();
+  const signedIn = Boolean(account.data);
+  const accountPath = account.data?.destination ?? '/login';
   const navigate = useNavigate();
-  const location = useLocation();
   const queryClient = useQueryClient();
   const navCls = "rounded-full px-3 py-1.5 text-[15px] font-medium text-muted-foreground transition-colors hover:text-primary";
-
-  useEffect(() => {
-    let active = true;
-    supabase.auth.getUser().then(({ data }) => {
-      if (active) setSignedIn(Boolean(data.user));
-    });
-    return () => { active = false; };
-  }, [location.pathname]);
 
   const signOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
-    await supabase.auth.signOut();
-    setSignedIn(false);
+    const { error } = await supabase.auth.signOut();
+    if (error) { toast.error('Could not sign out. Please try again.'); return; }
+    await supabase.removeAllChannels();
     navigate({ to: "/login", replace: true });
   };
 
@@ -108,7 +104,7 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 lg:flex">
           {signedIn ? (
             <>
-              <Button asChild variant="ghost" className="rounded-full font-semibold"><Link to="/dashboard">Dashboard</Link></Button>
+              <Button asChild variant="ghost" className="rounded-full font-semibold"><Link to={accountPath}>{accountPath === '/admin/dashboard' ? 'Admin Panel' : 'My account'}</Link></Button>
               <Button variant="hero" size="xl" className="h-11" onClick={signOut}><LogOut /> Logout</Button>
             </>
           ) : (
@@ -141,7 +137,7 @@ export function SiteHeader() {
               <div className="mt-6 grid gap-2">
                 {signedIn ? (
                   <>
-                    <Button asChild variant="pill" size="xl"><Link to="/dashboard">Dashboard</Link></Button>
+                    <Button asChild variant="pill" size="xl"><Link to={accountPath}>{accountPath === '/admin/dashboard' ? 'Admin Panel' : 'My account'}</Link></Button>
                     <Button variant="hero" size="xl" onClick={signOut}><LogOut /> Logout</Button>
                   </>
                 ) : (

@@ -13,5 +13,5 @@ export const Route = createFileRoute("/register")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: () => <AuthCard title="Create your account" desc="Register your company workspace. Accounts stay pending until an admin approves access." footer={<>Already have an account? <AuthLink to="/login">Login</AuthLink></>}><RegisterForm /></AuthCard>,
+  component: () => <AuthCard title="Create your account" desc="Create your personal account. CRM access stays pending until an authorized admin approves it." footer={<>Already have an account? <AuthLink to="/login">Login</AuthLink></>}><RegisterForm /></AuthCard>,
 });
