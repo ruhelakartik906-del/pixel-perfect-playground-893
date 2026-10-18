@@ -4438,6 +4438,15 @@ export type Database = {
         Args: { _company: string; _user: string }
         Returns: boolean
       }
+      make_authenticated_intake: {
+        Args: {
+          _dry_run: boolean
+          _key: string
+          _payload: Json
+          _source: string
+        }
+        Returns: Json
+      }
       make_lead_intake:
         | {
             Args: {
