@@ -4,8 +4,9 @@ export type AuthDestination = '/admin/dashboard' | '/dashboard' | '/restricted' 
 
 export function authDestination(status: AccountStatus | null | undefined, roles: readonly string[]): AuthDestination {
   if (status === 'blocked') return '/restricted';
-  if (roles.includes('super_admin')) return '/admin/dashboard';
-  // Pending and standard users get the personal User Dashboard; company data stays gated per page.
+  // Admin access still requires an active account.
+  if (roles.includes('super_admin')) return status === 'active' ? '/admin/dashboard' : '/pending-approval';
+  // Standard and pending users get the personal User Dashboard; company data stays gated per page.
   return '/dashboard';
 }
 
