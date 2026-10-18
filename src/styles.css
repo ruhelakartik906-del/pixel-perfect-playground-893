@@ -208,3 +208,8 @@
   &:focus { box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-ring) 30%, transparent); }
   &:disabled { opacity: 0.6; }
 }
+
+.work-grid tbody td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--card); height: 44px; font-size: 14px; }
+.work-grid tbody td:last-child { border-right: 0; }
+.work-grid tbody tr:last-child td { border-bottom: 0; }
+.work-grid tbody tr:hover td { background: var(--surface); }
