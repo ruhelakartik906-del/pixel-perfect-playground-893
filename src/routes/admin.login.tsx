@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { resolveAuthAccess } from "@/lib/auth-access.functions";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({
@@ -31,6 +33,7 @@ const schema = z.object({
 
 function AdminLogin() {
   const navigate = useNavigate();
+  const resolveAccess = useServerFn(resolveAuthAccess);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -53,14 +56,11 @@ function AdminLogin() {
       setErrors({ form: "Invalid email or password." });
       return;
     }
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: data.user.id, _role: "super_admin" });
-    if (isAdmin !== true) {
-      await supabase.auth.signOut();
-      setLoading(false);
-      setErrors({ form: "This account does not have admin access." });
-      return;
-    }
-    navigate({ to: "/admin/dashboard", replace: true });
+    try {
+      const access = await resolveAccess();
+      await navigate({ to: access.destination, replace: true });
+    } catch { setErrors({ form: "Signed in, but account access could not be verified. Please try again." }); }
+    finally { setLoading(false); }
   };
 
   return (

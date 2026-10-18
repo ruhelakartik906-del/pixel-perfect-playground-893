@@ -12,7 +12,10 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ForgotPasswordForm, type LoginForm, type RegisterForm, type ResetPasswordForm } from "@/lib/auth-validation";
-import { workspacePathForStatus } from "@/lib/account-status";
+import { useServerFn } from "@tanstack/react-start";
+import { loginDestination } from "@/lib/auth-destination";
+import { resolveAuthAccess } from "@/lib/auth-access.functions";
+import { SessionNotice, useExistingAccount } from "@/components/auth/SessionNotice";
 
 function collectErrors<T extends Record<string, unknown>>(error: z.ZodError<T>) {
   const errors: Partial<Record<keyof T, string>> = {};
@@ -27,23 +30,6 @@ function safeRedirect(): string | null {
   if (typeof window === "undefined") return null;
   const r = new URLSearchParams(window.location.search).get("redirect");
   return r && r.startsWith("/") && !r.startsWith("//") ? r : null;
-}
-
-async function statusPathForCurrentUser() {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) return "/login";
-  const [{ data: isAdmin }, { data, error }] = await Promise.all([
-    supabase.rpc("has_role", { _user_id: userData.user.id, _role: "super_admin" }),
-    supabase.from("profiles").select("account_status").eq("id", userData.user.id).maybeSingle(),
-  ]);
-  if (error) throw error;
-  if (isAdmin === true) {
-    const target = safeRedirect();
-    return target && target.startsWith("/admin") && target !== "/admin" ? target : "/admin/dashboard";
-  }
-  const path = workspacePathForStatus(data?.account_status);
-  const target = safeRedirect();
-  return path === "/dashboard" && target && !target.startsWith("/admin") && !target.startsWith("/setup-admin") ? target : path;
 }
 
 function PasswordInput({ id, value, onChange, autoComplete, error }: { id: string; value: string; onChange: (value: string) => void; autoComplete: string; error?: string | undefined }) {
@@ -74,6 +60,8 @@ function TextField<T extends Record<string, string>>({ form, setForm, errors, na
 
 export function LoginForm() {
   const navigate = useNavigate();
+  const resolveAccess = useServerFn(resolveAuthAccess);
+  const account = useExistingAccount();
   const [form, setForm] = useState<LoginForm>({ email: "", password: "", remember: true });
   const [errors, setErrors] = useState<Partial<Record<keyof LoginForm, string>>>({});
   const [loading, setLoading] = useState<"email" | "google" | null>(null);
@@ -94,7 +82,8 @@ export function LoginForm() {
       return;
     }
     try {
-      navigate({ to: await statusPathForCurrentUser(), replace: true });
+      const access = await resolveAccess();
+      await navigate({ to: loginDestination(access.destination, safeRedirect()), replace: true });
     } catch {
       setLoading(null);
       toast.error("Signed in, but your account status could not be loaded.");
@@ -109,11 +98,18 @@ export function LoginForm() {
       toast.error("This sign-in method is not available right now.");
       return;
     }
-    if (!result.redirected) navigate({ to: await statusPathForCurrentUser(), replace: true });
+    if (!result.redirected) {
+      try {
+        const access = await resolveAccess();
+        await navigate({ to: loginDestination(access.destination, safeRedirect()), replace: true });
+      } catch { toast.error("Your account access could not be verified. Please try again."); }
+      finally { setLoading(null); }
+    }
   };
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-4">
+      <SessionNotice account={account} />
       <TextField form={{ email: form.email }} setForm={(next) => setForm({ ...form, email: next.email })} errors={errors as Partial<Record<"email", string>>} name="email" label="Email" type="email" autoComplete="email" />
       <PasswordInput id="password" value={form.password} onChange={(password) => setForm({ ...form, password })} autoComplete="current-password" error={errors.password} />
       <div className="flex items-center justify-between gap-3 text-sm">
@@ -123,19 +119,21 @@ export function LoginForm() {
         </label>
         <Link to="/forgot-password" className="font-semibold text-primary hover:underline">Forgot password?</Link>
       </div>
-      <Button type="submit" variant="hero" size="xl" disabled={loading !== null}>
+      <Button type="submit" variant="hero" size="xl" disabled={loading !== null || account.isPending || Boolean(account.data)}>
         {loading === "email" ? <><Loader2 className="animate-spin" /> Signing in…</> : <><LockKeyhole /> Login</>}
       </Button>
       <div className="relative py-1"><Separator /><span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs font-semibold uppercase text-muted-foreground">or</span></div>
-      <Button type="button" variant="pill" size="xl" className="w-full" disabled={loading !== null} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
+      <Button type="button" variant="pill" size="xl" className="w-full" disabled={loading !== null || account.isPending || Boolean(account.data)} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
     </form>
   );
 }
 
 export function RegisterForm() {
-  const [form, setForm] = useState<RegisterForm>({ fullName: "", companyName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
+  const account = useExistingAccount();
+  const [form, setForm] = useState<RegisterForm>({ fullName: "", email: "", phone: "", password: "", confirmPassword: "", terms: false });
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterForm, string>>>({});
   const [state, setState] = useState<"idle" | "submitting" | "sent">("idle");
+  const [signedUpWithSession, setSignedUpWithSession] = useState(false);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -146,12 +144,12 @@ export function RegisterForm() {
     }
     setErrors({});
     setState("submitting");
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: result.data.email,
       password: result.data.password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: result.data.fullName, company_name: result.data.companyName, phone: result.data.phone },
+        data: { full_name: result.data.fullName, phone: result.data.phone },
       },
     });
     if (error) {
@@ -159,6 +157,7 @@ export function RegisterForm() {
       toast.error(error.message || "We couldn't create your account.");
       return;
     }
+    setSignedUpWithSession(Boolean(data.session));
     setState("sent");
   };
 
@@ -166,18 +165,18 @@ export function RegisterForm() {
     return (
       <div className="py-8 text-center">
         <Mail className="mx-auto size-12 text-primary" />
-        <h2 className="mt-4 text-2xl font-bold">Check your email</h2>
-        <p className="mt-2 text-muted-foreground">Confirm your email address first. After approval, your CRM access opens automatically.</p>
-        <Button asChild variant="pill" size="xl" className="mt-6"><Link to="/login">Go to login</Link></Button>
+        <h2 className="mt-4 text-2xl font-bold">{signedUpWithSession ? "Account created" : "Check your email"}</h2>
+        <p className="mt-2 text-muted-foreground">{signedUpWithSession ? "Your account is waiting for authorized approval. No company access has been assigned." : "If this address is eligible for registration, a confirmation email will arrive. Already registered? Sign in or use Forgot password. CRM access requires approval."}</p>
+        <Button asChild variant="pill" size="xl" className="mt-6"><Link to={signedUpWithSession ? "/pending-approval" : "/login"}>{signedUpWithSession ? "View account status" : "Go to login"}</Link></Button>
       </div>
     );
   }
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-4">
+      <SessionNotice account={account} />
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField form={{ fullName: form.fullName }} setForm={(next) => setForm({ ...form, fullName: next.fullName })} errors={errors as Partial<Record<"fullName", string>>} name="fullName" label="Full name" autoComplete="name" />
-        <TextField form={{ companyName: form.companyName }} setForm={(next) => setForm({ ...form, companyName: next.companyName })} errors={errors as Partial<Record<"companyName", string>>} name="companyName" label="Company" autoComplete="organization" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField form={{ email: form.email }} setForm={(next) => setForm({ ...form, email: next.email })} errors={errors as Partial<Record<"email", string>>} name="email" label="Email" type="email" autoComplete="email" />
@@ -194,7 +193,7 @@ export function RegisterForm() {
         </label>
         {errors.terms && <p className="mt-1 text-xs text-destructive">{errors.terms}</p>}
       </div>
-      <Button type="submit" variant="hero" size="xl" disabled={state === "submitting"}>{state === "submitting" ? <><Loader2 className="animate-spin" /> Creating account…</> : <><UserPlus /> Create account</>}</Button>
+      <Button type="submit" variant="hero" size="xl" disabled={state === "submitting" || account.isPending || Boolean(account.data)}>{state === "submitting" ? <><Loader2 className="animate-spin" /> Creating account…</> : <><UserPlus /> Create account</>}</Button>
     </form>
   );
 }
