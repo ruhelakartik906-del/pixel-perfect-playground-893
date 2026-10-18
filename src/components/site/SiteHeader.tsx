@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -71,7 +71,6 @@ export function SiteHeader() {
   const signedIn = Boolean(account.data);
   const accountPath = account.data?.destination ?? '/login';
   const navigate = useNavigate();
-  const location = useLocation();
   const queryClient = useQueryClient();
   const navCls = "rounded-full px-3 py-1.5 text-[15px] font-medium text-muted-foreground transition-colors hover:text-primary";
 
