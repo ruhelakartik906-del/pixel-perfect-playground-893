@@ -1,5 +1,6 @@
 # Admin roadmap
-- [ ] Automation Phase 1: database Lead Created executor, existing conditions, eligible-assignee task creation, durable deduplicated logs; isolated authenticated end-to-end verification and cleanup. No UI or unrelated-module changes.
+- [x] Automation Phase 1: trigger-only Lead Created executor after routing; eligible-assignee canonical tasks/history, durable unique workflow/lead logs and fail-closed conditions. Separate authorized Admin/Employee requests verified execution, assignment, logs, paused/mismatch skips, duplicate lead rejection, fresh reads and company isolation; existing Tasks/Automation pages verified after refresh; 10 focused tests pass. Isolated QA data removed, employee restored blocked. No UI or unrelated modules changed.
+- [ ] Automation Phase 2: delayed jobs/retries, additional triggers/actions and priority conditions (Leads has no priority field); routing quota/concurrency integration not exercised in Phase 1.
 - [x] Make.com management: existing Integrations section, Admin-gated hashed credentials/overlap/revoke, database source mappings, existing routing association, redacted logs and no-write authenticated connection testing. Authorized browser verified generation, authentication, invalid/unmapped rejection, rotation overlap, revocation and key-state reload; temporary verification keys all revoked, no customer leads created.
 - [x] Make.com intake implementation: public POST with backend token/source bindings, canonical Facebook ID deduplication and atomic existing routing; 36 focused tests passed including real token comparison, build OK, public/user RPC execution denied, hosted preview returns closed SETUP_REQUIRED. No pages, WhatsApp or live lead data changed.
 - [ ] Make.com activation/acceptance: production publishing previously declined; no active companies/routing rules. Generate a managed key and configure real company/Page/Form/account sources in Admin (bootstrap secrets optional for legacy configuration). Source-save/readback, real-lead duplicate/concurrency/routing and Admin–User acceptance remain UNVERIFIED without a company, eligible recipients and safe real input.
@@ -35,7 +36,7 @@
 - [x] CRM Automation, System Setup, Leads/Deals storage, Reports, Analytics, Custom Forms, Lead import
 - [x] Contacts & Companies pages (CRUD, search, export, safe company delete)
 - [x] Functional audit of CRM modules (Oct 16)
-- [ ] Automation executor (runs actions) — needs tasks/WhatsApp/email backends
+- [ ] Automation additional triggers/actions — Phase 1 immediate Lead Created tasks implemented; remaining work described above.
 - [ ] Employee/company isolation test — needs an employee account
 - [x] Sales Phase 1 — Products & Services: CRUD, images, duplicate/status, export and refresh verified
 - [x] Sales Phase 2 — Customers: CRUD/archive, conversion duplicate prevention, export and refresh verified
