@@ -22,9 +22,9 @@ export function Hero() {
             Capture leads from Facebook and Instagram, automatically assign them to the right team members, and manage every customer enquiry from one powerful CRM.
           </p>
           <div className="mt-8 grid max-w-md grid-cols-3 gap-6">
-            {[["Instant", "Lead capture"], ["Per-ad", "Routing quotas"], ["Role-based", "Team access"]].map(([a, b]) => (
-              <div key={a}>
-                <p className="text-xl font-bold text-primary">{a}</p>
+            {[["Instant", "Lead capture"], ["Per-ad", "Routing quotas"], ["Team Access", "Role-based"]].map(([a, b]) => (
+              <div key={a} className="min-w-0">
+                <p className="whitespace-nowrap text-base font-bold text-primary sm:text-xl">{a}</p>
                 <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{b}</p>
               </div>
             ))}
