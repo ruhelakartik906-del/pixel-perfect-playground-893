@@ -13,5 +13,5 @@ export const Route = createFileRoute("/login")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: () => <AuthCard title="Welcome back" desc="Login to manage your Meta leads, follow-ups and workspace activity." footer={<>New to Routiva? <AuthLink to="/register">Create an account</AuthLink></>}><LoginForm /></AuthCard>,
+  component: () => <AuthCard compact title="Welcome back" desc="Login to manage your Meta leads, follow-ups and workspace activity." footer={<>New to Routiva? <AuthLink to="/register">Create an account</AuthLink></>}><LoginForm /></AuthCard>,
 });
