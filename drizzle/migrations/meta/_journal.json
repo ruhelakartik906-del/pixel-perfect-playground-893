@@ -407,6 +407,13 @@
       "when": 1792390470172,
       "tag": "0057_automation_lead_created_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1792391211296,
+      "tag": "0058_automation_stage_changed_tasks",
+      "breakpoints": true
     }
   ]
 }

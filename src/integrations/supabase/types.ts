@@ -188,6 +188,7 @@ export type Database = {
           company_id: string | null
           created_at: string
           detail: string
+          event_key: string
           id: string
           lead_id: string | null
           status: string
@@ -198,6 +199,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           detail?: string
+          event_key?: string
           id?: string
           lead_id?: string | null
           status: string
@@ -208,6 +210,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           detail?: string
+          event_key?: string
           id?: string
           lead_id?: string | null
           status?: string
@@ -2532,6 +2535,7 @@ export type Database = {
       leads: {
         Row: {
           assigned_to: string | null
+          automation_stage_revision: number
           business_category: string
           business_name: string
           company_id: string | null
@@ -2568,6 +2572,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          automation_stage_revision?: number
           business_category?: string
           business_name?: string
           company_id?: string | null
@@ -2604,6 +2609,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          automation_stage_revision?: number
           business_category?: string
           business_name?: string
           company_id?: string | null
@@ -4342,6 +4348,10 @@ export type Database = {
         Returns: string
       }
       automation_execute_lead: { Args: { _lead: string }; Returns: undefined }
+      automation_execute_lead_event: {
+        Args: { _event_key: string; _lead: string; _trigger: string }
+        Returns: undefined
+      }
       can_chat_with: { Args: { _other: string }; Returns: boolean }
       can_manage_sales: { Args: never; Returns: boolean }
       chat_company_actor: { Args: { _user: string }; Returns: boolean }
