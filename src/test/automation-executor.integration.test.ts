@@ -3,16 +3,16 @@ import { readFileSync } from 'node:fs';
 
 // Opt-in live regression checks against removable QA records. Sessions stay outside
 // the project; ordinary test runs neither authenticate nor mutate hosted data.
-const enabled = Boolean(process.env.AUTOMATION_QA_DIR);
+const enabled = Boolean(process.env['AUTOMATION_QA_DIR']);
 describe.skipIf(!enabled)('Lead Created executor: authenticated QA records', () => {
-  const directory = process.env.AUTOMATION_QA_DIR ?? '';
+  const directory = process.env['AUTOMATION_QA_DIR'] ?? '';
   function fixture(name: string) {
     return JSON.parse(readFileSync(`${directory}/${name}.json`, 'utf8'));
   }
   async function rows(account: string, path: string) {
     const session = fixture(`${account}-session`).session;
-    const response = await fetch(`${process.env.VITE_SUPABASE_URL}/rest/v1/${path}`, {
-      headers: { apikey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '', Authorization: `Bearer ${session.access_token}` },
+    const response = await fetch(`${process.env['VITE_SUPABASE_URL']}/rest/v1/${path}`, {
+      headers: { apikey: process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ?? '', Authorization: `Bearer ${session.access_token}` },
     });
     expect(response.ok).toBe(true);
     return response.json();
