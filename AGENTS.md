@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Public sections live in `src/components/site/`; root mounts header/footer outside workspaces — why: shared public chrome.
+- Public chrome stays outside workspaces; nav uses portaled Sheet; compact AuthCard is Login/Register-only — why: shared chrome and isolated spacing.
 - Make management uses Admin-gated functions, hashed credentials, source mappings and redacted logs; intake uses the existing public route and locked canonical Leads/routing RPCs — why: isolation, safe rotation and atomic quotas.
 - Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
 - Master Admin uses protected admin routes, shared nav/UI, a role guard and fallback splat — why: authorized access and working links.
