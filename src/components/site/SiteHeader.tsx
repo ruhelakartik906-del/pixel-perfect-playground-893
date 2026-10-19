@@ -2,9 +2,10 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import {
-  BarChart3, CalendarCheck, ChevronDown, HelpCircle, Info, LayoutDashboard, LogOut, Mail, Megaphone, Menu, Plug, Shuffle, X,
+  BarChart3, CalendarCheck, ChevronDown, HelpCircle, Info, LayoutDashboard, LogOut, Mail, Megaphone, Menu, Plug, Shuffle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,6 +75,13 @@ export function SiteHeader() {
   const queryClient = useQueryClient();
   const navCls = "rounded-full px-3 py-1.5 text-[15px] font-medium text-muted-foreground transition-colors hover:text-primary";
 
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const closeOnDesktop = () => { if (desktop.matches) setMobile(false); };
+    desktop.addEventListener('change', closeOnDesktop);
+    return () => desktop.removeEventListener('change', closeOnDesktop);
+  }, []);
+
   const signOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -114,20 +122,14 @@ export function SiteHeader() {
             </>
           )}
         </div>
-        <button className="grid size-10 place-items-center rounded-full border lg:hidden" onClick={() => setMobile(true)} aria-label="Open menu">
-          <Menu className="size-5" />
-        </button>
-      </div>
-
-      {mobile && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-foreground/30" onClick={() => setMobile(false)} />
-          <div className="absolute right-0 top-0 flex h-full w-[86%] max-w-sm flex-col overflow-y-auto bg-background p-5 shadow-float animate-in slide-in-from-right">
-            <div className="mb-6 flex items-center justify-between">
-              <Logo />
-              <button onClick={() => setMobile(false)} aria-label="Close menu" className="grid size-10 place-items-center rounded-full border"><X className="size-5" /></button>
-            </div>
-            <div onClick={() => setMobile(false)} className="flex flex-col gap-1">
+        <Sheet open={mobile} onOpenChange={setMobile}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="shrink-0 rounded-full lg:hidden" aria-label="Open menu"><Menu className="size-5" /></Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="flex h-dvh w-[86%] max-w-sm flex-col overflow-y-auto p-5 motion-reduce:animate-none motion-reduce:transition-none" aria-describedby={undefined}>
+            <SheetTitle className="sr-only">Main menu</SheetTitle>
+            <div className="mb-6 min-w-0 pr-8"><Logo /></div>
+            <nav aria-label="Mobile navigation" onClick={() => setMobile(false)} className="flex min-w-0 flex-col gap-1">
               <Link to="/" className="rounded-lg px-3 py-2.5 font-semibold">Home</Link>
               <p className="eyebrow mt-3 px-3">Product</p>
               {productLinks.map((l) => <Link key={l.hash} to="/features" hash={l.hash}><MenuItem {...l} /></Link>)}
@@ -147,10 +149,11 @@ export function SiteHeader() {
                   </>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </div>
+
     </header>
   );
 }
