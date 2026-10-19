@@ -26,8 +26,7 @@ describe.skipIf(!directory)('Stage Changed → Create Task: isolated authorized 
   beforeAll(async () => {
     writeFileSync(`${directory}/ids.json`, JSON.stringify(ids));
     const [profile] = await request('admin', `profiles?id=eq.${ids.user}`);
-    writeFileSync(`${directory}/original-profile.json`, JSON.stringify({ account_status: profile.account_status }));
-    await request('admin', `profiles?id=eq.${ids.user}`, 'PATCH', { account_status: 'active' });
+    expect(profile.account_status).toBe('active');
     await request('admin', 'companies', 'POST', { id: ids.company, name: `QA Automation Stage ${ids.company}` });
     await request('admin', 'company_members', 'POST', { company_id: ids.company, user_id: ids.user });
     await request('admin', 'crm_pipelines', 'POST', { id: ids.pipeline, name: `QA Stage ${ids.pipeline}`, kind: 'lead' });
