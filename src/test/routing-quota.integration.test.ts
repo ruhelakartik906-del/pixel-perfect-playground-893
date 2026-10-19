@@ -12,7 +12,7 @@ describe.skipIf(!directory)('existing routing: isolated quota, overflow and dupl
     const session = JSON.parse(readFileSync(`${directory}/admin-session.json`, 'utf8')).session;
     const response = await fetch(`${process.env['VITE_SUPABASE_URL']}/rest/v1/${path}`, {
       method, headers: { apikey: process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ?? '', Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? null : JSON.stringify(body),
     });
     if (allowFailure) return response.status;
     if (!response.ok) throw new Error(`${method} ${path.split('?')[0]} failed (${response.status}): ${await response.text()}`);
@@ -27,7 +27,7 @@ describe.skipIf(!directory)('existing routing: isolated quota, overflow and dupl
     } });
     state.rules.push(id); persist(); return id;
   }
-  function lead(campaign: string, ad = '', external = randomUUID()) {
+  function lead(campaign: string, ad = '', external: string = randomUUID()) {
     const row = { id: randomUUID(), company_id: state.company, customer_name: `${state.tag}-${state.leads.length}`, meta_account_id: state.tag, meta_campaign_id: campaign, meta_ad_id: ad, meta_lead_id: `${state.tag}-${external}`, created_by: state.admin };
     state.leads.push(row.id); persist(); return row;
   }
