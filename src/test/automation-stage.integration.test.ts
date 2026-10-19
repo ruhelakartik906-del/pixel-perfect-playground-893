@@ -13,7 +13,7 @@ describe.skipIf(!directory)('Stage Changed → Create Task: isolated authorized 
     const session = JSON.parse(readFileSync(`${directory}/${account}-session.json`, 'utf8')).session;
     const response = await fetch(`${process.env['VITE_SUPABASE_URL']}/rest/v1/${path}`, {
       method, headers: { apikey: process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ?? '', Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? null : JSON.stringify(body),
     });
     if (!response.ok) throw new Error(`${method} ${path.split('?')[0]} failed: ${response.status} ${await response.text()}`);
     const text = await response.text();
