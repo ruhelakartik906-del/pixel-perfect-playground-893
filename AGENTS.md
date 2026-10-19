@@ -29,8 +29,9 @@
 - Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
 - Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
-- Admin/user work shares locked company/personal RPCs and original creators; personal owners represent standalone assignees — why: no fictitious companies or duplicate records.
+- Admin/user work uses locked company/personal RPCs and original creators — why: no duplicate records or fictitious companies.
 - Five work pages share spreadsheet controls, private page-specific drafts/customization and locked cell writes — why: preserve ownership/history without incomplete tasks.
 - Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only, while company groups retain membership gates — why: discovery must not grant private-record access.
 
-- User commercial RPCs enforce permission/company scope, proposal decision evidence and draft-only shared invoice writes — why: preserve privileged finance and immutable history.
+- User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
+- Lead Created automation is trigger-only after routing, with unique workflow/lead logs and atomic eligible-assignee tasks/history — why: preserve ownership and prevent duplicates.
