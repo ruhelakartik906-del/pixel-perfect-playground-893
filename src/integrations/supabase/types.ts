@@ -185,27 +185,50 @@ export type Database = {
       }
       automation_executions: {
         Row: {
+          company_id: string | null
           created_at: string
           detail: string
           id: string
+          lead_id: string | null
           status: string
+          task_ids: string[]
           workflow_id: string
         }
         Insert: {
+          company_id?: string | null
           created_at?: string
           detail?: string
           id?: string
+          lead_id?: string | null
           status: string
+          task_ids?: string[]
           workflow_id: string
         }
         Update: {
+          company_id?: string | null
           created_at?: string
           detail?: string
           id?: string
+          lead_id?: string | null
           status?: string
+          task_ids?: string[]
           workflow_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "automation_executions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "automation_executions_workflow_id_fkey"
             columns: ["workflow_id"]
@@ -4318,6 +4341,7 @@ export type Database = {
         }
         Returns: string
       }
+      automation_execute_lead: { Args: { _lead: string }; Returns: undefined }
       can_chat_with: { Args: { _other: string }; Returns: boolean }
       can_manage_sales: { Args: never; Returns: boolean }
       chat_company_actor: { Args: { _user: string }; Returns: boolean }
