@@ -75,7 +75,16 @@ export function LoginForm() {
   const [loading, setLoading] = useState<"email" | "google" | null>(null);
   const [invitation, setInvitation] = useState(false);
   useEffect(() => {
+    let active = true;
     setInvitation(new URLSearchParams(window.location.hash.slice(1)).get('type') === 'invite');
+    // Auth may already have consumed and removed the hash before this effect.
+    void (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user?.invited_at || !data.user.email_confirmed_at) return;
+      const profile = await supabase.from('profiles').select('account_status').eq('id', data.user.id).single();
+      if (active && !profile.error && profile.data.account_status === 'pending') setInvitation(true);
+    })();
+    return () => { active = false; };
   }, []);
 
   if (invitation) return <InvitationPasswordForm />;
