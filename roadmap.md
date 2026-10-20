@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] Current scoped fix: Client display label → User in User Management; secure Super-Admin block/activate, restore only Sync Test Employee blocked and verify saved status.
 - [ ] Remaining automation A: genuine Deal Stage Changed; shared Task/Follow-up executor, isolated authorized test and cleanup.
 - [ ] Remaining automation B: durable ordered action delays, paused/cancelled safety, short scheduler test and cleanup.
 - [ ] Remaining automation C: bounded transient retries, idempotent work, attempts/timestamps/permanent failure, safe test and cleanup.
