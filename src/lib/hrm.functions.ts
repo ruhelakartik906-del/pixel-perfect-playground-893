@@ -17,6 +17,7 @@ export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireS
  const extraTables=data.module==='calendar'?{holidays:'hr_holidays',leaves:'hr_leave_requests',meetings:'hr_meetings',schedules:'hr_schedules'}:['attendance','payroll'].includes(data.module)?{attendance:'hr_attendance',holidays:'hr_holidays',leaves:'hr_leave_requests'}:{};
  for(const [key,table] of Object.entries(extraTables))extra[key]=await readRows(table);
  if(data.module==='leave'){const r=await context.supabase.from('hr_leave_balances').select('*');if(r.error)throw new Error(r.error.message);extra['balances']=r.data;}
+ if(data.module==='announcement'){const r=await context.supabase.from('hr_announcement_attachments').select('id,announcement_id,filename,created_at').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra['attachments']=r.data as HrRow[];}
  if(data.module==='document'){const r=await context.supabase.from('hr_document_versions').select('*').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra['versions']=r.data;}
  return {rows:result[0]||[],companies:result[1]||[],branches:result[2]||[],designations:result[3]||[],departments:result[4]||[],roles:result[5]||[],people:(people.data||[]) as HrRow[],userId:context.userId,isAdmin:perms.data===true,manageable,extra};
 });
@@ -54,4 +55,19 @@ export const downloadHrmFile=createServerFn({method:'POST'}).middleware([require
  let q=context.supabase.from('hr_document_versions').select('*').eq('document_id',data.id).order('created_at',{ascending:false}).limit(1);if(data.versionId)q=q.eq('id',data.versionId);const v=await q.single();if(v.error)throw new Error('No file version is available');
  const {supabaseAdmin}=await import('@/integrations/supabase/client.server');const result=await supabaseAdmin.storage.from('hrm-private-files').createSignedUrl(v.data.path,60,{download:v.data.filename});if(result.error)throw new Error('Download could not be authorized');
  const publicOrigin=new URL(import.meta.env['VITE_SUPABASE_URL']).origin;const url=new URL(result.data.signedUrl);url.protocol=new URL(publicOrigin).protocol;url.host=new URL(publicOrigin).host;return {url:url.toString(),filename:v.data.filename};
+});
+const fileSignature=(bytes:Uint8Array,mime:string)=>{const p=Array.from(bytes.slice(0,8));if(mime==='application/pdf'&&String.fromCharCode(...p.slice(0,5))!=='%PDF-')throw new Error('Invalid PDF');if(mime==='image/png'&&p.slice(0,4).join(',')!=='137,80,78,71')throw new Error('Invalid PNG');if(mime==='image/jpeg'&&(p[0]!==255||p[1]!==216))throw new Error('Invalid JPEG');if(mime.includes('openxmlformats')&&(p[0]!==80||p[1]!==75))throw new Error('Invalid Office file');if(mime==='text/plain'&&bytes.includes(0))throw new Error('Invalid text file');};
+// Announcement attachments: upload requires announcement edit permission for its company; download requires RLS read of the announcement.
+export const uploadAnnouncementFile=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({id:z.string().uuid(),filename:z.string().min(1).max(200),mime:z.string().max(150),base64:z.string().max(14000000)}).parse(v)).handler(async({context,data})=>{
+ const a=await context.supabase.from('hr_announcements').select('id,company_id').eq('id',data.id).single();if(a.error)throw new Error('Announcement not found or access denied');
+ const allowed=await context.supabase.rpc('hrm_allowed',{_module:'hr_announcement',_action:'edit',_company:a.data.company_id});if(allowed.error||allowed.data!==true)throw new Error('Announcement edit permission required');
+ const bytes=Uint8Array.from(atob(data.base64),c=>c.charCodeAt(0));validateFile(bytes.length,data.mime);fileSignature(bytes,data.mime);
+ const {supabaseAdmin}=await import('@/integrations/supabase/client.server');const path=`announcements/${a.data.company_id}/${data.id}/${crypto.randomUUID()}/${data.filename.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+ const up=await supabaseAdmin.storage.from('hrm-private-files').upload(path,bytes,{contentType:data.mime,upsert:false});if(up.error)throw new Error('Private upload failed');
+ const row=await supabaseAdmin.from('hr_announcement_attachments').insert({announcement_id:data.id,company_id:a.data.company_id,path,filename:data.filename,mime:data.mime,size:bytes.length,uploaded_by:context.userId}).select('id').single();
+ if(row.error){await supabaseAdmin.storage.from('hrm-private-files').remove([path]);throw new Error('Attachment could not be saved');}return row.data.id as string;
+});
+export const downloadAnnouncementFile=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({id:z.string().uuid()}).parse(v)).handler(async({context,data})=>{
+ const f=await context.supabase.from('hr_announcement_attachments').select('path,filename').eq('announcement_id',data.id).order('created_at',{ascending:false}).limit(1).maybeSingle();if(f.error||!f.data)throw new Error('No attachment available');
+ const {supabaseAdmin}=await import('@/integrations/supabase/client.server');const r=await supabaseAdmin.storage.from('hrm-private-files').createSignedUrl(f.data.path,60,{download:f.data.filename});if(r.error)throw new Error('Attachment download failed');return {url:r.data.signedUrl,filename:f.data.filename};
 });
