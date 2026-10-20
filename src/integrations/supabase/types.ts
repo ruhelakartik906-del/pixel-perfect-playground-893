@@ -185,40 +185,55 @@ export type Database = {
       }
       automation_executions: {
         Row: {
+          action_plan: Json | null
           company_id: string | null
+          condition_plan: Json | null
           created_at: string
           deal_id: string | null
           detail: string
+          due_at: string | null
           event_key: string
           follow_up_ids: string[]
           id: string
           lead_id: string | null
+          next_action: number
+          queued_assignee: string | null
           status: string
           task_ids: string[]
           workflow_id: string
         }
         Insert: {
+          action_plan?: Json | null
           company_id?: string | null
+          condition_plan?: Json | null
           created_at?: string
           deal_id?: string | null
           detail?: string
+          due_at?: string | null
           event_key?: string
           follow_up_ids?: string[]
           id?: string
           lead_id?: string | null
+          next_action?: number
+          queued_assignee?: string | null
           status: string
           task_ids?: string[]
           workflow_id: string
         }
         Update: {
+          action_plan?: Json | null
           company_id?: string | null
+          condition_plan?: Json | null
           created_at?: string
           deal_id?: string | null
           detail?: string
+          due_at?: string | null
           event_key?: string
           follow_up_ids?: string[]
           id?: string
           lead_id?: string | null
+          next_action?: number
+          queued_assignee?: string | null
           status?: string
           task_ids?: string[]
           workflow_id?: string
@@ -4363,6 +4378,7 @@ export type Database = {
         }
         Returns: string
       }
+      automation_delay_schedule: { Args: never; Returns: undefined }
       automation_execute_lead: { Args: { _lead: string }; Returns: undefined }
       automation_execute_lead_event: {
         Args: { _event_key: string; _lead: string; _trigger: string }
@@ -4370,6 +4386,16 @@ export type Database = {
       }
       automation_execute_record_event: {
         Args: { _event_key: string; _record: string; _trigger: string }
+        Returns: undefined
+      }
+      automation_process_delays: { Args: never; Returns: undefined }
+      automation_run_record_event: {
+        Args: {
+          _event_key: string
+          _record: string
+          _resume?: string
+          _trigger: string
+        }
         Returns: undefined
       }
       can_chat_with: { Args: { _other: string }; Returns: boolean }
