@@ -34,6 +34,7 @@ import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/m
 import { Route as AuthenticatedMyLeadsRouteImport } from './routes/_authenticated/my-leads'
 import { Route as AuthenticatedMyReportsRouteImport } from './routes/_authenticated/my-reports'
 import { Route as AuthenticatedMyWorkTableRouteImport } from './routes/_authenticated/my-work-table'
+import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedProposalsRouteImport } from './routes/_authenticated/proposals'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
@@ -231,6 +232,11 @@ const AuthenticatedMyWorkTableRoute =
     path: '/my-work-table',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPipelineRoute = AuthenticatedPipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProposalsRoute = AuthenticatedProposalsRouteImport.update({
   id: '/proposals',
   path: '/proposals',
@@ -674,6 +680,7 @@ export interface FileRoutesByFullPath {
   '/my-leads': typeof AuthenticatedMyLeadsRoute
   '/my-reports': typeof AuthenticatedMyReportsRoute
   '/my-work-table': typeof AuthenticatedMyWorkTableRoute
+  '/pipeline': typeof AuthenticatedPipelineRoute
   '/proposals': typeof AuthenticatedProposalsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -770,6 +777,7 @@ export interface FileRoutesByTo {
   '/my-leads': typeof AuthenticatedMyLeadsRoute
   '/my-reports': typeof AuthenticatedMyReportsRoute
   '/my-work-table': typeof AuthenticatedMyWorkTableRoute
+  '/pipeline': typeof AuthenticatedPipelineRoute
   '/proposals': typeof AuthenticatedProposalsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -869,6 +877,7 @@ export interface FileRoutesById {
   '/_authenticated/my-leads': typeof AuthenticatedMyLeadsRoute
   '/_authenticated/my-reports': typeof AuthenticatedMyReportsRoute
   '/_authenticated/my-work-table': typeof AuthenticatedMyWorkTableRoute
+  '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
   '/_authenticated/proposals': typeof AuthenticatedProposalsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
@@ -968,6 +977,7 @@ export interface FileRouteTypes {
     | '/my-leads'
     | '/my-reports'
     | '/my-work-table'
+    | '/pipeline'
     | '/proposals'
     | '/settings'
     | '/support'
@@ -1064,6 +1074,7 @@ export interface FileRouteTypes {
     | '/my-leads'
     | '/my-reports'
     | '/my-work-table'
+    | '/pipeline'
     | '/proposals'
     | '/settings'
     | '/support'
@@ -1162,6 +1173,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-leads'
     | '/_authenticated/my-reports'
     | '/_authenticated/my-work-table'
+    | '/_authenticated/pipeline'
     | '/_authenticated/proposals'
     | '/_authenticated/settings'
     | '/_authenticated/support'
@@ -1430,6 +1442,13 @@ declare module '@tanstack/react-router' {
       path: '/my-work-table'
       fullPath: '/my-work-table'
       preLoaderRoute: typeof AuthenticatedMyWorkTableRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pipeline': {
+      id: '/_authenticated/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof AuthenticatedPipelineRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/proposals': {
@@ -2105,6 +2124,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMyLeadsRoute: typeof AuthenticatedMyLeadsRoute
   AuthenticatedMyReportsRoute: typeof AuthenticatedMyReportsRoute
   AuthenticatedMyWorkTableRoute: typeof AuthenticatedMyWorkTableRoute
+  AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
   AuthenticatedProposalsRoute: typeof AuthenticatedProposalsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
@@ -2125,6 +2145,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMyLeadsRoute: AuthenticatedMyLeadsRoute,
   AuthenticatedMyReportsRoute: AuthenticatedMyReportsRoute,
   AuthenticatedMyWorkTableRoute: AuthenticatedMyWorkTableRoute,
+  AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
   AuthenticatedProposalsRoute: AuthenticatedProposalsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
