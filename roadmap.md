@@ -1,4 +1,7 @@
 # Admin roadmap
+- [ ] Remaining automation A: genuine Deal Stage Changed; shared Task/Follow-up executor, isolated authorized test and cleanup.
+- [ ] Remaining automation B: durable ordered action delays, paused/cancelled safety, short scheduler test and cleanup.
+- [ ] Remaining automation C: bounded transient retries, idempotent work, attempts/timestamps/permanent failure, safe test and cleanup.
 - [ ] Automation Phase 4: implement immediate Lead Created → Create Follow-up in the shared executor; one isolated Admin/User verification, execution logs/duplicate/paused checks, cleanup and account restoration. No unrelated retesting.
 - [x] Deal verification/security cleanup: employee restored blocked before and after testing; workspace/Deal mutations denied and task reads empty. Eight existing isolated authorized integration checks passed; task visible on User and Admin Tasks pages after reload; duplicate Deal insert rejected with exactly one task. QA Deal, Task/history, logs, workflows, company/member and stage/pipeline removed; no application code changes.
 - [x] Automation Phase 3: Deal Created → Create Task implemented and isolated Admin/User execution/visibility verified, including unique event logs, paused/condition skips and direct replay denial; cleanup complete.
