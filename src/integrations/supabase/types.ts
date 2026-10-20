@@ -187,6 +187,7 @@ export type Database = {
         Row: {
           company_id: string | null
           created_at: string
+          deal_id: string | null
           detail: string
           event_key: string
           id: string
@@ -198,6 +199,7 @@ export type Database = {
         Insert: {
           company_id?: string | null
           created_at?: string
+          deal_id?: string | null
           detail?: string
           event_key?: string
           id?: string
@@ -209,6 +211,7 @@ export type Database = {
         Update: {
           company_id?: string | null
           created_at?: string
+          deal_id?: string | null
           detail?: string
           event_key?: string
           id?: string
@@ -223,6 +226,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
             referencedColumns: ["id"]
           },
           {
@@ -4350,6 +4360,10 @@ export type Database = {
       automation_execute_lead: { Args: { _lead: string }; Returns: undefined }
       automation_execute_lead_event: {
         Args: { _event_key: string; _lead: string; _trigger: string }
+        Returns: undefined
+      }
+      automation_execute_record_event: {
+        Args: { _event_key: string; _record: string; _trigger: string }
         Returns: undefined
       }
       can_chat_with: { Args: { _other: string }; Returns: boolean }
