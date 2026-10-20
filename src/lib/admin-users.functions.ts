@@ -42,6 +42,9 @@ export const inviteUser = createServerFn({ method: "POST" })
       const role = await context.supabase.from('access_roles').select('id').eq('id', data.access_role_id).maybeSingle();
       if (role.error || !role.data) throw new Error('Select an existing permission role');
     }
+    const existing = await context.supabase.from('profiles').select('id').ilike('email', data.email).maybeSingle();
+    if (existing.error) throw new Error('Recipient eligibility could not be checked');
+    if (existing.data) throw new Error('This account already exists. Do not send a duplicate invitation.');
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inv, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
       data: { full_name: data.full_name, phone: data.phone }, redirectTo: data.redirect_to,

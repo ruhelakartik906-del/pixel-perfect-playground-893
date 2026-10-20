@@ -14,7 +14,7 @@ import { lovable } from "@/integrations/lovable";
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ForgotPasswordForm, type LoginForm, type RegisterForm, type ResetPasswordForm } from "@/lib/auth-validation";
 import { useServerFn } from "@tanstack/react-start";
 import { loginDestination } from "@/lib/auth-destination";
-import { resolveAuthAccess } from "@/lib/auth-access.functions";
+import { resolveAuthAccess, acceptEmployeeInvitation } from "@/lib/auth-access.functions";
 import { SessionNotice, useExistingAccount } from "@/components/auth/SessionNotice";
 
 // Keeps SSR and the first client render identical so hydration never mismatches on query state.
@@ -73,6 +73,12 @@ export function LoginForm() {
   const [form, setForm] = useState<LoginForm>({ email: "", password: "", remember: true });
   const [errors, setErrors] = useState<Partial<Record<keyof LoginForm, string>>>({});
   const [loading, setLoading] = useState<"email" | "google" | null>(null);
+  const [invitation, setInvitation] = useState(false);
+  useEffect(() => {
+    setInvitation(new URLSearchParams(window.location.hash.slice(1)).get('type') === 'invite');
+  }, []);
+
+  if (invitation) return <InvitationPasswordForm />;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -134,6 +140,33 @@ export function LoginForm() {
       <Button type="button" variant="pill" size="xl" className="w-full" disabled={!hydrated || loading !== null || account.isPending || Boolean(account.data)} onClick={() => social("google")}>{loading === "google" ? <Loader2 className="animate-spin" /> : <Mail />} Continue with Google</Button>
     </form>
   );
+}
+
+function InvitationPasswordForm() {
+  const accept = useServerFn(acceptEmployeeInvitation);
+  const navigate = useNavigate();
+  const resolveAccess = useServerFn(resolveAuthAccess);
+  const [form, setForm] = useState<ResetPasswordForm>({ password: '', confirmPassword: '' });
+  const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordForm, string>>>({});
+  const [busy, setBusy] = useState(false);
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    const parsed = resetPasswordSchema.safeParse(form);
+    if (!parsed.success) { setErrors(collectErrors(parsed.error)); return; }
+    setBusy(true);
+    try {
+      await accept({ data: parsed.data });
+      window.history.replaceState(null, '', window.location.pathname);
+      const access = await resolveAccess();
+      await navigate({ to: access.destination, replace: true });
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  };
+  return <form onSubmit={submit} className="grid gap-4">
+    <PasswordInput id="invitation-password" label="Set your password" value={form.password} onChange={password => setForm({ ...form, password })} autoComplete="new-password" error={errors.password} />
+    <PasswordInput id="invitation-confirm" label="Confirm password" value={form.confirmPassword} onChange={confirmPassword => setForm({ ...form, confirmPassword })} autoComplete="new-password" error={errors.confirmPassword} />
+    <Button type="submit" variant="hero" size="xl" disabled={busy}>{busy ? <Loader2 className="animate-spin" /> : <UserPlus />} Accept invitation</Button>
+  </form>;
 }
 
 export function RegisterForm() {
