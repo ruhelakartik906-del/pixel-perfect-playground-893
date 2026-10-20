@@ -1,5 +1,5 @@
 export type Trigger = "lead_created" | "whatsapp_received" | "stage_changed" | "followup_due" | "deal_created";
-export type ActionType = "assign" | "create_task" | "notify" | "wait" | "check_condition" | "send_whatsapp" | "send_email";
+export type ActionType = "assign" | "create_task" | "create_follow_up" | "notify" | "wait" | "check_condition" | "send_whatsapp" | "send_email";
 export type WorkflowAction = { type: ActionType; delayHours: number; note: string };
 export type Condition = { field: string; op: string; value: string };
 export type Workflow = {
@@ -16,6 +16,7 @@ export const triggerLabels: Record<Trigger, string> = {
 export const actionMeta: Record<ActionType, { label: string; needsIntegration: boolean }> = {
   assign: { label: "ASSIGN", needsIntegration: true },
   create_task: { label: "CREATE TASK", needsIntegration: true },
+  create_follow_up: { label: "CREATE FOLLOW-UP", needsIntegration: false },
   notify: { label: "NOTIFY", needsIntegration: true },
   wait: { label: "WAIT", needsIntegration: false },
   check_condition: { label: "CHECK CONDITION", needsIntegration: false },
