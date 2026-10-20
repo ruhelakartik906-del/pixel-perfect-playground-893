@@ -35,3 +35,4 @@
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
 - Automation shares trigger-only work/history and unique events; Deal stages exclude creation; Follow-ups need owner-linked company Leads — why: safe scope and deduplication.
+- HR announcement attachments live in the private HR bucket under announcements/; uploads need announcement edit permission and reads follow announcement visibility — why: no public or cross-company files.
