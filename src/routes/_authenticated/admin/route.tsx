@@ -10,6 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { cn } from "@/lib/utils";
 import { AccessDenied, RoutePending } from "@/components/auth/RouteStates";
 import { resolveAuthAccess } from '@/lib/auth-access.functions';
+import { logoutSafely } from '@/lib/user-phase4';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute("/_authenticated/admin")({
   ssr: false,
@@ -45,10 +47,17 @@ function AdminLayout() {
   const title = titleForPath(pathname.replace(/^\/admin\/?/, "").replace(/\/$/, ""));
 
   const logout = async () => {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/admin/login", replace: true });
+    try {
+      await logoutSafely({
+        signOut: () => supabase.auth.signOut(),
+        cancel: () => queryClient.cancelQueries(),
+        clear: () => queryClient.clear(),
+        disconnect: () => supabase.removeAllChannels(),
+        redirect: () => { void navigate({ to: "/admin/login", replace: true }); },
+      });
+    } catch {
+      toast.error('Logout failed. Please try again.');
+    }
   };
 
   return (
