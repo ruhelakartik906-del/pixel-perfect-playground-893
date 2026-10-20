@@ -470,6 +470,13 @@
       "when": 1792515536875,
       "tag": "0066_tighten_crm_config_and_contact_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1792515599161,
+      "tag": "0067_bind_private_file_reads_to_caller",
+      "breakpoints": true
     }
   ]
 }
