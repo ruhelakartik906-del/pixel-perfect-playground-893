@@ -1,7 +1,7 @@
 # Admin roadmap
 - [x] Current scoped fix: User role badges/search/details/dropdown verified; stored client role unchanged. Block/activate now uses active-Super-Admin-authorized server writes without changing grants/RLS. Only Sync Test Employee activated/blocked for verification; reload and saved readback confirm blocked. 21 focused tests pass; build OK.
 - [ ] Remaining automation A: genuine Deal Stage Changed; shared Task/Follow-up executor, isolated authorized test and cleanup.
-- [ ] Remaining automation B: durable ordered action delays, paused/cancelled safety, short scheduler test and cleanup.
+- [ ] Current request — durable per-action delays: extend shared executor/logs, wake scheduler only for pending work, stop after drain, one short-delay test, remove identified prior QA, keep Sync Test Employee blocked. No retries/UI/unrelated triggers.
 - [ ] Remaining automation C: bounded transient retries, idempotent work, attempts/timestamps/permanent failure, safe test and cleanup.
 - [ ] Automation Phase 4: implement immediate Lead Created → Create Follow-up in the shared executor; one isolated Admin/User verification, execution logs/duplicate/paused checks, cleanup and account restoration. No unrelated retesting.
 - [x] Deal verification/security cleanup: employee restored blocked before and after testing; workspace/Deal mutations denied and task reads empty. Eight existing isolated authorized integration checks passed; task visible on User and Admin Tasks pages after reload; duplicate Deal insert rejected with exactly one task. QA Deal, Task/history, logs, workflows, company/member and stage/pipeline removed; no application code changes.
