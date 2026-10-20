@@ -44,7 +44,7 @@ export const ACTION_TYPES = [
 ] as const;
 type ActionType = (typeof ACTION_TYPES)[number]["id"];
 type MenuItem = { id: string; label: string; icon: string; type: ActionType; enabled: boolean; custom?: boolean };
-type Row = PipelineSource & { stage: number; outcome?: "won" | "lost"; notes: { text: string; at: string }[]; history: { stage: number; at: string }[] };
+type Row = PipelineSource & { stage: number; outcome?: "won" | "lost" | undefined; notes: { text: string; at: string }[]; history: { stage: number; at: string }[] };
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 function defaultMenu(stage: number): MenuItem[] {
@@ -167,7 +167,7 @@ export function PipelineBoard({ records, admin }: { records: PipelineSource[]; a
               </DropdownMenu>
             </div>
           </div>
-          {filtered.length === 0 ? <EmptyState title="No clients in this stage" hint={open === 0 ? undefined : "Use Next on a client in an earlier stage to move them here."} /> : (
+          {filtered.length === 0 ? <EmptyState title="No clients in this stage" hint={open === 0 ? "" : "Use Next on a client in an earlier stage to move them here."} /> : (
             <DataTable minWidth={cols.length * 150 + 260} columns={[...cols, open === CLOSED ? "Outcome" : "Next", "Actions"]}>
               {visible.map((r) => {
                 const last = r.notes.at(-1)?.text;
@@ -221,7 +221,7 @@ export function PipelineBoard({ records, admin }: { records: PipelineSource[]; a
           <DialogFooter><Button variant="outline" onClick={() => setCloseFor(null)}>Cancel</Button><Button onClick={() => {
             if (!closeFor) return; const { id, from } = closeFor; const name = rows.find((r) => r.id === id)?.name;
             place(id, CLOSED, outcome); setCloseFor(null);
-            toast.success(`${name} marked ${outcome === "won" ? "Won" : "Lost"}`, { description: "Prototype only — not saved to the CRM.", action: from !== CLOSED ? { label: "Undo", onClick: () => place(id, from) } : undefined });
+            toast.success(`${name} marked ${outcome === "won" ? "Won" : "Lost"}`, { description: "Prototype only — not saved to the CRM.", ...(from !== CLOSED ? { action: { label: "Undo", onClick: () => place(id, from) } } : {}) });
           }}>Confirm</Button></DialogFooter>
         </DialogContent>
       </Dialog>
