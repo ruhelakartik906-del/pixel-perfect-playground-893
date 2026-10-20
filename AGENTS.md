@@ -25,14 +25,13 @@
 - HRM employees link existing profiles; `hr_set_access` audits approval/rejection — why: one identity and atomic access.
 - HRM management uses shared validated forms with scoped database policies; attendance, leave and payroll mutate only through transactional audited RPCs — why: identity, balances and financial history cannot depend on browser controls.
 - Bulk attendance uses one atomic RPC; leave-derived attendance carries a source request ID cleared by manual correction — why: failed bulk saves roll back and reversing leave never removes unrelated manual records.
-- Calendar derives meetings, holidays and approved leave from their original records; private HR files use authorized server uploads/downloads and append-only versions — why: avoid duplicate events and public confidential files.
+- Calendar derives meetings, holidays and approved leave from their original records; private HR files (documents, announcement attachments) use authorized server uploads/downloads following record visibility — why: avoid duplicate events and public or cross-company files.
 - Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
 - Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
 - Admin/user work uses locked company/personal RPCs and original creators — why: no duplicate records or fictitious companies.
 - Five work pages share spreadsheet controls, private page-specific drafts/customization and locked cell writes — why: preserve ownership/history without incomplete tasks.
-- Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only, while company groups retain membership gates — why: discovery must not grant private-record access.
+- Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only; company groups keep membership gates — why: discovery must not grant private-record access.
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
 - Automation shares trigger-only work/history and unique events; Deal stages exclude creation; Follow-ups need owner-linked company Leads — why: safe scope and deduplication.
-- HR announcement attachments live in the private HR bucket under announcements/; uploads need announcement edit permission and reads follow announcement visibility — why: no public or cross-company files.
