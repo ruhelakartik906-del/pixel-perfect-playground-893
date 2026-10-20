@@ -190,6 +190,7 @@ export type Database = {
           deal_id: string | null
           detail: string
           event_key: string
+          follow_up_ids: string[]
           id: string
           lead_id: string | null
           status: string
@@ -202,6 +203,7 @@ export type Database = {
           deal_id?: string | null
           detail?: string
           event_key?: string
+          follow_up_ids?: string[]
           id?: string
           lead_id?: string | null
           status: string
@@ -214,6 +216,7 @@ export type Database = {
           deal_id?: string | null
           detail?: string
           event_key?: string
+          follow_up_ids?: string[]
           id?: string
           lead_id?: string | null
           status?: string

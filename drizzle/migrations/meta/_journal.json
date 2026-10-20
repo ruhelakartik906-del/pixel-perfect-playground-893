@@ -421,6 +421,13 @@
       "when": 1792471479185,
       "tag": "0059_automation_deal_created_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1792472136757,
+      "tag": "0060_automation_lead_created_followups",
+      "breakpoints": true
     }
   ]
 }
