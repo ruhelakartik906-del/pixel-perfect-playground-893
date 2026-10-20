@@ -477,6 +477,13 @@
       "when": 1792515599161,
       "tag": "0067_bind_private_file_reads_to_caller",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1792524023257,
+      "tag": "0068_invitation_acceptance_before_employee_access",
+      "breakpoints": true
     }
   ]
 }

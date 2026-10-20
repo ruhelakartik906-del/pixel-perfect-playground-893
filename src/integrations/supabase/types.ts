@@ -4428,6 +4428,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_employee_invitation: { Args: never; Returns: string }
       admin_complete_invitation: {
         Args: {
           _access_role?: string
