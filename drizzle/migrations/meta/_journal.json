@@ -435,6 +435,13 @@
       "when": 1792472479060,
       "tag": "0061_automation_deal_stage_changed",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1792472675329,
+      "tag": "0062_automation_scheduler_support",
+      "breakpoints": true
     }
   ]
 }
