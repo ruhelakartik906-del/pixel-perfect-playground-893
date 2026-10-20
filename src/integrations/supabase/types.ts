@@ -1048,6 +1048,7 @@ export type Database = {
           actual_close_date: string | null
           amount: number
           assigned_to: string | null
+          automation_stage_revision: number
           company_id: string | null
           contract_type_id: string | null
           created_at: string
@@ -1073,6 +1074,7 @@ export type Database = {
           actual_close_date?: string | null
           amount?: number
           assigned_to?: string | null
+          automation_stage_revision?: number
           company_id?: string | null
           contract_type_id?: string | null
           created_at?: string
@@ -1098,6 +1100,7 @@ export type Database = {
           actual_close_date?: string | null
           amount?: number
           assigned_to?: string | null
+          automation_stage_revision?: number
           company_id?: string | null
           contract_type_id?: string | null
           created_at?: string
