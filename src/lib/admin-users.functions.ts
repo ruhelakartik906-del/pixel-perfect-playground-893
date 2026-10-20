@@ -9,6 +9,24 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (error || data !== true) throw new Error("Active Super Admin authorization required");
 }
 
+/** Privileged account write; browser profile grants remain restricted. */
+export const setUserAccountStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    user_id: z.string().uuid(), status: z.enum(["active", "blocked"]),
+  }).strict().parse(i))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    if (data.user_id === context.userId) throw new Error("You cannot change your own account status");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const result = await supabaseAdmin.from("profiles")
+      .update({ account_status: data.status }).eq("id", data.user_id)
+      .select("id,account_status").single();
+    if (result.error) throw new Error(result.error.message);
+    if (!result.data || result.data.account_status !== data.status) throw new Error("Account status was not saved");
+    return result.data;
+  });
+
 /** Invite a user by email (Auth sends a secure set-password link). No password is ever handled here. */
 export const inviteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

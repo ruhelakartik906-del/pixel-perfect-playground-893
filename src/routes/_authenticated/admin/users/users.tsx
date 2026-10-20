@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { adminHead, initials } from "@/lib/admin-head";
 import { SYSTEM_ROLES, type SystemRole } from "@/lib/permissions";
-import { inviteUser } from "@/lib/admin-users.functions";
+import { inviteUser, setUserAccountStatus } from "@/lib/admin-users.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/users/users")({
@@ -54,6 +54,7 @@ type Form = { id?: string; email: string; full_name: string; phone: string; role
 function UsersPage() {
   const qc = useQueryClient();
   const invite = useServerFn(inviteUser);
+  const changeStatus = useServerFn(setUserAccountStatus);
   const { data, isLoading, error } = useQuery({ queryKey: QK, queryFn: load });
   const { data: me } = useQuery({ queryKey: ["me-id"], queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? "" });
   const [q, setQ] = useState("");
@@ -98,9 +99,10 @@ function UsersPage() {
 
   const setStatus = async (u: U, status: "active" | "blocked") => {
     if (u.id === me) { toast.error("You cannot block your own account"); return; }
-    const { error } = await db.from("profiles").update({ account_status: status }).eq("id", u.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success(status === "active" ? "User activated" : "User blocked"); refresh();
+    try {
+      await changeStatus({ data: { user_id: u.id, status } });
+      toast.success(status === "active" ? "User activated" : "User blocked"); refresh();
+    } catch (error) { toast.error((error as Error).message); }
   };
 
   const edit = (u: U) => setForm({ id: u.id, email: u.email, full_name: u.full_name, phone: u.phone, role: u.role, access_role_id: u.accessRoleId ?? "", company_id: u.companyId ?? "" });

@@ -35,7 +35,7 @@ export const SYSTEM_ROLES = [
   { id: "super_admin", label: "Super Admin" },
   { id: "manager", label: "Manager" },
   { id: "employee", label: "Employee" },
-  { id: "client", label: "Client" },
+  { id: "client", label: "User" },
 ] as const;
 export type SystemRole = (typeof SYSTEM_ROLES)[number]["id"];
 
