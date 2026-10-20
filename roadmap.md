@@ -1,4 +1,5 @@
 # Admin roadmap
+- [ ] Current Deal verification/security cleanup: restore blocked test employee, verify existing authorized Deal task/log/paused/dedup behavior, check both Tasks pages and clean isolated records; no features or code changes.
 - [ ] Current Automation Phase 3: implement only Deal Created → Create Task with shared conditions/executor, unique event logs, paused/eligible-assignee safeguards; one isolated Admin/User visibility check and cleanup.
 - [x] Targeted public responsive fixes: portaled drawer, header-only login/register branding, compact tablet/mobile spacing and information below forms. Browser verified both pages at 390, 811, 980 and 1280px; full-height drawer, Escape/overlay/link dismissal, no horizontal overflow or page errors; build OK. Desktop/auth/backend preserved.
 - [ ] Current routing verification: isolated first-five/overflow, independent source counters, concurrent arrivals and duplicate rejection; fix confirmed defects only, preserve routing/automation/RLS and remove QA records.
