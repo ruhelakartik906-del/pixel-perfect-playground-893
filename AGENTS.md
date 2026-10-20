@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Public chrome stays outside workspaces; nav uses portaled Sheet; compact AuthCard is Login/Register-only — why: shared chrome and isolated spacing.
+- Public chrome stays outside workspaces; compact AuthCard is Login/Register-only — why: shared chrome and isolated spacing.
 - Make management uses Admin-gated functions, hashed credentials, source mappings and redacted logs; intake uses the existing public route and locked canonical Leads/routing RPCs — why: isolation, safe rotation and atomic quotas.
 - Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
 - Master Admin uses protected admin routes, shared nav/UI, a role guard and fallback splat — why: authorized access and working links.
@@ -26,7 +26,7 @@
 - HRM management uses shared validated forms with scoped database policies; attendance, leave and payroll mutate only through transactional audited RPCs — why: identity, balances and financial history cannot depend on browser controls.
 - Bulk attendance uses one atomic RPC; leave-derived attendance carries a source request ID cleared by manual correction — why: failed bulk saves roll back and reversing leave never removes unrelated manual records.
 - Calendar derives meetings, holidays and approved leave from their original records; private HR files (documents, announcement attachments) use authorized server uploads/downloads following record visibility — why: avoid duplicate events and public or cross-company files.
-- Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
+- Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: keep the admin shell without granting unrelated administration.
 - Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
 - Admin/user work uses locked company/personal RPCs and original creators — why: no duplicate records or fictitious companies.
