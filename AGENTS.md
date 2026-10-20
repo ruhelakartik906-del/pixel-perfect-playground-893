@@ -34,4 +34,4 @@
 - Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only, while company groups retain membership gates — why: discovery must not grant private-record access.
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
-- Lead Created/Stage Changed share a locked task executor; stage revisions key unique event logs; creation stays after routing — why: prevent duplicates and preserve ownership.
+- Lead/stage/Deal events share a trigger-only executor and unique logs; Deals defer to final transaction, Leads follow routing — why: safe ownership and deduplication.
