@@ -186,6 +186,7 @@ export type Database = {
       automation_executions: {
         Row: {
           action_plan: Json | null
+          attempts: number
           company_id: string | null
           condition_plan: Json | null
           created_at: string
@@ -193,8 +194,11 @@ export type Database = {
           detail: string
           due_at: string | null
           event_key: string
+          finished_at: string | null
           follow_up_ids: string[]
           id: string
+          last_attempt_at: string | null
+          last_error: string | null
           lead_id: string | null
           next_action: number
           queued_assignee: string | null
@@ -204,6 +208,7 @@ export type Database = {
         }
         Insert: {
           action_plan?: Json | null
+          attempts?: number
           company_id?: string | null
           condition_plan?: Json | null
           created_at?: string
@@ -211,8 +216,11 @@ export type Database = {
           detail?: string
           due_at?: string | null
           event_key?: string
+          finished_at?: string | null
           follow_up_ids?: string[]
           id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
           lead_id?: string | null
           next_action?: number
           queued_assignee?: string | null
@@ -222,6 +230,7 @@ export type Database = {
         }
         Update: {
           action_plan?: Json | null
+          attempts?: number
           company_id?: string | null
           condition_plan?: Json | null
           created_at?: string
@@ -229,8 +238,11 @@ export type Database = {
           detail?: string
           due_at?: string | null
           event_key?: string
+          finished_at?: string | null
           follow_up_ids?: string[]
           id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
           lead_id?: string | null
           next_action?: number
           queued_assignee?: string | null

@@ -449,6 +449,13 @@
       "when": 1792473883165,
       "tag": "0063_automation_durable_action_delays",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1792490665542,
+      "tag": "0064_automation_bounded_retries",
+      "breakpoints": true
     }
   ]
 }
