@@ -510,7 +510,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
             {r.status === "published" && (
               <DropdownMenuItem onClick={() => ask(r, "draft")}>Unpublish</DropdownMenuItem>
             )}
-            {data?.extra["attachments"]?.some((a) => a.announcement_id === r.id) && (
+            {data?.extra["attachments"]?.some((a) => a['announcement_id'] === r.id) && (
               <DropdownMenuItem onClick={() => getDownload(r)}>
                 <Download className="size-4" />
                 Download attachment
