@@ -1252,6 +1252,57 @@ export type Database = {
           },
         ]
       }
+      hr_announcement_attachments: {
+        Row: {
+          announcement_id: string
+          company_id: string
+          created_at: string
+          filename: string
+          id: string
+          mime: string
+          path: string
+          size: number
+          uploaded_by: string
+        }
+        Insert: {
+          announcement_id: string
+          company_id: string
+          created_at?: string
+          filename: string
+          id?: string
+          mime: string
+          path: string
+          size: number
+          uploaded_by: string
+        }
+        Update: {
+          announcement_id?: string
+          company_id?: string
+          created_at?: string
+          filename?: string
+          id?: string
+          mime?: string
+          path?: string
+          size?: number
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_announcement_attachments_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "hr_announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_announcement_attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_announcement_reads: {
         Row: {
           announcement_id: string
