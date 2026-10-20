@@ -15,7 +15,14 @@ type Invocation = (input: { context: typeof context; data: typeof draft }) => Pr
 const invite = inviteUser as unknown as Invocation;
 
 describe('Administrative invitation safeguards', () => {
-  beforeEach(() => { vi.resetAllMocks(); mocks.rpc.mockResolvedValue({ data: true, error: null }); mocks.invite.mockResolvedValue({ data: { user: { id: 'new-user' } }, error: null }); mocks.setup.mockResolvedValue({ data: 'new-user', error: null }); });
+  beforeEach(() => { vi.resetAllMocks(); mocks.rpc.mockResolvedValue({ data: true, error: null }); mocks.invite.mockResolvedValue({ data: { user: { id: 'new-user' } }, error: null }); mocks.setup.mockResolvedValue({ data: 'new-user', error: null });
+    const query = { select: () => query, ilike: () => query, maybeSingle: async () => ({ data: null, error: null }) }; mocks.from.mockReturnValue(query);
+  });
+  it('rejects a duplicate recipient before requesting another email', async () => {
+    const query = { select: () => query, ilike: () => query, maybeSingle: async () => ({ data: { id: 'existing' }, error: null }) }; mocks.from.mockReturnValue(query);
+    await expect(invite({ context, data: draft })).rejects.toThrow('duplicate invitation');
+    expect(mocks.invite).not.toHaveBeenCalled(); expect(mocks.setup).not.toHaveBeenCalled();
+  });
   it('allows a standard invitation without creating company membership', async () => {
     expect(invitationSchema.parse(draft).company_id).toBeNull();
     expect(await invite({ context, data: draft })).toEqual({ id: 'new-user' });
