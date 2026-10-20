@@ -34,4 +34,4 @@
 - Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only; company groups keep membership gates — why: discovery must not grant private-record access.
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
-- Automation shares trigger-only work/history and unique events; Deal stages exclude creation; Follow-ups need owner-linked company Leads — why: safe scope and deduplication.
+- Automation uses canonical work and unique events; retry fault tests use unchanged SQL in disposable localhost DBs — why: safe scope/deduplication without production faults.
