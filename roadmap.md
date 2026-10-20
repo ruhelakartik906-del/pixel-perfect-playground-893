@@ -1,5 +1,5 @@
 # Admin roadmap
-- [ ] Current scoped fix: Client display label → User in User Management; secure Super-Admin block/activate, restore only Sync Test Employee blocked and verify saved status.
+- [x] Current scoped fix: User role badges/search/details/dropdown verified; stored client role unchanged. Block/activate now uses active-Super-Admin-authorized server writes without changing grants/RLS. Only Sync Test Employee activated/blocked for verification; reload and saved readback confirm blocked. 21 focused tests pass; build OK.
 - [ ] Remaining automation A: genuine Deal Stage Changed; shared Task/Follow-up executor, isolated authorized test and cleanup.
 - [ ] Remaining automation B: durable ordered action delays, paused/cancelled safety, short scheduler test and cleanup.
 - [ ] Remaining automation C: bounded transient retries, idempotent work, attempts/timestamps/permanent failure, safe test and cleanup.
