@@ -9,13 +9,13 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Public chrome stays outside workspaces; nav uses portaled Sheet; compact AuthCard is Login/Register-only — why: shared chrome and isolated spacing.
+- Public chrome stays outside workspaces; compact AuthCard is Login/Register-only — why: shared chrome and isolated spacing.
 - Make management uses Admin-gated functions, hashed credentials, source mappings and redacted logs; intake uses the existing public route and locked canonical Leads/routing RPCs — why: isolation, safe rotation and atomic quotas.
 - Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
 - Master Admin uses protected admin routes, shared nav/UI, a role guard and fallback splat — why: authorized access and working links.
 - First Super Admin provisioning uses only private secrets via `provision-admin.functions.ts` and stops once one exists; logins share authenticated `auth-access.functions.ts` with stored roles/status — why: public signup cannot grant privileges, and blocked/pending checks precede role redirects.
 - CRM configuration (pipelines, lead/deal stages, sources/tags/categories/contract types, list-view columns) lives in DB tables edited at `/admin/crm/crm-system-setup`; Leads/Deals read these, never hardcoded lists — why: admins change setup without code. Reassignment by non-admins is blocked by a DB trigger, not UI.
-- Sales uses separate catalog/customers, `can_manage_sales`, private images and stable full pagination in six-connection batches — why: scoped access and complete shared records/totals.
+- Sales uses separate catalog/customers, `can_manage_sales`, private images and stable full pagination in six-connection batches — why: scoped access and complete totals.
 - Financial writes use the `sales_financial_action` database RPC through an authenticated server function; issued invoices are immutable snapshots and payment/credit actions lock the invoice — why: balances and audit records must be atomic under concurrent actions.
 - Permission roles (`access_roles` + `user_access_roles`) are separate from the system `user_roles` enum; the permission catalog lives in `src/lib/permissions.ts` — why: custom roles must never grant system privileges.
 - Invitations/mailboxes/status require `routing_admin()` before privileged writes; status rejects self-changes and reads back; invites activate last atomically — why: restricted grants and active-admin access.
@@ -25,13 +25,13 @@
 - HRM employees link existing profiles; `hr_set_access` audits approval/rejection — why: one identity and atomic access.
 - HRM management uses shared validated forms with scoped database policies; attendance, leave and payroll mutate only through transactional audited RPCs — why: identity, balances and financial history cannot depend on browser controls.
 - Bulk attendance uses one atomic RPC; leave-derived attendance carries a source request ID cleared by manual correction — why: failed bulk saves roll back and reversing leave never removes unrelated manual records.
-- Calendar derives meetings, holidays and approved leave from their original records; private HR files use authorized server uploads/downloads and append-only versions — why: avoid duplicate events and public confidential files.
-- Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: preserve the existing admin shell without granting unrelated administration.
+- Calendar derives meetings, holidays and approved leave from their original records; private HR files (documents, announcement attachments) use authorized server uploads/downloads following record visibility — why: avoid duplicate events and public or cross-company files.
+- Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: keep the admin shell without granting unrelated administration.
 - Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
 - Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
 - Admin/user work uses locked company/personal RPCs and original creators — why: no duplicate records or fictitious companies.
 - Five work pages share spreadsheet controls, private page-specific drafts/customization and locked cell writes — why: preserve ownership/history without incomplete tasks.
-- Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only, while company groups retain membership gates — why: discovery must not grant private-record access.
+- Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only; company groups keep membership gates — why: discovery must not grant private-record access.
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
 - Automation shares trigger-only work/history and unique events; Deal stages exclude creation; Follow-ups need owner-linked company Leads — why: safe scope and deduplication.

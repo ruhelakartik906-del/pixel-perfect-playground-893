@@ -38,6 +38,8 @@ import {
   getHrmHistory,
   uploadHrmFile,
   downloadHrmFile,
+  uploadAnnouncementFile,
+  downloadAnnouncementFile,
   saveBulkAttendance,
 } from "@/lib/hrm.functions";
 import {
@@ -84,6 +86,8 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
     controlled = useServerFn(hrmControlledAction),
     upload = useServerFn(uploadHrmFile),
     download = useServerFn(downloadHrmFile),
+    uploadAnn = useServerFn(uploadAnnouncementFile),
+    downloadAnn = useServerFn(downloadAnnouncementFile),
     historyFn = useServerFn(getHrmHistory);
   const [month, setMonth] = useState(() => indiaDate().slice(0, 7));
   const [q, setQ] = useState("");
@@ -237,7 +241,9 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
       reader.onerror = () => reject(new Error("File could not be read"));
       reader.readAsDataURL(f);
     });
-    await upload({ data: { id, filename: f.name, mime: f.type, base64 } });
+    const payload = { data: { id, filename: f.name, mime: f.type, base64 } };
+    if (module === "announcement") await uploadAnn(payload);
+    else await upload(payload);
   };
   const save = async () => {
     if (!form || busy) return;
@@ -265,7 +271,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           data: { module, action: "save", id: form.id || undefined, payload: p },
         });
       }
-      if (module === "document" && file) {
+      if ((module === "document" || module === "announcement") && file) {
         try {
           await fileUpload(id, file);
         } catch (e) {
@@ -333,7 +339,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
   };
   const getDownload = async (r: HrRow, versionId?: string) => {
     try {
-      const v = await download({ data: { id: r.id, versionId } });
+      const v = module === "announcement" ? await downloadAnn({ data: { id: r.id } }) : await download({ data: { id: r.id, versionId } });
       const a = document.createElement("a");
       a.href = v.url;
       a.download = v.filename;
@@ -503,6 +509,12 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
             )}
             {r.status === "published" && (
               <DropdownMenuItem onClick={() => ask(r, "draft")}>Unpublish</DropdownMenuItem>
+            )}
+            {data?.extra["attachments"]?.some((a) => a['announcement_id'] === r.id) && (
+              <DropdownMenuItem onClick={() => getDownload(r)}>
+                <Download className="size-4" />
+                Download attachment
+              </DropdownMenuItem>
             )}
           </>
         )}
