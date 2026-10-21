@@ -37,6 +37,7 @@ describe.skipIf(process.env['LEADS_LOCAL_QA'] !== '1')('Ad routing active recipi
       SELECT set_config('qa.uid','${admin}',false);`);
     await sql.unsafe(readFileSync('drizzle/migrations/0084_secure_ad_routing_active_recipients.sql','utf8'));
     await sql.unsafe(readFileSync('drizzle/migrations/0085_exact_ad_routed_private_boundary.sql','utf8'));
+    await sql.unsafe(readFileSync('drizzle/migrations/0086_qualify_private_routing_admin_read.sql','utf8'));
     await sql.unsafe(`ALTER POLICY "Active CRM lead access" ON leads USING(routing_admin() OR lead_record_allowed(company_id,created_by,assigned_to,private_owner_id));`);
     rule=String((await sql`SELECT routing_rule_action('save',${sql.json({company_id:company,name:'Scoped',account_id:'123',page_id:'456',status:'active',steps:[{user_id:client,quota:1},{user_id:employee,quota:1}]})}) AS id`)[0]?.['id']);
   });
@@ -53,6 +54,11 @@ describe.skipIf(process.env['LEADS_LOCAL_QA'] !== '1')('Ad routing active recipi
     const id=await insert('two');leadIds.push(id);
     expect((await sql`SELECT company_id,assigned_to,private_owner_id FROM leads WHERE id=${id}`)[0]).toMatchObject({company_id:company,assigned_to:employee,private_owner_id:null});
     expect((await sql`SELECT assigned_count FROM ad_routing_steps WHERE rule_id=${rule} ORDER BY position`).map(r=>r['assigned_count'])).toEqual(['1','1']);
+  });
+  it('Admin reads both real assignment records including private routed delivery',async()=>{
+    await sql.unsafe('SET ROLE authenticated');
+    expect((await sql`SELECT id FROM leads`).map(r=>r['id']).sort()).toEqual([...leadIds].sort());
+    await sql.unsafe('RESET ROLE');
   });
   it('exhausted quotas leave lead unassigned with no event or extra counters',async()=>{
     const id=await insert('three');expect((await sql`SELECT assigned_to FROM leads WHERE id=${id}`)[0]?.['assigned_to']).toBe(null);
