@@ -30,7 +30,8 @@ export function RoutingLeads({ history = false }: { history?: boolean }) {
   const activeSelected = selected.filter((id) => filtered.some((r) => r.id === id));
   const selectedCompanies = [...new Set(assignmentIds.map((id) => data.leads.find((l) => l.id === id)?.company_id))];
   const assignmentCompany = selectedCompanies.length === 1 ? selectedCompanies[0] : null;
-  const eligible = data.eligible.filter((m) => m.company_id === assignmentCompany);
+  const manualSelection = assignmentIds.every(id => data.leads.find(l => l.id === id)?.intake_source === "manual");
+  const eligible = selectedCompanies.length === 1 ? (manualSelection ? data.manualRecipients : data.eligible).filter((m) => m.company_id === assignmentCompany) : [];
   const title = history ? "Lead Assignment History" : "Unassigned Leads";
   const headers = history ? ["Lead Name", "Phone", "Email", "Company", "Ad Account", "Campaign / Video", "Assigned User", "Routing Rule", "Assignment Date", "Assignment Type", "Status"] : ["Select", "Lead Name", "Phone", "Email", "Source / Campaign", "Company", "Created Date", "Unassigned Reason", "Actions"];
   function requestAssign(ids: string[]) { setAssignmentIds(ids); setAssignUser(""); }
