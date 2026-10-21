@@ -526,6 +526,13 @@
       "when": 1792575070925,
       "tag": "0074_company_user_leads",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1792575226996,
+      "tag": "0075_lock_global_status_management",
+      "breakpoints": true
     }
   ]
 }
