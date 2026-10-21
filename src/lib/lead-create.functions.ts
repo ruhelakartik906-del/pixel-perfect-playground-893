@@ -1,20 +1,18 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { leadCreateSchema, leadCreateRecord } from './lead-create';
-import { readAllPages } from './backend-read';
 export const loadLeadCreateAccess = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const result = await context.supabase.rpc('routing_admin');
   if (result.error) throw new Error('Lead creation permission could not be verified');
   if(result.data === true)return true;
-  const memberships=await readAllPages((o,e)=>context.supabase.from('company_members').select('company_id').eq('user_id',context.userId).order('id').range(o,e));
-  const allowed=await Promise.all(memberships.map(async m=>{const r=await context.supabase.rpc('lead_company_allowed',{_company:m.company_id});if(r.error)throw new Error('Lead access could not be verified');return r.data===true;}));
-  return allowed.some(Boolean);
+  const active=await context.supabase.rpc('lead_workspace_active');
+  if(active.error)throw new Error('Lead access could not be verified');
+  return active.data===true;
 });
 export const createBoardLead = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator((v: unknown) => leadCreateSchema.parse(v)).handler(async ({ context, data }) => {
   const access = await context.supabase.rpc('routing_admin');
   if(access.error)throw new Error('Lead access could not be verified');
   if(access.data!==true){
-    if(!data.company_id)throw new Error('Choose your CRM company');
     const result=await context.supabase.rpc('user_board_lead_create',{_payload:leadCreateRecord(data,'',context.userId)});
     if(result.error)throw new Error(result.error.message);return result.data;
   }

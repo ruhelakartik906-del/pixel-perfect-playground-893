@@ -848,6 +848,7 @@ export type Database = {
           is_active: boolean
           kind: string
           name: string
+          owner_id: string | null
           pipeline_id: string
           position: number
         }
@@ -862,6 +863,7 @@ export type Database = {
           is_active?: boolean
           kind: string
           name: string
+          owner_id?: string | null
           pipeline_id: string
           position?: number
         }
@@ -876,6 +878,7 @@ export type Database = {
           is_active?: boolean
           kind?: string
           name?: string
+          owner_id?: string | null
           pipeline_id?: string
           position?: number
         }
@@ -885,6 +888,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_stages_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2721,6 +2731,7 @@ export type Database = {
           meta_page_id: string | null
           phone: string
           pipeline_id: string | null
+          private_owner_id: string | null
           region: string
           requirements: string
           source_id: string | null
@@ -2758,6 +2769,7 @@ export type Database = {
           meta_page_id?: string | null
           phone?: string
           pipeline_id?: string | null
+          private_owner_id?: string | null
           region?: string
           requirements?: string
           source_id?: string | null
@@ -2795,6 +2807,7 @@ export type Database = {
           meta_page_id?: string | null
           phone?: string
           pipeline_id?: string | null
+          private_owner_id?: string | null
           region?: string
           requirements?: string
           source_id?: string | null
@@ -2829,6 +2842,13 @@ export type Database = {
             columns: ["pipeline_id"]
             isOneToOne: false
             referencedRelation: "crm_pipelines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_private_owner_id_fkey"
+            columns: ["private_owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -3259,6 +3279,51 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personal_lead_status: {
+        Row: {
+          color: string
+          hidden: boolean
+          is_default: boolean
+          label: string
+          owner_id: string
+          position: number
+          stage_id: string
+        }
+        Insert: {
+          color: string
+          hidden?: boolean
+          is_default?: boolean
+          label: string
+          owner_id: string
+          position: number
+          stage_id: string
+        }
+        Update: {
+          color?: string
+          hidden?: boolean
+          is_default?: boolean
+          label?: string
+          owner_id?: string
+          position?: number
+          stage_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_lead_status_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personal_lead_status_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "crm_stages"
             referencedColumns: ["id"]
           },
         ]
@@ -4661,11 +4726,21 @@ export type Database = {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
+      lead_personal_stages: { Args: never; Returns: Json }
+      lead_personal_status_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
+      lead_record_allowed: {
+        Args: { _assignee: string; _company: string; _creator: string }
+        Returns: boolean
+      }
       lead_status_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
       lead_status_allowed: { Args: { _action: string }; Returns: boolean }
+      lead_workspace_active: { Args: never; Returns: boolean }
       make_authenticated_intake: {
         Args: {
           _dry_run: boolean
