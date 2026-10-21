@@ -98,4 +98,49 @@ describe.skipIf(process.env['LEADS_LOCAL_QA'] !== '1')('Ad routing active recipi
     await expect(sql`SELECT ad_routing_recipients()`).rejects.toThrow('Super Admin');
     await sql.unsafe('SET ROLE authenticated');await expect(sql`SELECT ad_routing_eligible(${employee},${company})`).rejects.toThrow('permission denied');await sql.unsafe('RESET ROLE');
   });
+  describe('exact quota, overflow, specificity and concurrency', () => {
+    let campaignRule: string, adRule: string, videoRule: string;
+    const save = async (name: string, extra: Record<string, string>, steps: { user_id: string; quota: number | null }[]) => String((await sql`SELECT routing_rule_action('save',${sql.json({company_id:company,name,account_id:'999',status:'active',steps,...extra})}) AS id`)[0]?.['id']);
+    const lead = async (ext: string, campaign: string, ad = '', creative = '', db = sql) => { const id=crypto.randomUUID(); await db`INSERT INTO leads(id,company_id,created_by,customer_name,meta_account_id,meta_campaign_id,meta_ad_id,meta_creative_id,meta_lead_id,intake_source) VALUES(${id},${company},${admin},'Quota QA','999',${campaign},${ad},${creative},${ext},'facebook')`; return id; };
+    const counts = async (id: string) => (await sql`SELECT assigned_count FROM ad_routing_steps WHERE rule_id=${id} ORDER BY position`).map(r => Number(r['assigned_count']));
+    beforeAll(async () => {
+      await sql`SELECT set_config('qa.uid',${admin},false)`; await sql`DELETE FROM hr_employees WHERE profile_id=${employee}`;
+      campaignRule = await save('Campaign', { campaign_id: 'c1' }, [{ user_id: client, quota: 5 }, { user_id: employee, quota: null }]);
+      adRule = await save('Ad', { campaign_id: 'c1', ad_id: 'ad1' }, [{ user_id: employee, quota: 1 }]);
+      videoRule = await save('Video', { campaign_id: 'c1', ad_id: 'ad2', creative_id: 'vid1', creative_name: 'Video 1' }, [{ user_id: client, quota: 1 }]);
+    });
+    it('first five go to User A, then overflow User B', async () => {
+      const got: unknown[] = [];
+      for (let i = 0; i < 7; i++) got.push((await sql`SELECT assigned_to FROM leads WHERE id=${await lead(`q${i}`, 'c1')}`)[0]?.['assigned_to']);
+      expect(got).toEqual([client, client, client, client, client, employee, employee]);
+      expect(await counts(campaignRule)).toEqual([5, 2]);
+    });
+    it('specific Ad and Video (creative) rules win over the campaign rule with separate counters', async () => {
+      const ad = await lead('ad-a', 'c1', 'ad1'), video = await lead('vid-a', 'c1', 'ad2', 'vid1');
+      expect((await sql`SELECT intake_rule_id,assigned_to FROM leads WHERE id=${ad}`)[0]).toMatchObject({ assigned_to: employee });
+      expect((await sql`SELECT rule_id FROM lead_assignment_events WHERE lead_id=${ad}`)[0]?.['rule_id']).toBe(adRule);
+      expect((await sql`SELECT rule_id FROM lead_assignment_events WHERE lead_id=${video}`)[0]?.['rule_id']).toBe(videoRule);
+      expect(await counts(campaignRule)).toEqual([5, 2]);
+    });
+    it('unmatched campaign leads stay unassigned in the queue with no event', async () => {
+      const id = await lead('unmatched', 'other-campaign');
+      expect((await sql`SELECT assigned_to FROM leads WHERE id=${id}`)[0]?.['assigned_to']).toBe(null);
+      expect(await sql`SELECT 1 FROM lead_routing_queue WHERE lead_id=${id}`).toHaveLength(1);
+      expect(await sql`SELECT 1 FROM lead_assignment_events WHERE lead_id=${id}`).toHaveLength(0);
+    });
+    it('concurrent arrivals on separate connections never exceed quota; simultaneous duplicates create one lead', async () => {
+      const pool = postgres({ host: '127.0.0.1', port: 55440, database: 'postgres', username: 'qa', ssl: false, max: 12, connection: { 'qa.uid': admin } as Record<string, string> });
+      try {
+        const fresh = await save('Parallel', { campaign_id: 'p1' }, [{ user_id: client, quota: 5 }, { user_id: employee, quota: null }]);
+        await Promise.all(Array.from({ length: 12 }, (_, i) => lead(`par${i}`, 'p1', '', '', pool)));
+        const dup = await Promise.allSettled([lead('par-dup', 'p1', '', '', pool), lead('par-dup', 'p1', '', '', pool)]);
+        expect(dup.filter(r => r.status === 'fulfilled')).toHaveLength(1);
+        const rows = await sql`SELECT assigned_to FROM leads WHERE meta_campaign_id='p1'`;
+        expect(rows.filter(r => r['assigned_to'] === client)).toHaveLength(5);
+        expect(rows.filter(r => r['assigned_to'] === employee)).toHaveLength(8);
+        expect(await counts(fresh)).toEqual([5, 8]);
+        expect(await sql`SELECT 1 FROM lead_assignment_events WHERE rule_id=${fresh}`).toHaveLength(13);
+      } finally { await pool.end(); }
+    });
+  });
 });
