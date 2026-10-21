@@ -132,6 +132,7 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
  });
  it('company assignment requires membership and preserves automatic Client exclusion',async()=>{
   await manualAdmin();await sql`UPDATE user_roles SET role='client' WHERE user_id=${user}`;
+  await sql`INSERT INTO companies(id,is_active) VALUES(${other},true) ON CONFLICT(id) DO NOTHING`;
   expect((await sql`SELECT routing_eligible(${user},${p}) AS allowed`)[0]?.['allowed']).toBe(false);
   expect((await sql`SELECT manual_routing_eligible(${user},${p}) AS allowed`)[0]?.['allowed']).toBe(true);
   await expect(sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(user,'9876543215',other))})`).rejects.toThrow('unauthorized');
