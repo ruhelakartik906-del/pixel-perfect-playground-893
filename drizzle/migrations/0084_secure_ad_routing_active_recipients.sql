@@ -1,0 +1,29 @@
+CREATE FUNCTION public.ad_routing_eligible(_user uuid,_company uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM public.profiles p WHERE p.id=_user AND p.account_status='active' AND EXISTS(SELECT 1 FROM public.user_roles r WHERE r.user_id=p.id AND r.role IN ('client','employee','manager','super_admin')) AND NOT EXISTS(SELECT 1 FROM public.hr_employees e WHERE e.profile_id=p.id AND (NOT e.is_active OR e.access_status<>'approved') AND (_company IS NULL OR e.company_id=_company OR NOT EXISTS(SELECT 1 FROM public.company_members m WHERE m.user_id=p.id))) AND (_company IS NULL OR EXISTS(SELECT 1 FROM public.companies c WHERE c.id=_company AND c.is_active AND (EXISTS(SELECT 1 FROM public.company_members m WHERE m.user_id=p.id AND m.company_id=c.id) OR NOT EXISTS(SELECT 1 FROM public.company_members m WHERE m.user_id=p.id))))) $$;
+REVOKE ALL ON FUNCTION public.ad_routing_eligible(uuid,uuid) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.ad_routing_eligible(uuid,uuid) TO service_role;
+CREATE FUNCTION public.ad_routing_recipients() RETURNS TABLE(user_id uuid,company_id uuid) LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ BEGIN
+IF NOT coalesce(public.routing_admin(),false) THEN RAISE EXCEPTION 'Super Admin authorization required'; END IF;
+RETURN QUERY SELECT p.id,NULL::uuid FROM public.profiles p WHERE public.ad_routing_eligible(p.id,NULL) AND NOT EXISTS(SELECT 1 FROM public.company_members m WHERE m.user_id=p.id) UNION SELECT m.user_id,m.company_id FROM public.company_members m WHERE public.ad_routing_eligible(m.user_id,m.company_id);
+END $$;
+REVOKE ALL ON FUNCTION public.ad_routing_recipients() FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.ad_routing_recipients() TO authenticated;
+DO $migration$ DECLARE definition text; BEGIN
+SELECT pg_get_functiondef('public.routing_rule_action(text,jsonb)'::regprocedure) INTO definition;
+IF position('public.routing_eligible(user_id,rr.company_id)' IN definition)=0 THEN RAISE EXCEPTION 'Unexpected routing rule definition'; END IF;
+EXECUTE replace(definition,'public.routing_eligible(user_id,rr.company_id)','public.ad_routing_eligible(user_id,rr.company_id)');
+SELECT pg_get_functiondef('public.route_lead(uuid,uuid)'::regprocedure) INTO definition;
+IF position('UPDATE public.leads SET assigned_to=target WHERE id=l.id;' IN definition)=0 THEN RAISE EXCEPTION 'Unexpected lead routing definition'; END IF;
+definition:=replace(definition,'public.routing_eligible(user_id,l.company_id)','public.ad_routing_eligible(user_id,l.company_id)');
+definition:=replace(definition,'UPDATE public.leads SET assigned_to=target WHERE id=l.id;', 'PERFORM 1 FROM public.profiles WHERE id=target AND account_status=''active'' FOR SHARE;
+ IF NOT FOUND THEN RAISE EXCEPTION ''Active recipient required''; END IF;
+ UPDATE public.leads SET assigned_to=target,private_owner_id=CASE WHEN typ=''automatic'' AND NOT EXISTS(SELECT 1 FROM public.company_members WHERE user_id=target AND company_id=l.company_id) THEN target ELSE private_owner_id END WHERE id=l.id RETURNING * INTO l;');
+EXECUTE definition;
+END $migration$;
+CREATE OR REPLACE FUNCTION public.lead_record_allowed(_company uuid,_creator uuid,_assignee uuid,_owner uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT public.lead_workspace_active() AND _assignee=auth.uid() AND ((_company IS NULL AND coalesce(_owner,_creator)=auth.uid()) OR (_company IS NOT NULL AND _owner IS NULL AND public.user_crm_company(_company)) OR (_company IS NOT NULL AND _owner=auth.uid() AND EXISTS(SELECT 1 FROM public.lead_assignment_events e JOIN public.leads l ON l.id=e.lead_id WHERE l.company_id=_company AND l.assigned_to=_assignee AND l.private_owner_id=_owner AND l.created_by IS NOT DISTINCT FROM _creator AND e.user_id=_owner AND e.assignment_type='automatic'))) $$;
+CREATE FUNCTION public.ad_routed_private_access(_lead uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT public.lead_workspace_active() AND EXISTS(SELECT 1 FROM public.leads l JOIN public.lead_assignment_events e ON e.lead_id=l.id WHERE l.id=_lead AND l.assigned_to=auth.uid() AND l.private_owner_id=auth.uid() AND e.user_id=auth.uid() AND e.assignment_type='automatic') $$;
+REVOKE ALL ON FUNCTION public.ad_routed_private_access(uuid) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.ad_routed_private_access(uuid) TO authenticated,service_role;
+CREATE POLICY ad_routed_private_read ON public.leads FOR SELECT TO authenticated USING(public.ad_routed_private_access(id));
+CREATE POLICY ad_routed_activity_read ON public.lead_activities FOR SELECT TO authenticated USING(public.ad_routed_private_access(lead_id));
+ALTER POLICY private_lead_boundary ON public.leads USING(private_owner_id IS NULL OR (private_owner_id=auth.uid() AND public.lead_workspace_active()) OR (public.routing_admin() AND ((intake_source='manual' AND created_by IS DISTINCT FROM private_owner_id) OR EXISTS(SELECT 1 FROM public.lead_assignment_events e WHERE e.lead_id=id AND e.assignment_type='automatic')))) WITH CHECK(private_owner_id IS NULL OR (private_owner_id=auth.uid() AND public.lead_workspace_active()) OR (public.routing_admin() AND ((intake_source='manual' AND created_by IS DISTINCT FROM private_owner_id) OR EXISTS(SELECT 1 FROM public.lead_assignment_events e WHERE e.lead_id=id AND e.assignment_type='automatic'))));
+COMMENT ON FUNCTION public.ad_routing_eligible(uuid,uuid) IS 'Ad-only active CRM recipient eligibility; mapped-company membership or no-membership private delivery, with HR restrictions. Does not broaden staff/work eligibility.';

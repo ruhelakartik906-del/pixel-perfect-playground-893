@@ -40,9 +40,12 @@ export const loadAdRouting = createServerFn({ method: "GET" }).middleware([requi
       : hr && (!hr.is_active || hr.access_status !== "approved") ? "HR access not approved" : "not eligible";
     return { company_id: m.company_id, user_id: m.user_id, reason };
   });
+  const adRecipients = await db.rpc("ad_routing_recipients");
+  if (adRecipients.error) throw new Error("Routing assignment users could not be loaded");
+  const routingPeople = people.filter(p => p.account_status === "active" && roles.some(r => r.user_id === p.id && ["client", "employee", "manager", "super_admin"].includes(r.role))).map(p => ({ ...p, role: roles.filter(r => r.user_id === p.id).map(r => ({ client: "Client", employee: "Employee", manager: "Manager", super_admin: "Super Admin" })[r.role as "client"]).join(" / ") }));
   const recipients = await context.supabase.rpc("manual_routing_recipients");
   if (recipients.error) throw new Error("Manual assignment users could not be loaded");
-  return { rules: rules.filter((r) => r.status !== "deleted"), steps, events, queue, leads, companies, people, eligible, excluded, audits, manualRecipients: recipients.data };
+  return { rules: rules.filter((r) => r.status !== "deleted"), steps, events, queue, leads, companies, people, eligible, excluded, audits, manualRecipients: recipients.data, routingPeople, adRecipients: adRecipients.data as {user_id: string; company_id: string | null}[] };
 });
 
 const source = z.string().trim().max(255).default("");

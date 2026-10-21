@@ -589,6 +589,20 @@
       "when": 1792592983519,
       "tag": "0083_private_manual_recipient_helper",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1792595356893,
+      "tag": "0084_secure_ad_routing_active_recipients",
+      "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "7",
+      "when": 1792595449349,
+      "tag": "0085_exact_ad_routed_private_boundary",
+      "breakpoints": true
     }
   ]
 }

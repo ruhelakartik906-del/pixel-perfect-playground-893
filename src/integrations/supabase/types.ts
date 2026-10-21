@@ -4561,6 +4561,18 @@ export type Database = {
     }
     Functions: {
       accept_employee_invitation: { Args: never; Returns: string }
+      ad_routed_private_access: { Args: { _lead: string }; Returns: boolean }
+      ad_routing_eligible: {
+        Args: { _company: string; _user: string }
+        Returns: boolean
+      }
+      ad_routing_recipients: {
+        Args: never
+        Returns: {
+          company_id: string
+          user_id: string
+        }[]
+      }
       admin_complete_invitation: {
         Args: {
           _access_role?: string

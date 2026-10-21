@@ -23,7 +23,7 @@ export function AllAssigned() {
   const [q, setQ] = useState(''), [view, setView] = useState<'pending' | 'moved' | 'all'>('pending'), [source, setSource] = useState(''), [stageF, setStageF] = useState(''), [from, setFrom] = useState(''), [to, setTo] = useState('');
   const [page, setPage] = useState(0), [selected, setSelected] = useState<string[]>([]), [open, setOpen] = useState<string | null>(null);
   const [target, setTarget] = useState<string[] | null>(null), [stageId, setStageId] = useState(''), [outcome, setOutcome] = useState<'won' | 'lost' | ''>(''), [busy, setBusy] = useState(false);
-  const stagesFor = (l: Lead): BoardStage[] => (l.company_id ? data.companyStages.find(c => c.company_id === l.company_id)?.stages : data.personalStages) || [];
+  const stagesFor = (l: Lead): BoardStage[] => (l.company_id && !l.private_owner_id ? data.companyStages.find(c => c.company_id === l.company_id)?.stages : data.personalStages) || [];
   const assigned = useMemo(() => (data.leads as Lead[]).filter(l => l.assigned_to === data.userId && l.created_by !== data.userId), [data]);
   const stageName = (l: Lead) => { const st = stagesFor(l), id = boardStageId(l, st); const s = st.find(x => x.id === id); return s ? stageLabel(s) + (['won', 'lost'].includes(l.status) ? ` (${l.status === 'won' ? 'Won' : 'Lost'})` : '') : '—'; };
   const srcName = (id: string | null) => data.sources.find(s => s.id === id)?.name || '—';
