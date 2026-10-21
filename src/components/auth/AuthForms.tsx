@@ -116,7 +116,7 @@ export function LoginForm() {
 
   const social = async (provider: "google") => {
     setLoading(provider);
-    const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: PUBLIC_APP_URL });
+    const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
     if (result.error) {
       setLoading(null);
       toast.error("This sign-in method is not available right now.");
