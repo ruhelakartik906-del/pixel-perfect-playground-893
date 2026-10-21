@@ -11,6 +11,15 @@ export function canMoveStatus(stages: BoardStage[], index: number, delta: -1 | 1
   const item = stages[index], target = stages[index + delta];
   return !!item && !!target && !item.board_initial && !target.board_initial;
 }
+export function reorderStatuses(stages: BoardStage[], sourceId: string, targetId: string) {
+  const from = stages.findIndex(s => s.id === sourceId), to = stages.findIndex(s => s.id === targetId);
+  const source = stages[from], target = stages[to];
+  if (!source || !target || from === to || source.board_initial || target.board_initial || source.pipeline_id !== target.pipeline_id) return null;
+  const next = [...stages];
+  next.splice(from, 1);
+  next.splice(to, 0, source);
+  return next;
+}
 export function boardDateMatches(iso: string, from: string, to: string) {
   const day = localDay(new Date(iso)); return (!from || day >= from) && (!to || day <= to);
 }

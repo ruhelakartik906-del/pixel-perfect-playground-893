@@ -39,6 +39,7 @@
   --color-cyan: var(--cyan);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
+  --color-status-action: var(--status-action);
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --color-chart-1: var(--chart-1);
@@ -142,6 +143,17 @@
   --shadow-cta: 0 10px 24px -8px oklch(0.53 0.21 263 / 0.55);
   --gradient-leads: linear-gradient(100deg, #bbdfce, #d3efde 55%, #f0f8ee);
   --leads-banner-border: #bad8c5;
+  --status-action: #008368;
+  --status-swatch-blue: #dbeafe;
+  --status-swatch-purple: #e9d5ff;
+  --status-swatch-yellow: #fef3c7;
+  --status-swatch-mint: #d1fae5;
+  --status-swatch-pink: #fce7f3;
+  --status-swatch-green: #bbf7d0;
+  --status-swatch-red: #fecaca;
+  --status-swatch-orange: #fed7aa;
+  --status-swatch-lavender: #e0e7ff;
+  --status-swatch-gray: #f3f4f6;
 }
 
 @layer base {
@@ -253,3 +265,18 @@
 .leads-banner h1 { font-size: 2.25rem; line-height: 1.1; }
 .leads-banner p { font-size: 1.125rem; margin-top: .5rem; }
 .lead-stage-label { min-width: 150px; text-align: center; border-radius: .375rem; font-size: 1rem; }
+.status-color-swatch[data-color="0"] { background: var(--status-swatch-blue); }
+.status-color-swatch[data-color="1"] { background: var(--status-swatch-purple); }
+.status-color-swatch[data-color="2"] { background: var(--status-swatch-yellow); }
+.status-color-swatch[data-color="3"] { background: var(--status-swatch-mint); }
+.status-color-swatch[data-color="4"] { background: var(--status-swatch-pink); }
+.status-color-swatch[data-color="5"] { background: var(--status-swatch-green); }
+.status-color-swatch[data-color="6"] { background: var(--status-swatch-red); }
+.status-color-swatch[data-color="7"] { background: var(--status-swatch-orange); }
+.status-color-swatch[data-color="8"] { background: var(--status-swatch-lavender); }
+.status-color-swatch[data-color="9"] { background: var(--status-swatch-gray); }
+.status-color-swatch[aria-pressed="true"] { border-color: var(--primary); }
+.status-dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; }
+@media (max-width: 639px) {
+  .lead-stage-label { min-width: 0; }
+}
