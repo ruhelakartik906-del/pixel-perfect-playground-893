@@ -14,7 +14,7 @@
 - Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
 - Master Admin uses protected admin routes, shared nav/UI, a role guard and fallback splat — why: authorized access and working links.
 - First Super Admin provisioning uses only private secrets via `provision-admin.functions.ts` and stops once one exists; logins share authenticated `auth-access.functions.ts` with stored roles/status — why: public signup cannot grant privileges, and blocked/pending checks precede role redirects.
-- Leads use locked RPCs and owner/company scope; idempotent Admin manual assignment preserves creator and private recipient, separately from ad eligibility/quotas — why: active Clients/Employees can receive leads without wider access.
+- Leads use locked scoped RPCs and idempotent manual assignments; Admin routing lists refresh canonical reads and project saved details without duplicate storage — why: private delivery/history stay separate from ad quotas.
 - Sales uses separate catalog/customers, `can_manage_sales`, private images and stable full pagination in six-connection batches — why: scoped access and complete totals.
 - Financial writes use the `sales_financial_action` database RPC through an authenticated server function; issued invoices are immutable snapshots and payment/credit actions lock the invoice — why: balances and audit records must be atomic under concurrent actions.
 - Permission roles (`access_roles` + `user_access_roles`) are separate from the system `user_roles` enum; the permission catalog lives in `src/lib/permissions.ts` — why: custom roles must never grant system privileges.
