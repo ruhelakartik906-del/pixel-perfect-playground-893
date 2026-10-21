@@ -1,6 +1,11 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { boardMoveSchema, statusActionSchema } from './leads-board';
+export const loadLeadStatusAccess = createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
+  const allowed = async(action:string)=>{const result=await context.supabase.rpc('lead_status_allowed',{_action:action});if(result.error)throw new Error('Status permissions could not be verified');return result.data===true;};
+  const [create,edit,remove]=await Promise.all(['create','edit','delete'].map(allowed));
+  return {create:!!create,edit:!!edit,delete:!!remove};
+});
 export const moveBoardLead = createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((input:unknown)=>boardMoveSchema.parse(input)).handler(async({data,context})=>{
   const result=await context.supabase.rpc('lead_board_move',{_id:data.id,_updated_at:data.updated_at,_stage:data.stage_id,...(data.outcome ? {_outcome:data.outcome} : {})});
   if(result.error) throw new Error(result.error.message); return result.data;
