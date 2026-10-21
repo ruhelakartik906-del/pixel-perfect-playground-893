@@ -617,6 +617,13 @@
       "when": 1792596191668,
       "tag": "0087_secure_assigned_board_move_timestamp",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1792596938484,
+      "tag": "0088_unified_crm_attendance_roster",
+      "breakpoints": true
     }
   ]
 }

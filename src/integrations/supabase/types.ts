@@ -183,6 +183,42 @@ export type Database = {
           },
         ]
       }
+      attendance_roster_exclusions: {
+        Row: {
+          excluded: boolean
+          updated_at: string
+          updated_by: string
+          user_id: string
+        }
+        Insert: {
+          excluded?: boolean
+          updated_at?: string
+          updated_by: string
+          user_id: string
+        }
+        Update: {
+          excluded?: boolean
+          updated_at?: string
+          updated_by?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_roster_exclusions_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_roster_exclusions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_executions: {
         Row: {
           action_plan: Json | null
@@ -3193,6 +3229,7 @@ export type Database = {
           created_at: string
           id: string
           owner_id: string
+          status: string
         }
         Insert: {
           attendance_date: string
@@ -3201,6 +3238,7 @@ export type Database = {
           created_at?: string
           id?: string
           owner_id?: string
+          status?: string
         }
         Update: {
           attendance_date?: string
@@ -3209,6 +3247,7 @@ export type Database = {
           created_at?: string
           id?: string
           owner_id?: string
+          status?: string
         }
         Relationships: []
       }
@@ -4586,6 +4625,11 @@ export type Database = {
         }
         Returns: string
       }
+      attendance_account_active: { Args: { _user: string }; Returns: boolean }
+      attendance_roster_action: {
+        Args: { _excluded: boolean; _user: string }
+        Returns: undefined
+      }
       automation_delay_schedule: { Args: never; Returns: undefined }
       automation_execute_lead: { Args: { _lead: string }; Returns: undefined }
       automation_execute_lead_event: {
@@ -4634,6 +4678,7 @@ export type Database = {
         Args: { _items: Json; _mode: string }
         Returns: Json
       }
+      crm_attendance_workspace: { Args: { _month?: string }; Returns: Json }
       crm_work_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
