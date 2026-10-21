@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronDown, ChevronLeft, ChevronRight, LogOut, UserRound } from "lucide-react";
 import { adminNav } from "./nav";
 import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button';
 
 export function AdminSidebar({ collapsed, onToggle, onLogout, onNavigate }: {
   collapsed: boolean; onToggle?: () => void; onLogout: () => void; onNavigate?: () => void;
@@ -11,8 +12,9 @@ export function AdminSidebar({ collapsed, onToggle, onLogout, onNavigate }: {
   const aliases: Record<string, string> = { "hrm/branch": "hrm/branches", "hrm/designation": "hrm/designations", "hrm/holiday": "hrm/holidays", "hrm/leave": "hrm/leave-management", "hrm/calendar": "hrm/hr-calendar", "hrm/meeting": "hrm/meetings", "hrm/announcement": "hrm/announcements", "hrm/document": "hrm/documents" };
   const path = pathname.replace(/^\/admin\/?/, "");
   const current = aliases[path] ?? path;
-  const activeGroup = adminNav.find((grp) => grp.items.some((i) => i.path === current))?.label;
+  const activeGroup = adminNav.find((grp) => grp.items.some((i) => i.path === current || i.children?.some(c=>c.path===current)))?.label;
   const [open, setOpen] = useState<string | undefined>(activeGroup);
+  const [leadsOpen,setLeadsOpen] = useState(true);
 
   return (
     <div className="flex h-full flex-col bg-admin-sidebar text-sidebar-foreground">
@@ -54,6 +56,7 @@ export function AdminSidebar({ collapsed, onToggle, onLogout, onNavigate }: {
               <div className={cn("grid transition-all duration-300", isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
                 <div className="ml-6 overflow-hidden border-l border-sidebar-border pl-3">
                   {grp.items.map((it) => (
+                    it.children ? <div key={it.path}><Button variant="ghost" className="my-1 h-auto w-full justify-between px-4 py-2.5 text-sidebar-foreground hover:bg-admin-sidebar-muted hover:text-sidebar-foreground" onClick={()=>setLeadsOpen(!leadsOpen)}>Leads{leadsOpen?<ChevronDown className="size-4"/>:<ChevronRight className="size-4"/>}</Button>{leadsOpen&&<div className="ml-3 border-l border-sidebar-border pl-2">{it.children.map(child=><Link key={child.path} to="/admin/$" params={{_splat:child.path}} onClick={onNavigate} className={cn('my-1 block rounded-md px-3 py-2 text-sm font-medium',current===child.path?'bg-admin-blue text-primary-foreground':'text-sidebar-foreground/80 hover:bg-admin-sidebar-muted')}>{child.label}</Link>)}</div>}</div> :
                     <Link key={it.path} to="/admin/$" params={{ _splat: it.path }} onClick={onNavigate}
                       className={cn("my-1 block rounded-xl px-4 py-2.5 text-[15px] font-medium transition-colors",
                         current === it.path ? "bg-admin-blue text-primary-foreground" : "text-sidebar-foreground/80 hover:bg-admin-sidebar-muted hover:text-sidebar-foreground")}>
