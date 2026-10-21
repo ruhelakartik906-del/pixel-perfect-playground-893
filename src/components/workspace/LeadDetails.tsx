@@ -13,6 +13,7 @@ import { updateUserLead, type UserCrmData } from '@/lib/user-crm.functions';
 import { userCrmQuery } from '@/lib/user-crm-query';
 import { saveCrmWork } from '@/lib/crm-work.functions';
 import { scheduleUtc, workSchema } from '@/lib/crm-work';
+import { stageLabel } from '@/lib/leads-board';
 import { UserPick, userDate } from './UserCrmUi';
 type Lead = UserCrmData['leads'][number];
 export function LeadDetails({ lead, data, close }: { lead: Lead; data: UserCrmData; close: () => void }) {
@@ -20,7 +21,7 @@ export function LeadDetails({ lead, data, close }: { lead: Lead; data: UserCrmDa
   const [note, setNote] = useState(''), [editing, setEditing] = useState(false), [busy, setBusy] = useState(false), [scheduling, setScheduling] = useState(false), [when, setWhen] = useState(''), [type, setType] = useState('call'), [title, setTitle] = useState('');
   const [form, setForm] = useState({ customer_name: lead.customer_name, phone: lead.phone, email: lead.email, business_name: lead.business_name, business_category: lead.business_category, region: lead.region, requirements: lead.requirements, interest_level: lead.interest_level });
   const links = contactLinks(lead.phone), answers = formEntries(lead.form_answers);
-  const stages = data.stages.filter(s => s.is_active && s.pipeline_id === lead.pipeline_id);
+  const stages = data.stages.filter(s => s.is_active && s.pipeline_id === lead.pipeline_id).map(s=>({...s,name:stageLabel(s)}));
   const callAction = async (action: 'note' | 'stage' | 'status' | 'details', payload: z.infer<typeof userLeadActionSchema>['payload']) => {
     setBusy(true); try { await update({ data: { id: lead.id, updated_at: lead.updated_at, action, payload } }); await qc.invalidateQueries({ queryKey: userCrmQuery.queryKey }); setNote(''); setEditing(false); toast.success('Lead saved'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Could not save'); } finally { setBusy(false); }
   };

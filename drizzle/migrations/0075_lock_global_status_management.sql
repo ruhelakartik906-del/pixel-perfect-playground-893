@@ -1,0 +1,4 @@
+CREATE OR REPLACE FUNCTION public.lead_status_allowed(_action text) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT auth.uid() IS NOT NULL AND _action IN ('create','edit','delete','reorder') AND EXISTS(SELECT 1 FROM public.profiles WHERE id=auth.uid() AND account_status='active') AND coalesce(public.routing_admin(),false) $$;
+REVOKE ALL ON FUNCTION public.lead_status_allowed(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lead_status_allowed(text) TO authenticated,service_role;
+COMMENT ON FUNCTION public.lead_status_allowed(text) IS 'Global setup is Admin-only. User status management uses company-scoped lead_company_status_action.';

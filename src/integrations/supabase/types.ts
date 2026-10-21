@@ -542,6 +542,51 @@ export type Database = {
         }
         Relationships: []
       }
+      company_lead_status: {
+        Row: {
+          color: string
+          company_id: string
+          hidden: boolean
+          is_default: boolean
+          label: string
+          position: number
+          stage_id: string
+        }
+        Insert: {
+          color: string
+          company_id: string
+          hidden?: boolean
+          is_default?: boolean
+          label: string
+          position: number
+          stage_id: string
+        }
+        Update: {
+          color?: string
+          company_id?: string
+          hidden?: boolean
+          is_default?: boolean
+          label?: string
+          position?: number
+          stage_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_lead_status_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_lead_status_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "crm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_members: {
         Row: {
           company_id: string
@@ -797,6 +842,7 @@ export type Database = {
           board_initial: boolean
           board_label: string | null
           color: string
+          company_id: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -810,6 +856,7 @@ export type Database = {
           board_initial?: boolean
           board_label?: string | null
           color?: string
+          company_id?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -823,6 +870,7 @@ export type Database = {
           board_initial?: boolean
           board_label?: string | null
           color?: string
+          company_id?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -832,6 +880,13 @@ export type Database = {
           position?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "crm_stages_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "crm_stages_pipeline_id_fkey"
             columns: ["pipeline_id"]
@@ -4600,6 +4655,12 @@ export type Database = {
         }
         Returns: string
       }
+      lead_company_allowed: { Args: { _company: string }; Returns: boolean }
+      lead_company_stages: { Args: { _company: string }; Returns: Json }
+      lead_company_status_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
       lead_status_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
@@ -4687,6 +4748,11 @@ export type Database = {
       }
       support_admin: { Args: never; Returns: boolean }
       template_scope: { Args: { _company: string }; Returns: boolean }
+      user_board_lead_create: { Args: { _payload: Json }; Returns: string }
+      user_board_lead_delete: {
+        Args: { _id: string; _updated_at: string }
+        Returns: string
+      }
       user_checklist_valid: { Args: { _list: Json }; Returns: boolean }
       user_commercial_allowed: {
         Args: { _permission: string }

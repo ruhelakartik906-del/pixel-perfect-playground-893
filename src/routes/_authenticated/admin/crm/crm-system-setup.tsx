@@ -15,7 +15,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { canDelete, dealColumnCatalog, leadColumnCatalog, moveItem, type OptionCategory, type StageKind } from "@/lib/crm-config";
 import { cn } from "@/lib/utils";
-import { LeadStatus } from '@/components/pipeline/LeadStatus';
 
 export const Route = createFileRoute("/_authenticated/admin/crm/crm-system-setup")({
   head: () => ({ meta: [
@@ -85,7 +84,6 @@ function SetupPage() {
         <Card className="p-5">
           {isLoading ? <p className="py-20 text-center text-muted-foreground">Loading configuration…</p>
             : error ? <EmptyState title="Could not load configuration" hint={(error as Error).message} />
-            : section === "lead_stages" ? <LeadStatus admin />
             : section === "list_view" ? <ListViewSettings views={data!.views} />
             : <ConfigTable key={section} section={section} title={title} data={data!} />}
         </Card>
