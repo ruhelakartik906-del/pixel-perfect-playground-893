@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import {
   ArrowLeft, Ban, Camera, Check, CheckCheck, FileText, IdCard, Image as ImageIcon,
-  MessageCirclePlus, Mic, MoreVertical, Paperclip, Phone, Plus, Search, Send, ShieldAlert, Smile, UserPlus, X,
+  MessageCirclePlus, Mic, MoreVertical, Paperclip, Phone, Plus, Search, Send, ShieldCheck, Smile, UserPlus, X,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { waContactInput } from '@/lib/messaging';
 import { cn } from '@/lib/utils';
 
 export type WaConversation = {
@@ -29,10 +31,13 @@ export type WaChatMessage = {
   status?: string;
 };
 
+export type WaContactForm = { name: string; countryCode: string; phone: string };
+
 type Props = {
   me: { name: string; role: string };
   conversations: WaConversation[];
   connected: boolean;
+  connectedPhone?: string | null | undefined;
   loading?: boolean;
   error?: string | null;
   selectedId: string;
@@ -42,6 +47,9 @@ type Props = {
   messagesError?: string | null;
   emptyNote?: string;
   className?: string;
+  onCheckConnection: () => Promise<boolean>;
+  checkingConnection?: boolean;
+  onAddContact: (input: WaContactForm) => Promise<void>;
 };
 
 const AVATAR_COLORS = ['bg-admin-blue', 'bg-admin-green', 'bg-admin-purple', 'bg-admin-orange', 'bg-admin-pink'] as const;
@@ -61,120 +69,70 @@ const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: 'n
 
 const EMOJIS = ['😀', '😁', '😂', '🤣', '😊', '😍', '😘', '😎', '🤔', '👍', '👎', '🙏', '👏', '💪', '🎉', '🔥', '❤️', '💯', '✅', '⭐', '📅', '📞', '📎', '💼'];
 
-const now = () => new Date().toISOString();
-const minsAgo = (m: number) => new Date(Date.now() - m * 60000).toISOString();
-
-const DEMO_CONVERSATIONS: WaConversation[] = [
-  { id: 'demo-wa-business', name: 'WhatsApp Business', phone: '+1 (646) 589-4168', preview: 'You received a one-time passcode…', at: minsAgo(40), unread: 0, kind: 'business', favorite: true },
-  { id: 'demo-priya', name: 'Priya Sharma', phone: '+91 98110 22334', preview: 'Please send the updated quote', at: minsAgo(95), unread: 2, kind: 'contact', favorite: true },
-  { id: 'demo-rahul', name: 'Rahul Verma', phone: '+91 99871 45502', preview: 'Voice call', at: minsAgo(60 * 26), unread: 0, kind: 'contact' },
-  { id: 'demo-acme', name: 'Acme Traders · Orders', phone: '+91 11 4155 8890', preview: 'Amit: Order confirmed for Friday', at: minsAgo(60 * 27), unread: 5, kind: 'group' },
-  { id: 'demo-neha', name: 'Neha Kapoor', phone: '+91 98300 11223', preview: 'Ok, thank you!', at: minsAgo(60 * 30), unread: 0, kind: 'contact' },
-  { id: 'demo-elite', name: 'Elite Interiors · Website', phone: '+91 22 4890 7711', preview: 'Nitin: Ok', at: minsAgo(60 * 31), unread: 13, kind: 'group' },
-];
-
-const DEMO_MESSAGES: Record<string, WaChatMessage[]> = {
-  'demo-wa-business': [
-    { id: 'd1', direction: 'system', body: 'This business uses a secure service from Meta to manage this chat. Click to learn more.', at: minsAgo(45) },
-    { id: 'd2', direction: 'inbound', body: 'You received a one-time passcode. For added security, you can only see it on your primary device for WhatsApp.', at: minsAgo(44) },
-    { id: 'd3', direction: 'system', body: 'This business is now using a secure service from Meta to manage this chat.', at: minsAgo(40) },
-  ],
-  'demo-priya': [
-    { id: 'd1', direction: 'inbound', body: 'Hi! Did you get a chance to review the proposal?', at: minsAgo(120) },
-    { id: 'd2', direction: 'outbound', body: 'Yes, reviewing it today and will revert by evening.', at: minsAgo(110), status: 'read' },
-    { id: 'd3', direction: 'inbound', body: 'Please send the updated quote', at: minsAgo(95) },
-  ],
-  'demo-rahul': [
-    { id: 'd1', direction: 'system', body: 'Voice call · 4 min', at: minsAgo(60 * 26) },
-  ],
-  'demo-acme': [
-    { id: 'd1', direction: 'inbound', body: 'Amit: Order confirmed for Friday', at: minsAgo(60 * 27) },
-    { id: 'd2', direction: 'outbound', body: 'Great, dispatching on Thursday.', at: minsAgo(60 * 27) , status: 'delivered' },
-  ],
-  'demo-neha': [
-    { id: 'd1', direction: 'outbound', body: 'Sharing the brochure shortly.', at: minsAgo(60 * 31), status: 'read' },
-    { id: 'd2', direction: 'inbound', body: 'Ok, thank you!', at: minsAgo(60 * 30) },
-  ],
-  'demo-elite': [
-    { id: 'd1', direction: 'inbound', body: 'Nitin: Ok', at: minsAgo(60 * 31) },
-  ],
-};
-
-const DEMO_NEW_CONTACTS: WaConversation[] = [
-  { id: 'demo-new-arjun', name: 'Arjun Mehta', phone: '+91 98220 33445', kind: 'contact' },
-  { id: 'demo-new-sana', name: 'Sana Sheikh', phone: '+91 90040 55667', kind: 'contact' },
-  { id: 'demo-new-builders', name: 'City Builders · Site Team', phone: '+91 80 4123 9090', kind: 'group' },
-];
+const COUNTRY_CODES = ['+91', '+1', '+44', '+971', '+65', '+61', '+880', '+92', '+94', '+966'];
 
 function Tick({ status }: { status?: string | undefined }) {
-  if (status === 'demo') return <span className="ml-1 text-[10px] italic text-muted-foreground">demo · not sent</span>;
   if (status === 'read') return <CheckCheck className="size-3.5 text-wa-tick" />;
   if (status === 'delivered') return <CheckCheck className="size-3.5 text-muted-foreground" />;
   return <Check className="size-3.5 text-muted-foreground" />;
 }
 
 export function WhatsAppWebChat(p: Props) {
-  const demoMode = !p.connected;
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<'all' | 'unread' | 'favorites' | 'groups'>('all');
-  const [demoConvs, setDemoConvs] = useState<WaConversation[]>(DEMO_CONVERSATIONS);
-  const [demoMsgs, setDemoMsgs] = useState<Record<string, WaChatMessage[]>>(DEMO_MESSAGES);
-  const [demoSel, setDemoSel] = useState('');
   const [draft, setDraft] = useState('');
   const [attachOpen, setAttachOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
-  const [newChatOpen, setNewChatOpen] = useState(false);
-  const [newChatQ, setNewChatQ] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [connectStep, setConnectStep] = useState<'phone' | 'verify'>('phone');
+  const [connectForm, setConnectForm] = useState<WaContactForm>({ name: '', countryCode: '+91', phone: '' });
+  const [addOpen, setAddOpen] = useState(false);
+  const [addForm, setAddForm] = useState<WaContactForm>({ name: '', countryCode: '+91', phone: '' });
+  const [saving, setSaving] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const selectedIsDemo = demoMode && !!demoSel && !p.selectedId;
-  const real = useMemo(() => p.conversations.filter((c) => (!q || `${c.name} ${c.phone}`.toLowerCase().includes(q.toLowerCase())) && (filter === 'all' || (filter === 'unread' ? (c.unread ?? 0) > 0 : filter === 'favorites' ? c.favorite : c.kind === 'group'))), [p.conversations, q, filter]);
-  const demos = useMemo(() => demoConvs.filter((c) => (!q || `${c.name} ${c.phone}`.toLowerCase().includes(q.toLowerCase())) && (filter === 'all' || (filter === 'unread' ? (c.unread ?? 0) > 0 : filter === 'favorites' ? c.favorite : c.kind === 'group'))), [demoConvs, q, filter]);
-
-  const selectedReal = p.conversations.find((c) => c.id === p.selectedId) ?? null;
-  const selectedDemo = demoConvs.find((c) => c.id === demoSel) ?? null;
-  const active = selectedReal ?? selectedDemo;
+  const conversations = p.conversations.filter((c) => (!q || `${c.name} ${c.phone}`.toLowerCase().includes(q.toLowerCase())) && (filter === 'all' || (filter === 'unread' ? (c.unread ?? 0) > 0 : filter === 'favorites' ? c.favorite : c.kind === 'group')));
+  const active = p.conversations.find((c) => c.id === p.selectedId) ?? null;
   const anySelected = !!active;
+  const canSend = p.connected && !!active;
 
-  const activeMessages: WaChatMessage[] = selectedReal ? p.messages : (demoMsgs[demoSel] ?? []);
-  const activeLoading = selectedReal ? p.messagesLoading : false;
-  const activeError = selectedReal ? p.messagesError : null;
+  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }); }, [p.messages.length, p.selectedId]);
+  useEffect(() => { setDetailsOpen(false); setMenuOpen(false); setDraft(''); }, [p.selectedId]);
 
-  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }); }, [activeMessages.length, p.selectedId, demoSel]);
-  useEffect(() => { setDetailsOpen(false); setMenuOpen(false); setDraft(''); }, [p.selectedId, demoSel]);
+  const select = (c: WaConversation) => { setMenuOpen(false); p.onSelect(c.id); };
 
-  const select = (c: WaConversation, isDemo: boolean) => {
-    setMenuOpen(false);
-    if (isDemo) {
-      p.onSelect('');
-      setDemoSel(c.id);
-      setDemoConvs((cs) => cs.map((x) => (x.id === c.id ? { ...x, unread: 0 } : x)));
-    } else {
-      setDemoSel('');
-      p.onSelect(c.id);
-    }
+  const openAddNumber = () => { setAddForm({ name: '', countryCode: '+91', phone: '' }); setAddOpen(true); };
+
+  const saveContact = async () => {
+    const parsed = waContactInput.safeParse(addForm);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? 'Check the contact details'); return; }
+    setSaving(true);
+    try {
+      await p.onAddContact(addForm);
+      toast.success(`${addForm.name.trim()} added to WhatsApp chats`);
+      setAddOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Contact could not be saved');
+    } finally { setSaving(false); }
   };
 
-  const sendDemo = () => {
-    const body = draft.trim();
-    if (!body || !selectedDemo) return;
-    setDemoMsgs((m) => ({ ...m, [demoSel]: [...(m[demoSel] ?? []), { id: `local-${Date.now()}`, direction: 'outbound', body, at: now(), status: 'demo' }] }));
-    setDemoConvs((cs) => cs.map((x) => (x.id === demoSel ? { ...x, preview: body, at: now() } : x)));
-    setDraft('');
+  const continueConnect = () => {
+    const parsed = waContactInput.safeParse({ name: 'Business', countryCode: connectForm.countryCode, phone: connectForm.phone });
+    if (!parsed.success) { toast.error('Enter a valid country code and WhatsApp Business number'); return; }
+    setConnectStep('verify');
   };
 
-  const startNewChat = (c: WaConversation) => {
-    setDemoConvs((cs) => (cs.some((x) => x.id === c.id) ? cs : [{ ...c, preview: '', at: now(), unread: 0 }, ...cs]));
-    setDemoMsgs((m) => (m[c.id] ? m : { ...m, [c.id]: [{ id: `sys-${c.id}`, direction: 'system', body: 'Demo conversation started locally. No message is sent to WhatsApp.', at: now() }] }));
-    setNewChatOpen(false);
-    select(c, true);
+  const checkConnection = async () => {
+    const ok = await p.onCheckConnection();
+    if (ok) { toast.success('WhatsApp Business is connected'); setConnectOpen(false); setConnectStep('phone'); }
+    else toast.info('Not connected yet. Complete Meta’s verification in the official WhatsApp Business onboarding, then check again.');
   };
 
   const attachPick = (label: string) => {
     setAttachOpen(false);
-    toast.info(`${label}: preview only. No file is uploaded or sent until WhatsApp Business is connected.`);
+    toast.info(`${label}: preview only. No file is uploaded or sent until WhatsApp Business sending is enabled.`);
   };
 
   const menuAction = (label: string) => {
@@ -182,11 +140,11 @@ export function WhatsAppWebChat(p: Props) {
     toast.info(`${label}: preview only.`);
   };
 
-  const row = (c: WaConversation, isDemo: boolean) => (
+  const row = (c: WaConversation) => (
     <button
       key={c.id}
-      onClick={() => select(c, isDemo)}
-      className={cn('flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-muted/60', (isDemo ? demoSel === c.id : p.selectedId === c.id) && 'bg-muted')}
+      onClick={() => select(c)}
+      className={cn('flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-muted/60', p.selectedId === c.id && 'bg-muted')}
     >
       <span className={cn('grid size-11 shrink-0 place-items-center rounded-full text-sm font-bold text-primary-foreground', avatarColor(c.name))}>{initials(c.name)}</span>
       <span className="min-w-0 flex-1">
@@ -196,7 +154,6 @@ export function WhatsAppWebChat(p: Props) {
         </span>
         <span className="mt-0.5 flex items-center gap-1.5">
           <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{c.preview || c.phone}</span>
-          {isDemo && <span className="shrink-0 rounded-full border border-warning/40 bg-warning-soft px-1.5 py-px text-[10px] font-semibold text-warning">Demo</span>}
           {(c.unread ?? 0) > 0 && <span className="grid size-5 shrink-0 place-items-center rounded-full bg-wa-unread text-[11px] font-bold text-primary-foreground">{c.unread}</span>}
         </span>
       </span>
@@ -210,10 +167,17 @@ export function WhatsAppWebChat(p: Props) {
         <header className="flex items-center justify-between px-4 pb-2 pt-4">
           <h2 className="text-xl font-extrabold tracking-tight">WhatsApp</h2>
           <div className="flex items-center gap-1">
-            <button aria-label="New chat" title="New chat" onClick={() => { setNewChatOpen(true); setNewChatQ(''); }} className="grid size-9 place-items-center rounded-full text-wa-icon hover:bg-muted"><MessageCirclePlus className="size-5" /></button>
+            <button aria-label="New chat" title="New chat" onClick={openAddNumber} className="grid size-9 place-items-center rounded-full text-wa-icon hover:bg-muted"><MessageCirclePlus className="size-5" /></button>
             <button aria-label="More options" title="More options" onClick={() => toast.info('Preview only.')} className="grid size-9 place-items-center rounded-full text-wa-icon hover:bg-muted"><MoreVertical className="size-5" /></button>
           </div>
         </header>
+        <div className="px-4 pb-2">
+          {p.connected ? (
+            <Button onClick={openAddNumber} className="w-full bg-admin-blue text-primary-foreground hover:bg-admin-blue/90"><Plus className="size-4" />Add Number</Button>
+          ) : (
+            <Button variant="outline" onClick={() => { setConnectStep('phone'); setConnectForm({ name: '', countryCode: '+91', phone: '' }); setConnectOpen(true); }} className="w-full border-wa-green-deep/40 text-wa-green-deep hover:bg-wa-bubble"><ShieldCheck className="size-4" />Connect WhatsApp Business</Button>
+          )}
+        </div>
         <div className="px-4 pb-2">
           <label className="flex h-10 items-center gap-2 rounded-full bg-muted px-4">
             <Search className="size-4 shrink-0 text-wa-icon" />
@@ -222,24 +186,23 @@ export function WhatsAppWebChat(p: Props) {
           </label>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 px-4 pb-3 pt-1">
-          {([['all', 'All'], ['unread', `Unread${demos.reduce((a, c) => a + (c.unread ?? 0), 0) + real.reduce((a, c) => a + (c.unread ?? 0), 0) ? ` ${demos.reduce((a, c) => a + (c.unread ?? 0), 0) + real.reduce((a, c) => a + (c.unread ?? 0), 0)}` : ''}`], ['favorites', 'Favorites'], ['groups', 'Groups']] as const).map(([k, l]) => (
+          {([['all', 'All'], ['unread', `Unread${p.conversations.reduce((a, c) => a + (c.unread ?? 0), 0) ? ` ${p.conversations.reduce((a, c) => a + (c.unread ?? 0), 0)}` : ''}`], ['favorites', 'Favorites'], ['groups', 'Groups']] as const).map(([k, l]) => (
             <button key={k} onClick={() => setFilter(k)} className={cn('rounded-full border px-3 py-1 text-[13px] font-medium', filter === k ? 'border-wa-green-deep/30 bg-wa-bubble font-semibold text-wa-green-deep' : 'text-muted-foreground hover:bg-muted')}>{l}</button>
           ))}
-          <button aria-label="New chat" title="New chat" onClick={() => { setNewChatOpen(true); setNewChatQ(''); }} className="grid size-7 place-items-center rounded-full border text-muted-foreground hover:bg-muted"><Plus className="size-4" /></button>
+          <button aria-label="New chat" title="New chat" onClick={openAddNumber} className="grid size-7 place-items-center rounded-full border text-muted-foreground hover:bg-muted"><Plus className="size-4" /></button>
         </div>
-        {demoMode && (
+        {!p.connected && (
           <div className="mx-4 mb-2 flex items-start gap-2 rounded-lg border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-warning">
-            <ShieldAlert className="mt-0.5 size-4 shrink-0" />
-            <p><b>Demo data.</b> WhatsApp Business is not connected — no real messages are sent or received. Connect it to see live chats here.</p>
+            <ShieldCheck className="mt-0.5 size-4 shrink-0" />
+            <p><b>Not connected.</b> Add client numbers and preview chats now — real messages only flow after WhatsApp Business is connected and verified.</p>
           </div>
         )}
         <div className="flex-1 overflow-y-auto">
           {p.loading ? <p className="p-6 text-center text-sm text-muted-foreground">Loading chats…</p>
             : p.error ? <p role="alert" className="p-6 text-center text-sm text-destructive">{p.error}</p>
             : (<>
-                {demos.map((c) => row(c, true))}
-                {real.map((c) => row(c, false))}
-                {!demos.length && !real.length && <p className="p-8 text-center text-sm text-muted-foreground">{p.emptyNote ?? 'No chats found'}</p>}
+                {conversations.map((c) => row(c))}
+                {!conversations.length && <p className="p-8 text-center text-sm text-muted-foreground">{p.emptyNote ?? 'No chats yet. Add a client number to start.'}</p>}
               </>)}
         </div>
       </aside>
@@ -250,16 +213,16 @@ export function WhatsAppWebChat(p: Props) {
           <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-wa-panel p-10 text-center">
             <span className="grid size-24 place-items-center rounded-full bg-wa-bubble"><MessageCirclePlus className="size-12 text-wa-green-deep" strokeWidth={1.4} /></span>
             <h2 className="text-3xl font-light text-foreground">Routiva WhatsApp Chats</h2>
-            <p className="max-w-md text-sm text-muted-foreground">Send and receive WhatsApp messages with your leads and customers without leaving the CRM.{demoMode && ' Showing demo chats until WhatsApp Business is connected.'}</p>
+            <p className="max-w-md text-sm text-muted-foreground">Send and receive WhatsApp messages with your leads and customers without leaving the CRM.{p.connected ? ` Connected as ${p.connectedPhone ?? 'your business number'}.` : ' Connect WhatsApp Business to enable live messaging.'}</p>
             <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground"><Check className="size-3.5 text-wa-green-deep" />End-to-end encrypted</p>
           </div>
         ) : (<>
           <header className="flex h-16 shrink-0 items-center gap-3 border-b bg-wa-panel px-3">
-            <button aria-label="Back to chats" className="grid size-9 place-items-center rounded-full text-wa-icon hover:bg-muted md:hidden" onClick={() => { setDemoSel(''); p.onSelect(''); }}><ArrowLeft className="size-5" /></button>
+            <button aria-label="Back to chats" className="grid size-9 place-items-center rounded-full text-wa-icon hover:bg-muted md:hidden" onClick={() => p.onSelect('')}><ArrowLeft className="size-5" /></button>
             <button onClick={() => setDetailsOpen(true)} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1 py-1 text-left hover:bg-muted/60">
               <span className={cn('grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold text-primary-foreground', avatarColor(active.name))}>{initials(active.name)}</span>
               <span className="min-w-0">
-                <span className="flex items-center gap-2"><b className="truncate">{active.name}</b>{selectedIsDemo && <span className="shrink-0 rounded-full border border-warning/40 bg-warning-soft px-1.5 py-px text-[10px] font-semibold text-warning">Demo</span>}</span>
+                <span className="flex items-center gap-2"><b className="truncate">{active.name}</b></span>
                 <span className="block truncate text-xs text-muted-foreground">{active.kind === 'group' ? 'Group · tap for info' : active.phone}</span>
               </span>
             </button>
@@ -277,15 +240,15 @@ export function WhatsAppWebChat(p: Props) {
             </div>
           </header>
 
-          {selectedReal?.leadTo && selectedReal.leadLabel && (
-            <div className="border-b bg-wa-panel px-4 py-1.5 text-xs"><Link to={selectedReal.leadTo as '/my-leads'} className="font-semibold text-admin-blue hover:underline">{selectedReal.leadLabel} · CRM Lead</Link></div>
+          {active.leadTo && active.leadLabel && (
+            <div className="border-b bg-wa-panel px-4 py-1.5 text-xs"><Link to={active.leadTo as '/my-leads'} className="font-semibold text-admin-blue hover:underline">{active.leadLabel} · CRM Lead</Link></div>
           )}
 
           <div ref={scrollRef} className="bg-wa-chat-pattern flex-1 space-y-2 overflow-y-auto px-4 py-4 md:px-10">
             <p className="mx-auto w-fit rounded-lg bg-wa-panel px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">Today</p>
-            {activeError ? <p role="alert" className="text-center text-sm text-destructive">{activeError}</p>
-              : activeLoading ? <p className="text-center text-sm text-muted-foreground">Loading messages…</p>
-              : activeMessages.map((m) => m.direction === 'system' ? (
+            {p.messagesError ? <p role="alert" className="text-center text-sm text-destructive">{p.messagesError}</p>
+              : p.messagesLoading ? <p className="text-center text-sm text-muted-foreground">Loading messages…</p>
+              : p.messages.map((m) => m.direction === 'system' ? (
                 <p key={m.id} className="mx-auto max-w-md rounded-lg bg-wa-bubble/80 px-4 py-2 text-center text-xs text-muted-foreground shadow-card">{m.body}</p>
               ) : (
                 <div key={m.id} className={cn('flex', m.direction === 'outbound' ? 'justify-end' : 'justify-start')}>
@@ -295,7 +258,7 @@ export function WhatsAppWebChat(p: Props) {
                   </div>
                 </div>
               ))}
-            {!activeLoading && !activeMessages.length && <p className="pt-10 text-center text-sm text-muted-foreground">No messages yet</p>}
+            {!p.messagesLoading && !p.messages.length && <p className="pt-10 text-center text-sm text-muted-foreground">No messages yet</p>}
           </div>
 
           <footer className="relative flex shrink-0 items-center gap-1.5 bg-wa-panel px-3 py-2">
@@ -320,19 +283,19 @@ export function WhatsAppWebChat(p: Props) {
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendDemo(); } }}
-              placeholder={selectedIsDemo ? 'Type a demo message' : 'Type a message'}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); toast.info('Sending requires an active WhatsApp Business connection — this message was not sent.'); } }}
+              placeholder="Type a message"
               aria-label="Message"
-              disabled={!selectedIsDemo}
+              disabled={!canSend}
               className="h-11 min-w-0 flex-1 rounded-full border bg-card px-4 text-[15px] outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/30 disabled:opacity-70"
             />
-            {selectedIsDemo && draft.trim() ? (
-              <button aria-label="Send demo message" title="Send demo message" onClick={sendDemo} className="grid size-11 shrink-0 place-items-center rounded-full bg-wa-green-deep text-primary-foreground hover:opacity-90"><Send className="size-5" /></button>
+            {canSend && draft.trim() ? (
+              <button aria-label="Send message" title="Send message" onClick={() => toast.info('Sending requires the WhatsApp Business integration — this message was not sent.')} className="grid size-11 shrink-0 place-items-center rounded-full bg-wa-green-deep text-primary-foreground hover:opacity-90"><Send className="size-5" /></button>
             ) : (
-              <button aria-label="Voice message" title="Voice message" onClick={() => toast.info(selectedIsDemo ? 'Voice messages: preview only.' : 'Sending requires a verified WhatsApp Business connection.')} className="grid size-11 shrink-0 place-items-center rounded-full text-wa-icon hover:bg-muted"><Mic className="size-5" /></button>
+              <button aria-label="Voice message" title="Voice message" onClick={() => toast.info('Sending requires a verified WhatsApp Business connection.')} className="grid size-11 shrink-0 place-items-center rounded-full text-wa-icon hover:bg-muted"><Mic className="size-5" /></button>
             )}
           </footer>
-          {!selectedIsDemo && (
+          {!canSend && (
             <p className="bg-wa-panel px-4 pb-2 text-center text-xs text-muted-foreground">Sending requires a verified WhatsApp Business connection — messages typed here are not sent.</p>
           )}
 
@@ -349,10 +312,9 @@ export function WhatsAppWebChat(p: Props) {
                   <div>
                     <p className="text-xl font-semibold">{active.name}</p>
                     <p className="text-sm text-muted-foreground">{active.phone}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{active.kind === 'business' ? 'Business account' : active.kind === 'group' ? 'Group chat' : 'Contact'}{selectedIsDemo && ' · Demo contact'}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{active.kind === 'business' ? 'Business account' : active.kind === 'group' ? 'Group chat' : 'Contact'}</p>
                   </div>
                 </div>
-                {selectedIsDemo && <p className="rounded-lg border border-warning/30 bg-warning-soft px-3 py-2 text-center text-xs text-warning">Demo contact — shown for layout preview only.</p>}
                 <div className="space-y-2">
                   <button onClick={() => toast.info('Add to contacts: preview only.')} className="flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium text-wa-green-deep hover:bg-muted"><UserPlus className="size-4" />Add to contacts</button>
                   <button onClick={() => toast.info('Profile: preview only.')} className="flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium text-wa-green-deep hover:bg-muted"><IdCard className="size-4" />Profile</button>
@@ -364,22 +326,72 @@ export function WhatsAppWebChat(p: Props) {
         </>)}
       </main>
 
-      {/* New chat dialog */}
-      <Dialog open={newChatOpen} onOpenChange={setNewChatOpen}>
+      {/* Connect WhatsApp Business dialog */}
+      <Dialog open={connectOpen} onOpenChange={(v) => { setConnectOpen(v); if (!v) setConnectStep('phone'); }}>
         <DialogContent>
-          <DialogHeader><DialogTitle>New chat</DialogTitle></DialogHeader>
-          <label className="flex h-10 items-center gap-2 rounded-full bg-muted px-4">
-            <Search className="size-4 text-wa-icon" />
-            <input value={newChatQ} onChange={(e) => setNewChatQ(e.target.value)} placeholder="Search name or number" aria-label="Search contacts" className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
-          </label>
-          <div className="max-h-72 overflow-y-auto">
-            {DEMO_NEW_CONTACTS.filter((c) => !demoConvs.some((x) => x.id === c.id) && (!newChatQ || `${c.name} ${c.phone}`.toLowerCase().includes(newChatQ.toLowerCase()))).map((c) => (
-              <button key={c.id} onClick={() => startNewChat(c)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-muted">
-                <span className={cn('grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold text-primary-foreground', avatarColor(c.name))}>{initials(c.name)}</span>
-                <span className="min-w-0"><b className="block truncate text-sm">{c.name}</b><span className="block truncate text-xs text-muted-foreground">{c.phone} · Demo contact</span></span>
-              </button>
-            ))}
-            <p className="px-2 py-3 text-xs text-muted-foreground">Demo contacts start a local preview chat only. Real WhatsApp conversations begin once WhatsApp Business is connected.</p>
+          <DialogHeader><DialogTitle>Connect WhatsApp Business</DialogTitle></DialogHeader>
+          {connectStep === 'phone' ? (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Enter the phone number you use for WhatsApp Business. Meta verifies this number with a one-time code during the official onboarding.</p>
+              <div className="flex gap-2">
+                <div className="w-32 shrink-0">
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="wa-cc">Country code</label>
+                  <input id="wa-cc" list="wa-cc-list" value={connectForm.countryCode} onChange={(e) => setConnectForm((f) => ({ ...f, countryCode: e.target.value }))} className="h-10 w-full rounded-md border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30" />
+                  <datalist id="wa-cc-list">{COUNTRY_CODES.map((c) => <option key={c} value={c} />)}</datalist>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="wa-phone">WhatsApp Business number</label>
+                  <input id="wa-phone" inputMode="numeric" placeholder="98110 22334" value={connectForm.phone} onChange={(e) => setConnectForm((f) => ({ ...f, phone: e.target.value.replace(/[^\d ]/g, '') }))} className="h-10 w-full rounded-md border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setConnectOpen(false)}>Cancel</Button>
+                <Button onClick={continueConnect} className="bg-wa-green-deep text-primary-foreground hover:opacity-90">Continue</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm"><b>{connectForm.countryCode} {connectForm.phone}</b></p>
+              <div className="space-y-2 rounded-lg border bg-muted/50 p-3 text-sm text-muted-foreground">
+                <p>WhatsApp sends the one-time verification code to this number directly — by SMS or voice call — during <b>Meta’s official WhatsApp Business onboarding</b> (Lovable → Connectors → WhatsApp Business). The code is never entered in this app, and this app cannot mark the number connected on its own.</p>
+                <p>After you finish Meta’s verification and the number is linked to this app, check the status below.</p>
+              </div>
+              <div className="flex justify-between gap-2">
+                <Button variant="outline" onClick={() => setConnectStep('phone')}>Back</Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => { setConnectOpen(false); setConnectStep('phone'); }}>Cancel</Button>
+                  <Button onClick={checkConnection} disabled={p.checkingConnection} className="bg-wa-green-deep text-primary-foreground hover:opacity-90">{p.checkingConnection ? 'Checking…' : 'Check connection status'}</Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Number dialog */}
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Number</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="wa-add-name">Client Name</label>
+              <input id="wa-add-name" value={addForm.name} onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))} maxLength={100} className="h-10 w-full rounded-md border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30" />
+            </div>
+            <div className="flex gap-2">
+              <div className="w-32 shrink-0">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="wa-add-cc">Country Code</label>
+                <input id="wa-add-cc" list="wa-cc-list" value={addForm.countryCode} onChange={(e) => setAddForm((f) => ({ ...f, countryCode: e.target.value }))} className="h-10 w-full rounded-md border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="wa-add-phone">WhatsApp Number</label>
+                <input id="wa-add-phone" inputMode="numeric" placeholder="98110 22334" value={addForm.phone} onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value.replace(/[^\d ]/g, '') }))} className="h-10 w-full rounded-md border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30" />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">The contact is saved to your WhatsApp chat list only — no message is sent and no personal contacts are imported.</p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setAddOpen(false)} disabled={saving}>Cancel</Button>
+              <Button onClick={saveContact} disabled={saving} className="bg-admin-blue text-primary-foreground hover:bg-admin-blue/90">{saving ? 'Saving…' : 'Save'}</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
