@@ -83,4 +83,56 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
  it('another active user cannot read or edit private leads/statuses',async()=>{const r=await sql`SELECT user_board_lead_create(${sql.json({company_id:null,stage_id:custom,customer_name:'Private',phone:'+919876543210',status:'open'})}) AS id`;created=String(r[0]?.['id']);await sql`INSERT INTO profiles VALUES(${other},'active')`;await sql`SELECT set_config('qa.uid',${other},false)`;expect(((await sql`SELECT lead_personal_stages() AS data`)[0]?.['data'] as Array<Record<string,unknown>>).some(s=>s['id']===custom)).toBe(false);await sql.unsafe('SET ROLE authenticated');expect(await sql`SELECT id FROM leads WHERE id=${created}`).toHaveLength(0);await sql.unsafe('RESET ROLE');await expect(sql`SELECT lead_board_move(${created},(SELECT updated_at FROM leads WHERE id=${created}),${initial},null)`).rejects.toThrow('access denied');await expect(sql`SELECT user_lead_action(${created},(SELECT updated_at FROM leads WHERE id=${created}),'details',${sql.json({customer_name:'Denied'})})`).rejects.toThrow('access denied');await expect(sql`SELECT lead_personal_status_action('edit',${sql.json({pipeline_id:p,id:custom,name:'Denied',color:'#123456'})})`).rejects.toThrow('not found');await sql`SELECT set_config('qa.uid',${user},false)`;await sql.unsafe('SET ROLE authenticated');expect(await sql`SELECT id FROM leads WHERE id=${created}`).toHaveLength(1);await sql.unsafe('RESET ROLE');});
  it.each(['pending','blocked'])('%s cannot read or mutate private workspace',async state=>{await sql`UPDATE profiles SET account_status=${state} WHERE id=${user}`;await expect(sql`SELECT lead_personal_stages()`).rejects.toThrow('access required');await expect(sql`SELECT lead_personal_status_action('create',${sql.json({pipeline_id:p,name:'Denied',color:'#123456'})})`).rejects.toThrow('access denied');await expect(sql`SELECT user_board_lead_delete(${created},(SELECT updated_at FROM leads WHERE id=${created}))`).rejects.toThrow('access denied');await sql.unsafe('SET ROLE authenticated');expect(await sql`SELECT id FROM leads WHERE id=${created}`).toHaveLength(0);await sql.unsafe('RESET ROLE');await sql`UPDATE profiles SET account_status='active' WHERE id=${user}`;});
  it('private lead moves to Won and deletes with unused status removed from both views',async()=>{await sql`SELECT lead_board_move(${created},(SELECT updated_at FROM leads WHERE id=${created}),${closed},'won')`;expect((await sql`SELECT status,stage_id FROM leads WHERE id=${created}`)[0]).toMatchObject({status:'won',stage_id:closed});await sql`SELECT user_board_lead_delete(${created},(SELECT updated_at FROM leads WHERE id=${created}))`;await sql`SELECT lead_personal_status_action('delete',${sql.json({pipeline_id:p,id:custom})})`;expect(((await sql`SELECT lead_personal_stages() AS data`)[0]?.['data'] as Array<Record<string,unknown>>).some(s=>s['id']===custom)).toBe(false);});
+ it('loads unchanged manual assignment migrations in the isolated database',async()=>{
+  await sql.unsafe(`DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon; END IF; END $$;
+  ALTER TABLE profiles ADD COLUMN full_name text,ADD COLUMN email text;
+  ALTER TABLE companies ADD COLUMN name text;
+  ALTER TABLE leads ADD COLUMN intake_source text,ADD COLUMN intake_external_id text,ADD COLUMN created_at timestamptz DEFAULT now();
+  ALTER TABLE lead_assignment_events ADD COLUMN company_id uuid,ADD COLUMN user_id uuid,ADD COLUMN assignment_type text,ADD COLUMN snapshot jsonb,ADD COLUMN actor_id uuid;
+  CREATE UNIQUE INDEX qa_assignment_unique ON lead_assignment_events(lead_id);
+  CREATE TABLE lead_routing_queue(lead_id uuid PRIMARY KEY,reason text);
+  CREATE FUNCTION has_role(uuid,text) RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT EXISTS(SELECT 1 FROM user_roles WHERE user_id=$1 AND role=$2) $$;
+  CREATE FUNCTION routing_eligible(uuid,uuid) RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT EXISTS(SELECT 1 FROM profiles p JOIN company_members m ON m.user_id=p.id JOIN companies c ON c.id=m.company_id WHERE p.id=$1 AND c.id=$2 AND p.account_status='active' AND c.is_active AND NOT has_role(p.id,'client')) $$;
+  INSERT INTO user_roles VALUES('${other}','super_admin');
+  GRANT SELECT ON lead_assignment_events TO authenticated;
+  CREATE POLICY qa_admin_read ON leads FOR SELECT TO authenticated USING(routing_admin());`);
+  await sql.unsafe(readFileSync('drizzle/migrations/0079_secure_manual_routing_assignments.sql','utf8'));
+  await sql.unsafe(readFileSync('drizzle/migrations/0080_exact_private_manual_lead_access.sql','utf8'));
+ });
+ const manualPayload=(target:string|null,phone='9876543210',company:string|null=null)=>({request_id:crypto.randomUUID(),company_id:company,assign_user:target,customer_name:'Manual assignment QA',country_code:'+91',mobile:phone,email:'',business_name:'',business_category:'',address:'',city:'',state:'',service:'Meta Ads',notes:'',source:'Manual',priority:'medium'});
+ async function manualAdmin(){await sql`SELECT set_config('qa.uid',${other},false),set_config('qa.admin','true',false)`;}
+ it.each(['client','employee'])('ACTIVE %s receives one real private assignment, survives reread and remains cross-user private',async role=>{
+  await manualAdmin();await sql`UPDATE user_roles SET role=${role} WHERE user_id=${user}`;
+  const payload=manualPayload(user,role==='client'?'9876543211':'9876543212');
+  const r=await sql`SELECT manual_routing_lead_create(${sql.json(payload)}) AS data`;const id=r[0]?.['data'].id;
+  expect((await sql`SELECT manual_routing_lead_create(${sql.json(payload)}) AS data`)[0]?.['data'].id).toBe(id);
+  expect(await sql`SELECT lead_id FROM lead_assignment_events WHERE lead_id=${id}`).toHaveLength(1);
+  expect((await sql`SELECT assigned_to,created_by,private_owner_id,company_id FROM leads WHERE id=${id}`)[0]).toMatchObject({assigned_to:user,created_by:other,private_owner_id:user,company_id:null});
+  await sql`SELECT set_config('qa.uid',${user},false),set_config('qa.admin','false',false)`;
+  await sql.unsafe('SET ROLE authenticated');expect(await sql`SELECT id FROM leads WHERE id=${id}`).toHaveLength(1);expect(await sql`SELECT id FROM leads WHERE id=${id}`).toHaveLength(1);await sql.unsafe('RESET ROLE');
+  await sql`SELECT set_config('qa.uid',${other},false)`;await sql.unsafe('SET ROLE authenticated');expect(await sql`SELECT id FROM leads WHERE id=${id}`).toHaveLength(0);await sql.unsafe('RESET ROLE');
+  await expect(sql`SELECT user_lead_action(${id},(SELECT updated_at FROM leads WHERE id=${id}),'details',${sql.json({customer_name:'Denied'})})`).rejects.toThrow('access denied');
+ });
+ it.each(['pending','blocked'])('excludes %s recipients and atomically leaves no lead or event',async state=>{
+  await manualAdmin();await sql`UPDATE profiles SET account_status=${state} WHERE id=${user}`;
+  const before=(await sql`SELECT count(*)::int AS n FROM leads`)[0]?.['n'];
+  await expect(sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(user,'9876543213'))})`).rejects.toThrow('pending, blocked');
+  expect((await sql`SELECT count(*)::int AS n FROM leads`)[0]?.['n']).toBe(before);
+  expect((await sql`SELECT manual_routing_recipients()`).some(r=>r['user_id']===user)).toBe(false);
+  await sql`UPDATE profiles SET account_status='active' WHERE id=${user}`;
+ });
+ it('Unassigned creates no event or user visibility; later manual assignment creates exactly one',async()=>{
+  await manualAdmin();const r=await sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(null,'9876543214'))}) AS data`;const id=r[0]?.['data'].id;
+  expect(await sql`SELECT lead_id FROM lead_assignment_events WHERE lead_id=${id}`).toHaveLength(0);expect(await sql`SELECT lead_id FROM lead_routing_queue WHERE lead_id=${id}`).toHaveLength(1);
+  await sql`SELECT set_config('qa.uid',${user},false),set_config('qa.admin','false',false)`;await sql.unsafe('SET ROLE authenticated');expect(await sql`SELECT id FROM leads WHERE id=${id}`).toHaveLength(0);await sql.unsafe('RESET ROLE');
+  await manualAdmin();expect((await sql`SELECT manual_routing_lead_assign(${id},${user}) AS data`)[0]?.['data'].status).toBe('assigned');expect((await sql`SELECT manual_routing_lead_assign(${id},${user}) AS data`)[0]?.['data'].status).toBe('unchanged');
+  expect(await sql`SELECT lead_id FROM lead_assignment_events WHERE lead_id=${id}`).toHaveLength(1);expect(await sql`SELECT lead_id FROM lead_routing_queue WHERE lead_id=${id}`).toHaveLength(0);
+ });
+ it('company assignment requires membership and preserves automatic Client exclusion',async()=>{
+  await manualAdmin();await sql`UPDATE user_roles SET role='client' WHERE user_id=${user}`;
+  expect((await sql`SELECT routing_eligible(${user},${p}) AS allowed`)[0]?.['allowed']).toBe(false);
+  expect((await sql`SELECT manual_routing_eligible(${user},${p}) AS allowed`)[0]?.['allowed']).toBe(true);
+  await expect(sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(user,'9876543215',other))})`).rejects.toThrow('unauthorized');
+  const r=await sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(user,'9876543215',p))}) AS data`;expect((await sql`SELECT company_id,private_owner_id FROM leads WHERE id=${r[0]?.['data'].id}`)[0]).toMatchObject({company_id:p,private_owner_id:null});
+ });
 });
