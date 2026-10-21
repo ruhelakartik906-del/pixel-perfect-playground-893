@@ -519,6 +519,13 @@
       "when": 1792572687267,
       "tag": "0073_authorized_user_lead_status",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1792575070925,
+      "tag": "0074_company_user_leads",
+      "breakpoints": true
     }
   ]
 }
