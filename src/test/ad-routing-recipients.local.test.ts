@@ -100,7 +100,7 @@ describe.skipIf(process.env['LEADS_LOCAL_QA'] !== '1')('Ad routing active recipi
   });
   describe('exact quota, overflow, specificity and concurrency', () => {
     let campaignRule: string, adRule: string, videoRule: string;
-    const save = async (name: string, extra: Record<string, string>, steps: unknown[]) => String((await sql`SELECT routing_rule_action('save',${sql.json({company_id:company,name,account_id:'999',status:'active',steps,...extra})}) AS id`)[0]?.['id']);
+    const save = async (name: string, extra: Record<string, string>, steps: { user_id: string; quota: number | null }[]) => String((await sql`SELECT routing_rule_action('save',${sql.json({company_id:company,name,account_id:'999',status:'active',steps,...extra})}) AS id`)[0]?.['id']);
     const lead = async (ext: string, campaign: string, ad = '', creative = '', db = sql) => { const id=crypto.randomUUID(); await db`INSERT INTO leads(id,company_id,created_by,customer_name,meta_account_id,meta_campaign_id,meta_ad_id,meta_creative_id,meta_lead_id,intake_source) VALUES(${id},${company},${admin},'Quota QA','999',${campaign},${ad},${creative},${ext},'facebook')`; return id; };
     const counts = async (id: string) => (await sql`SELECT assigned_count FROM ad_routing_steps WHERE rule_id=${id} ORDER BY position`).map(r => Number(r['assigned_count']));
     beforeAll(async () => {
