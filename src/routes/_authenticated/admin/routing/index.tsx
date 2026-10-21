@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { adRoutingQuery, personLabel, RoutingSelect } from "@/components/admin/AdRouting";
 import { createRoutingLead } from "@/lib/ad-routing.functions";
+import { ManualRoutingLeads } from "@/components/admin/ManualRoutingLeads";
 
 export const Route = createFileRoute("/_authenticated/admin/routing/")({
   head: () => ({ meta: [
@@ -71,6 +72,7 @@ function RoutingOverview() {
         <DataTable columns={columns} />
         <EmptyState title="No routing rules yet" hint="Create a rule for each ad — e.g. first 5 leads to one user, everything after to another." />
       </Card>
+      <ManualRoutingLeads />
       <Dialog open={form !== null} onOpenChange={(v) => { if (!v && !busy) setForm(null); }}>
         <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto">
           <DialogTitle>Create Routing Lead</DialogTitle>

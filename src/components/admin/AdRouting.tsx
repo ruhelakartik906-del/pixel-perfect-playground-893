@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { loadAdRouting, saveAdRouting, changeAdRouting, type AdRoutingData } from "@/lib/ad-routing.functions";
 import { validateAllocations, type Allocation } from "@/lib/routing";
+import { companyRecipients } from "@/lib/routing-records";
 
-export const adRoutingQuery = queryOptions({ queryKey: ["ad-routing"], queryFn: () => loadAdRouting() });
+export const adRoutingQuery = queryOptions({ queryKey: ["ad-routing"], queryFn: () => loadAdRouting(), refetchOnMount: "always" });
 export const personName = (data: AdRoutingData, id: string) => data.people.find((p) => p.id === id)?.full_name || data.people.find((p) => p.id === id)?.email || "Unknown user";
 export const personLabel = (data: AdRoutingData, id: string) => { const p = data.people.find((x) => x.id === id); return p ? `${p.full_name || p.email} (${p.email})` : "Unknown user"; };
 export const eligibilityReason = (data: AdRoutingData, companyId: string) => {
@@ -67,7 +68,9 @@ export function AdRoutingSetup() {
   }
   const filtered = data.rules.filter((r) => (!status || r.status === status) && [r.name, r.account_id, r.campaign_id, r.campaign_name, r.ad_id, r.creative_name].join(" ").toLowerCase().includes(q.toLowerCase()));
   const currentPage = Math.min(page, Math.max(1, Math.ceil(filtered.length / 20)));
-  const update = (key: keyof RuleForm, value: string) => setForm((prev) => prev ? { ...prev, [key]: value } : null);
+  const update = (key: keyof RuleForm, value: string) => setForm((prev) => prev ? { ...prev, [key]: value,
+    ...(key === "company_id" && value !== prev.company_id ? { steps: prev.steps.map(step => ({ ...step, user_id: "", id: undefined, assigned_count: 0 })) } : {}),
+  } : null);
   const stepUpdate = (index: number, patch: Partial<Allocation>) => setForm((prev) => prev ? { ...prev, steps: prev.steps.map((s, i) => i === index ? { ...s, ...patch } : s) } : null);
   function move(index: number, delta: number) {
     if (!form) return;
@@ -102,9 +105,9 @@ export function AdRoutingSetup() {
           {([ ["name", "Rule Name"], ["account_id", "Ad Account ID"], ["page_id", "Facebook / Instagram Page ID"], ["campaign_id", "Campaign ID"], ["campaign_name", "Campaign Name"], ["adset_id", "Ad Set ID (optional)"], ["ad_id", "Specific Ad ID"], ["creative_id", "Creative / Video ID"], ["creative_name", "Creative / Video Name"] ] as const).map(([key, label]) => <label key={key} className="grid gap-1.5 text-sm">{label}<Input list={`routing-${key}`} value={form[key]} onChange={(e) => update(key, e.target.value)} /><datalist id={`routing-${key}`}>{[...new Set(sourceLeads.map((l) => l[`meta_${key === "creative_name" ? "ad_name" : key}`]).filter(Boolean).concat(data.rules.filter((r) => r.company_id === form.company_id).map((r) => r[key]).filter(Boolean)))].map((v) => <option key={String(v)} value={String(v)} />)}</datalist></label>)}
         </div></div>
         <div><h3 className="mb-3 border-b pb-2 font-semibold">Lead Distribution</h3>{!data.eligible.some((m) => m.company_id === form.company_id) && <p className="mb-3 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{eligibilityReason(data, form.company_id)}</p>}<div className="space-y-3">{form.steps.map((step, i) => {
-          const options = data.eligible.filter((m) => m.company_id === form.company_id);
+          const options = companyRecipients(data.eligible, form.company_id);
           const valid = options.some((m) => m.user_id === step.user_id);
-          return <div key={step.id || i}><div className="flex flex-wrap items-end gap-3 rounded-lg border bg-muted/30 p-3"><span className="mb-2 font-semibold text-muted-foreground">{i + 1}</span><label className="grid min-w-0 flex-1 gap-1 text-xs">User<RoutingSelect label={`Step ${i + 1} user`} value={step.user_id} onChange={(v) => stepUpdate(i, { user_id: v, id: undefined, assigned_count: 0 })} disabled={readOnly || busy}><option value="">Select user</option>{step.user_id && !valid && <option value={step.user_id}>{personName(data, step.user_id)} (ineligible)</option>}{options.map((m) => <option key={m.user_id} value={m.user_id}>{personLabel(data, m.user_id)}</option>)}</RoutingSelect></label>
+          return <div key={step.id || i}><div className="flex flex-wrap items-end gap-3 rounded-lg border bg-muted/30 p-3"><span className="mb-2 font-semibold text-muted-foreground">{i + 1}</span><label className="grid min-w-0 flex-1 gap-1 text-xs">User<RoutingSelect label={`Step ${i + 1} user`} value={step.user_id} onChange={(v) => stepUpdate(i, { user_id: v, id: undefined, assigned_count: 0 })} disabled={readOnly || busy || !options.length}><option value="">{!form.company_id ? "Select company first" : !options.length ? "No eligible users" : "Select user"}</option>{step.user_id && !valid && <option value={step.user_id}>{personName(data, step.user_id)} (ineligible)</option>}{options.map((m) => <option key={m.user_id} value={m.user_id}>{personLabel(data, m.user_id)}</option>)}</RoutingSelect></label>
             <label className="grid gap-1 text-xs">Quota<RoutingSelect label={`Step ${i + 1} quota mode`} value={step.quota === null ? "unlimited" : "fixed"} onChange={(v) => stepUpdate(i, { quota: v === "unlimited" ? null : 5 })} disabled={readOnly || busy}><option value="fixed">Fixed limit</option><option value="unlimited">Unlimited</option></RoutingSelect></label>{step.quota !== null && <label className="grid w-24 gap-1 text-xs">Limit<Input aria-label={`Step ${i + 1} limit`} type="number" min={1} value={step.quota} onChange={(e) => stepUpdate(i, { quota: Number(e.target.value) })} /></label>}
             <span className="pb-3 text-xs text-muted-foreground">Assigned: {step.assigned_count || 0}</span><div><RoutingAction title={`Move step ${i + 1} up`} onClick={() => move(i, -1)} disabled={i === 0 || readOnly}><ArrowUp className="size-4" /></RoutingAction><RoutingAction title={`Move step ${i + 1} down`} onClick={() => move(i, 1)} disabled={i === form.steps.length - 1 || readOnly}><ArrowDown className="size-4" /></RoutingAction><RoutingAction title={`Remove step ${i + 1}`} onClick={() => setForm({ ...form, steps: form.steps.filter((_, n) => n !== i) })} disabled={readOnly}><X className="size-4" /></RoutingAction></div>
           </div>{step.user_id && !valid && <p className="mt-1 text-xs text-destructive">User is blocked, inactive or not authorized for this company.</p>}{i < form.steps.length - 1 && <ArrowDown className="mx-auto mt-2 size-4 text-muted-foreground" />}</div>;

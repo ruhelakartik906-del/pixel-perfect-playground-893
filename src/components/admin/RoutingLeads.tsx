@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { assignRoutingLeads } from "@/lib/ad-routing.functions";
 import { exportCsv } from "@/lib/crm-data";
+import { unassignedLeads } from "@/lib/routing-records";
 
 export function RoutingLeads({ history = false }: { history?: boolean }) {
   const { data } = useSuspenseQuery(adRoutingQuery);
@@ -18,7 +19,7 @@ export function RoutingLeads({ history = false }: { history?: boolean }) {
   const [q, setQ] = useState(""), [company, setCompany] = useState(""), [user, setUser] = useState(""), [campaign, setCampaign] = useState(""), [from, setFrom] = useState(""), [to, setTo] = useState(""), [reason, setReason] = useState(""), [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]), [detail, setDetail] = useState<any>(null), [assignmentIds, setAssignmentIds] = useState<string[]>([]), [assignUser, setAssignUser] = useState(""), [busy, setBusy] = useState(false);
   const rows: any[] = history ? data.events.map((event) => ({ ...event, lead: event.snapshot.lead, company_name: event.snapshot.company_name, user_name: event.snapshot.user_name, rule_name: event.snapshot.rule_name }))
-    : data.leads.filter((l) => !l.assigned_to).map((lead) => ({ id: lead.id, lead, company_id: lead.company_id, created_at: lead.created_at, reason: data.queue.find((r) => r.lead_id === lead.id)?.reason || (!lead.company_id ? "Missing company" : "Awaiting routing review") }));
+    : unassignedLeads(data.leads).map((lead) => ({ id: lead.id, lead, company_id: lead.company_id, created_at: lead.created_at, reason: data.queue.find((r) => r.lead_id === lead.id)?.reason || (lead.intake_source === "manual" ? "Manual lead awaiting assignment" : !lead.company_id ? "Missing company" : "Awaiting routing review") }));
   const filtered = rows.filter((r) => {
     const l = r.lead || {};
     return (!company || r.company_id === company) && (!user || r.user_id === user) && (!campaign || l.meta_campaign_id === campaign)
