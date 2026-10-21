@@ -152,13 +152,35 @@ export function LoginForm() {
   );
 }
 
-function InvitationPasswordForm() {
+export function InvitationPasswordForm({ verifySession = false }: { verifySession?: boolean }) {
   const accept = useServerFn(acceptEmployeeInvitation);
   const navigate = useNavigate();
   const resolveAccess = useServerFn(resolveAuthAccess);
   const [form, setForm] = useState<ResetPasswordForm>({ password: '', confirmPassword: '' });
   const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordForm, string>>>({});
   const [busy, setBusy] = useState(false);
+  const [sessionState, setSessionState] = useState<'checking' | 'ready' | 'invalid'>(verifySession ? 'checking' : 'ready');
+  useEffect(() => {
+    if (!verifySession) return;
+    let active = true;
+    void (async () => {
+      const hash = new URLSearchParams(window.location.hash.slice(1));
+      if (hash.has('error') || hash.has('error_code')) {
+        window.history.replaceState(null, '', window.location.pathname);
+        if (active) setSessionState('invalid');
+        return;
+      }
+      const { data, error } = await supabase.auth.getUser();
+      const user = data.user;
+      if (error || !user?.invited_at || !user.email_confirmed_at) {
+        if (active) setSessionState('invalid');
+        return;
+      }
+      const profile = await supabase.from('profiles').select('account_status').eq('id', user.id).single();
+      if (active) setSessionState(!profile.error && profile.data.account_status === 'pending' ? 'ready' : 'invalid');
+    })();
+    return () => { active = false; };
+  }, [verifySession]);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const parsed = resetPasswordSchema.safeParse(form);
@@ -172,6 +194,8 @@ function InvitationPasswordForm() {
     } catch (e) { toast.error((e as Error).message); }
     finally { setBusy(false); }
   };
+  if (sessionState === 'checking') return <p role="status" className="text-muted-foreground">Checking invitation…</p>;
+  if (sessionState === 'invalid') return <div className="grid gap-4"><p role="alert" className="text-destructive">This invitation is expired, already used, or unavailable. Ask your administrator for a fresh invitation.</p><Button asChild variant="pill"><Link to="/login">Go to login</Link></Button></div>;
   return <form onSubmit={submit} className="grid gap-4">
     <PasswordInput id="invitation-password" label="Set your password" value={form.password} onChange={password => setForm({ ...form, password })} autoComplete="new-password" error={errors.password} />
     <PasswordInput id="invitation-confirm" label="Confirm password" value={form.confirmPassword} onChange={confirmPassword => setForm({ ...form, confirmPassword })} autoComplete="new-password" error={errors.confirmPassword} />

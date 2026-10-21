@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, ChevronRight, Eye, LayoutGrid, List, LogIn, MoreVertical, Pencil, Plus, ShieldCheck, ShieldOff } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, LayoutGrid, List, LogIn, Mail, MoreVertical, Pencil, Plus, ShieldCheck, ShieldOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Breadcrumb, Card, DataTable, EmptyState, PageHeader, SearchInput, StatusBadge, ToolbarButton } from "@/components/admin/ui";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { adminHead, initials } from "@/lib/admin-head";
 import { SYSTEM_ROLES, type SystemRole } from "@/lib/permissions";
-import { inviteUser, setUserAccountStatus } from "@/lib/admin-users.functions";
+import { inviteUser, setUserAccountStatus, pendingEmployeeInvitees, resendEmployeeInvitation } from "@/lib/admin-users.functions";
 import { cn } from "@/lib/utils";
 import { INVITATION_REDIRECT_URL } from "@/lib/admin-invitation";
 
@@ -56,6 +56,10 @@ function UsersPage() {
   const qc = useQueryClient();
   const invite = useServerFn(inviteUser);
   const changeStatus = useServerFn(setUserAccountStatus);
+  const getInvitees = useServerFn(pendingEmployeeInvitees);
+  const resend = useServerFn(resendEmployeeInvitation);
+  const { data: invitees } = useQuery({ queryKey: [...QK, 'invitees'], queryFn: () => getInvitees() });
+  const [resending, setResending] = useState<string | null>(null);
   const { data, isLoading, error } = useQuery({ queryKey: QK, queryFn: load });
   const { data: me } = useQuery({ queryKey: ["me-id"], queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? "" });
   const [q, setQ] = useState("");
@@ -107,6 +111,16 @@ function UsersPage() {
   };
 
   const edit = (u: U) => setForm({ id: u.id, email: u.email, full_name: u.full_name, phone: u.phone, role: u.role, access_role_id: u.accessRoleId ?? "", company_id: u.companyId ?? "" });
+  const resendInvite = async (u: U) => {
+    if (resending) return;
+    setResending(u.id);
+    try {
+      await resend({ data: { user_id: u.id } });
+      toast.success('Invitation email sent — the employee remains pending until password setup');
+      refresh();
+    } catch (error) { toast.error((error as Error).message); }
+    finally { setResending(null); }
+  };
   const tone = (s: U["account_status"]) => s === "active" ? "green" : s === "blocked" ? "red" : "orange";
   const Avatar = ({ u }: { u: U }) => u.avatar_url
     ? <img src={u.avatar_url} alt="" className="size-11 rounded-full object-cover" />
@@ -117,6 +131,8 @@ function UsersPage() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setView(u)}><Eye className="size-4" />View details</DropdownMenuItem>
         <DropdownMenuItem onClick={() => edit(u)}><Pencil className="size-4" />Edit / assign role & company</DropdownMenuItem>
+        {u.account_status === 'pending' && u.role === 'employee' && invitees?.includes(u.id) &&
+          <DropdownMenuItem disabled={resending !== null} onClick={() => resendInvite(u)}><Mail className="size-4" />Resend Invitation</DropdownMenuItem>}
         {u.account_status === "active"
           ? <DropdownMenuItem onClick={() => setStatus(u, "blocked")} className="text-admin-red"><ShieldOff className="size-4" />Block</DropdownMenuItem>
           : <DropdownMenuItem onClick={() => setStatus(u, "active")}><ShieldCheck className="size-4" />Activate</DropdownMenuItem>}

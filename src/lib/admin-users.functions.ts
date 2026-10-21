@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { invitationSchema, validateInvitationRedirect, INVITATION_REDIRECT_URL } from './admin-invitation';
+import { invitationSchema, validateInvitationRedirect, INVITATION_REDIRECT_URL, isPendingEmployeeInvitation } from './admin-invitation';
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("routing_admin");
@@ -57,6 +57,48 @@ export const inviteUser = createServerFn({ method: "POST" })
     });
     if (setup.error || setup.data !== id) throw new Error('Invitation email was requested, but account setup did not complete. No requested role or membership was committed; review the pending account before retrying.');
     return { id };
+  });
+
+/** Only expose invitation eligibility, never Auth records or tokens. */
+export const pendingEmployeeInvitees = createServerFn({ method: 'GET' })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const profiles = await context.supabase.from('profiles').select('id,email,account_status').eq('account_status', 'pending');
+    const roles = await context.supabase.from('user_roles').select('user_id,role');
+    if (profiles.error || roles.error) throw new Error('Invitation eligibility could not be checked');
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const ids: string[] = [];
+    for (const profile of profiles.data ?? []) {
+      const assigned = (roles.data ?? []).filter(row => row.user_id === profile.id).map(row => row.role);
+      if (!assigned.includes('employee')) continue;
+      const auth = await supabaseAdmin.auth.admin.getUserById(profile.id);
+      if (auth.error) throw new Error('Invitation eligibility could not be checked');
+      if (isPendingEmployeeInvitation(profile, assigned, auth.data.user)) ids.push(profile.id);
+    }
+    return ids;
+  });
+
+export const resendEmployeeInvitation = createServerFn({ method: 'POST' })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ user_id: z.string().uuid() }).strict().parse(i))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const profile = await context.supabase.from('profiles').select('email,account_status').eq('id', data.user_id).single();
+    const roles = await context.supabase.from('user_roles').select('role').eq('user_id', data.user_id);
+    if (profile.error || roles.error || !profile.data) throw new Error('Invitation eligibility could not be checked');
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const auth = await supabaseAdmin.auth.admin.getUserById(data.user_id);
+    if (auth.error || !isPendingEmployeeInvitation(profile.data, (roles.data ?? []).map(row => row.role), auth.data.user)) {
+      throw new Error('Only pending invited employees can receive another invitation');
+    }
+    // A consumed invite has already confirmed email. Renew password setup using
+    // Auth recovery in that case; acceptance still requires the original invite.
+    const result = auth.data.user?.email_confirmed_at
+      ? await supabaseAdmin.auth.resetPasswordForEmail(profile.data.email, { redirectTo: INVITATION_REDIRECT_URL })
+      : await supabaseAdmin.auth.admin.inviteUserByEmail(profile.data.email, { redirectTo: INVITATION_REDIRECT_URL });
+    if (result.error) throw new Error(result.error.message || 'Invitation email could not be sent');
+    return { sent: true };
   });
 
 /** Save mailbox connection. Password goes to a table only the server can read. */
