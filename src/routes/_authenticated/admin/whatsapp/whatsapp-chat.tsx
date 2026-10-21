@@ -43,6 +43,7 @@ function WaChat() {
   };
 
   return (
+    <>
       <div className="mb-3 flex justify-end">
         {connected ? (
           <Button onClick={() => setOpenSignal((n) => n + 1)} className="bg-admin-blue text-primary-foreground hover:bg-admin-blue/90"><Plus className="size-4" />Add Number</Button>
