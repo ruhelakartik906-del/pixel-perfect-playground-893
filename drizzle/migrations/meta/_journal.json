@@ -610,6 +610,13 @@
       "when": 1792595783478,
       "tag": "0086_qualify_private_routing_admin_read",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1792596191668,
+      "tag": "0087_secure_assigned_board_move_timestamp",
+      "breakpoints": true
     }
   ]
 }
