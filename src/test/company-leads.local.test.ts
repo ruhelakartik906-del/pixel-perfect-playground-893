@@ -40,13 +40,13 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
   await sql.unsafe(readFileSync('drizzle/migrations/0073_authorized_user_lead_status.sql','utf8'));
   await sql.unsafe(readFileSync('drizzle/migrations/0074_company_user_leads.sql','utf8'));
  await sql.unsafe(readFileSync('drizzle/migrations/0075_lock_global_status_management.sql','utf8'));
+ await sql.unsafe(readFileSync('drizzle/migrations/0076_company_status_default_fallback.sql','utf8'));
  const stages=await sql`SELECT id,name FROM crm_stages`;
   initial=String(stages.find(s=>s['name']==='New')?.['id']);closed=String(stages.find(s=>s['name']==='Deal Closed')?.['id']);contacted=String(stages.find(s=>s['name']==='Contacted')?.['id']);
   await sql`INSERT INTO leads(id,pipeline_id,stage_id,assigned_to,company_id) VALUES(${lead},${p},${initial},${user},${p})`;
   await sql`SELECT set_config('qa.company_id',${p},false),set_config('qa.uid',${user},false),set_config('qa.admin','false',false),set_config('qa.active','true',false),set_config('qa.company','true',false)`;
  });
  afterAll(async()=>{await sql.end();});
- async function version(){return String((await sql`SELECT updated_at::text AS stamp FROM leads WHERE id=${lead}`)[0]?.['stamp']);}
  async function move(stage:string,outcome:string|null){return sql`SELECT lead_board_move(${lead},(SELECT updated_at FROM leads WHERE id=${lead}),${stage}::uuid,${outcome})`;}
 
  const other='44444444-4444-4444-8444-444444444444';let custom:string,created:string;
@@ -65,5 +65,5 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
  it('moves assigned real lead between stages and preserves protected stages',async()=>{await move(custom,null);expect((await sql`SELECT stage_id FROM leads WHERE id=${lead}`)[0]?.['stage_id']).toBe(custom);await move(contacted,null);await expect(status('delete',{id:initial})).rejects.toThrow('Protected');await expect(status('delete',{id:closed})).rejects.toThrow('Protected');await expect(status('delete',{id:custom})).rejects.toThrow('in use');});
  it('rejects deleting another assignee or stale lead',async()=>{await sql`SELECT set_config('qa.uid',${other},false)`;await expect(sql`SELECT user_board_lead_delete(${created},(SELECT updated_at FROM leads WHERE id=${created}))`).rejects.toThrow('access denied');await sql`SELECT set_config('qa.uid',${user},false)`;await expect(sql`SELECT user_board_lead_delete(${created},'2000-01-01'::timestamptz)`).rejects.toThrow('Refresh');});
  it('linked history blocks deletion',async()=>{await sql`INSERT INTO crm_work_items VALUES(${created})`;await expect(sql`SELECT user_board_lead_delete(${created},(SELECT updated_at FROM leads WHERE id=${created}))`).rejects.toThrow('linked history');await sql`DELETE FROM crm_work_items WHERE lead_id=${created}`;});
- it('deletes unused own lead and removes company status from both read surfaces',async()=>{await sql`SELECT user_board_lead_delete(${created},(SELECT updated_at FROM leads WHERE id=${created}))`;expect(await sql`SELECT id FROM leads WHERE id=${created}`).toHaveLength(0);await status('delete',{id:custom});expect((await stages()).some(s=>s['id']===custom)).toBe(false);expect(await sql`SELECT id FROM crm_stages WHERE id=${custom}`).toHaveLength(1);});
+ it('deletes unused own lead and removes company status from both read surfaces',async()=>{await sql`SELECT user_board_lead_delete(${created},(SELECT updated_at FROM leads WHERE id=${created}))`;expect(await sql`SELECT id FROM leads WHERE id=${created}`).toHaveLength(0);await status('delete',{id:custom});expect((await stages()).some(s=>s['id']===custom)).toBe(false);expect(await sql`SELECT id FROM crm_stages WHERE id=${custom}`).toHaveLength(1);expect((await stages()).find(s=>s['id']===initial)?.['is_default']).toBe(true);});
 });
