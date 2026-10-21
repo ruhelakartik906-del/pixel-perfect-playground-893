@@ -5,11 +5,12 @@ import { Download, Plus, Save, Upload, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Breadcrumb, Card, DataTable, EmptyState, PageHeader, SearchInput, StatusBadge, TabBar, ToolbarButton } from "@/components/admin/ui";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { leadColumnCatalog } from "@/lib/crm-config";
 import { LeadsBoard } from "@/components/pipeline/LeadsBoard";
+import { AddLeadDialog } from "@/components/pipeline/AddLeadDialog";
+import type { BoardStage } from "@/lib/leads-board";
 import { readAllPages } from "@/lib/backend-read";
 import { LeadImportDialog } from "@/components/admin/LeadImportDialog";
 
@@ -62,7 +63,6 @@ function inTab(d: string, tab: Tab) {
   return t >= new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
-const blank = { customer_name: "", phone: "", email: "", business_name: "", business_category: "", requirements: "", interest_level: "", stage_id: "", source_id: "", assigned_to: "", company_id: "" };
 
 export function LeadsPage() {
   const qc = useQueryClient();
@@ -70,7 +70,7 @@ export function LeadsPage() {
   const [tab, setTab] = useState<Tab>("all");
   const [q, setQ] = useState("");
   const [quick, setQuick] = useState(true);
-  const [form, setForm] = useState<typeof blank | null>(null);
+  const [addStage, setAddStage] = useState<BoardStage | null>(null);
   const [open, setOpen] = useState<Lead | null>(null);
   const [importing, setImporting] = useState(false);
 
@@ -96,17 +96,6 @@ export function LeadsPage() {
     }
   };
 
-  const save = async () => {
-    if (!form) return;
-    if (!form.customer_name.trim() || !form.phone.trim()) { toast.error("Customer name and contact number are required"); return; }
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { toast.error("Enter a valid email"); return; }
-    const payload = Object.fromEntries(Object.entries(form).map(([k, v]) => [k, k.endsWith("_id") || k === "assigned_to" ? (v || null) : v.trim()]));
-    const { data: u } = await supabase.auth.getUser();
-    const { error } = await db.from("leads").insert({ ...payload, pipeline_id: data?.defaultPipeline, created_by: u.user?.id, form_answers: {} });
-    if (error) { toast.error(error.message); return; }
-    toast.success("Lead created"); setForm(null); qc.invalidateQueries({ queryKey: QK });
-  };
-
   const exportCsv = () => {
     if (!filtered.length) { toast.info("No leads to export"); return; }
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
@@ -118,35 +107,8 @@ export function LeadsPage() {
   const label = tabs.find((t) => t.id === tab)!.label;
   return (
     <div className="space-y-5">
-      {isLoading ? <p className="py-20 text-center text-muted-foreground">Loading leads…</p> : error ? <EmptyState title="Could not load leads" hint={(error as Error).message}/> : data && <LeadsBoard admin leads={data.leads} stages={data.stages} sources={data.sources} companies={data.companies} people={data.people} onOpen={id=>setOpen(data.leads.find(l=>l.id===id)||null)} onAdd={stage=>setForm({...blank,stage_id:stage?.board_closed?'':stage?.id||data.stages.find(s=>s.board_initial)?.id||''})} onDelete={async ids=>{const result=await db.from('leads').delete().in('id',ids);if(result.error)throw new Error(result.error.message);toast.success('Leads deleted');}} actions={<ToolbarButton onClick={()=>setImporting(true)}><Upload className="size-4"/>Import</ToolbarButton>}/>}
-      <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>Create Lead</DialogTitle></DialogHeader>
-          {form && data && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {([["customer_name", "Customer Name *"], ["phone", "Contact Number *"], ["email", "Email"], ["business_name", "Business Name"],
-                ["business_category", "Business Category"], ["requirements", "Required Service"], ["interest_level", "Interest Level"]] as const).map(([k, lbl]) => (
-                <label key={k} className="text-sm font-semibold">{lbl}
-                  <input maxLength={200} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="mt-1 h-10 w-full rounded-md border px-3 font-normal" />
-                </label>
-              ))}
-              {([["stage_id", "Stage", data.stages.filter((s) => s.is_active && !s.board_closed && s.pipeline_id === data.defaultPipeline)], ["source_id", "Source", data.sources.filter((s) => s.is_active)],
-                ["assigned_to", "Assignee", data.people.filter((p) => p.active)], ["company_id", "Company", data.companies]] as const).map(([k, lbl, list]) => (
-                <label key={k} className="text-sm font-semibold">{lbl}
-                  <select value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="mt-1 h-10 w-full rounded-md border bg-card px-3 font-normal">
-                    <option value="">— None —</option>
-                    {(list as Named[]).map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-                  </select>
-                </label>
-              ))}
-              <div className="flex justify-end gap-2 sm:col-span-2">
-                <ToolbarButton onClick={() => setForm(null)}>Cancel</ToolbarButton>
-                <ToolbarButton primary onClick={save}><Save className="size-4" />Save Lead</ToolbarButton>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {isLoading ? <p className="py-20 text-center text-muted-foreground">Loading leads…</p> : error ? <EmptyState title="Could not load leads" hint={(error as Error).message}/> : data && <LeadsBoard admin leads={data.leads} stages={data.stages} sources={data.sources} companies={data.companies} people={data.people} onOpen={id=>setOpen(data.leads.find(l=>l.id===id)||null)} onAdd={stage=>setAddStage(stage||data.stages.find(s=>s.board_initial&&s.pipeline_id===data.defaultPipeline)||data.stages.find(s=>s.is_active)||null)} onDelete={async ids=>{const result=await db.from('leads').delete().in('id',ids);if(result.error)throw new Error(result.error.message);toast.success('Leads deleted');}} actions={<ToolbarButton onClick={()=>setImporting(true)}><Upload className="size-4"/>Import</ToolbarButton>}/>}
+      {addStage && data && <AddLeadDialog stage={addStage} stages={data.stages} sources={data.sources} companies={data.companies} close={()=>setAddStage(null)}/> }
 
       {data && <LeadImportDialog open={importing} onClose={() => setImporting(false)} sources={data.sources} companies={data.companies} stageId={data.stages.find((s) => s.is_active)?.id ?? null} pipelineId={data.defaultPipeline} existing={data.leads.map((l: Lead) => ({ phone: l.phone ?? "", email: l.email ?? "" }))} />}
       <LeadDrawer lead={data?.leads.find(l=>l.id===open?.id)||open} onClose={() => setOpen(null)} data={data} />
