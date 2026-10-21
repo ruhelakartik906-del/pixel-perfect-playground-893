@@ -31,7 +31,7 @@ export function WhatsAppChats() {
         <Button variant="outline" onClick={() => setSetup(true)}><ShieldCheck />Connect WhatsApp Business</Button>
       </div>
       <WhatsAppWebChat
-        me={{ name: d?.profile?.full_name || 'Me', role: 'User' }}
+        me={{ name: 'Me', role: 'User' }}
         conversations={conversations}
         connected={false}
         loading={isPending}
