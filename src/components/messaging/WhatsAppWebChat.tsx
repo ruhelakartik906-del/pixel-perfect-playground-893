@@ -47,6 +47,7 @@ type Props = {
   messagesError?: string | null;
   emptyNote?: string;
   className?: string;
+  openSignal?: number;
   onCheckConnection: () => Promise<boolean>;
   checkingConnection?: boolean;
   onAddContact: (input: WaContactForm) => Promise<void>;
@@ -100,6 +101,12 @@ export function WhatsAppWebChat(p: Props) {
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }); }, [p.messages.length, p.selectedId]);
   useEffect(() => { setDetailsOpen(false); setMenuOpen(false); setDraft(''); }, [p.selectedId]);
+  useEffect(() => {
+    if (!p.openSignal) return;
+    if (p.connected) openAddNumber();
+    else { setConnectStep('phone'); setConnectForm({ name: '', countryCode: '+91', phone: '' }); setConnectOpen(true); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p.openSignal]);
 
   const select = (c: WaConversation) => { setMenuOpen(false); p.onSelect(c.id); };
 
@@ -171,13 +178,6 @@ export function WhatsAppWebChat(p: Props) {
             <button aria-label="More options" title="More options" onClick={() => toast.info('Preview only.')} className="grid size-9 place-items-center rounded-full text-wa-icon hover:bg-muted"><MoreVertical className="size-5" /></button>
           </div>
         </header>
-        <div className="px-4 pb-2">
-          {p.connected ? (
-            <Button onClick={openAddNumber} className="w-full bg-admin-blue text-primary-foreground hover:bg-admin-blue/90"><Plus className="size-4" />Add Number</Button>
-          ) : (
-            <Button variant="outline" onClick={() => { setConnectStep('phone'); setConnectForm({ name: '', countryCode: '+91', phone: '' }); setConnectOpen(true); }} className="w-full border-wa-green-deep/40 text-wa-green-deep hover:bg-wa-bubble"><ShieldCheck className="size-4" />Connect WhatsApp Business</Button>
-          )}
-        </div>
         <div className="px-4 pb-2">
           <label className="flex h-10 items-center gap-2 rounded-full bg-muted px-4">
             <Search className="size-4 shrink-0 text-wa-icon" />

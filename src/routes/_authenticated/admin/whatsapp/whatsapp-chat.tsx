@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/admin/ui";
+import { Button } from "@/components/ui/button";
+import { Plus, ShieldCheck } from "lucide-react";
 import { adminHead } from "@/lib/admin-head";
 import { getWhatsAppConnectionStatus, addWhatsAppContact } from "@/lib/messaging.functions";
 import { WhatsAppWebChat, type WaConversation, type WaChatMessage, type WaContactForm } from "@/components/messaging/WhatsAppWebChat";
@@ -18,6 +20,7 @@ type Msg = { id: string; direction: string; body: string; status: string; create
 
 function WaChat() {
   const qc = useQueryClient();
+  const [openSignal, setOpenSignal] = useState(0);
   const me = useQuery({ queryKey: ["me-profile"], queryFn: async () => { const id = (await supabase.auth.getUser()).data.user?.id; const r = await db.from("profiles").select("full_name,email").eq("id", id).maybeSingle(); return r.data as { full_name: string; email: string } | null; } });
   const convs = useQuery({ queryKey: ["wa-convs"], queryFn: async () => { const r = await db.from("whatsapp_conversations").select("*").order("last_message_at", { ascending: false, nullsFirst: false }); if (r.error) throw r.error; return r.data as C[]; } });
   const connection = useQuery({ queryKey: ["wa-connection-status"], queryFn: () => getWhatsAppConnectionStatus(), staleTime: 30000 });
@@ -40,7 +43,15 @@ function WaChat() {
   };
 
   return (
-    <Card className="overflow-hidden border-0 bg-transparent p-0 shadow-none">
+    <>
+      <div className="mb-3 flex justify-end">
+        {connected ? (
+          <Button onClick={() => setOpenSignal((n) => n + 1)} className="bg-admin-blue text-primary-foreground hover:bg-admin-blue/90"><Plus className="size-4" />Add Number</Button>
+        ) : (
+          <Button variant="outline" onClick={() => setOpenSignal((n) => n + 1)} className="border-wa-green-deep/40 text-wa-green-deep hover:bg-wa-bubble"><ShieldCheck className="size-4" />Connect WhatsApp Business</Button>
+        )}
+      </div>
+      <Card className="overflow-hidden border-0 bg-transparent p-0 shadow-none">
       <WhatsAppWebChat
         me={{ name: me.data?.full_name || me.data?.email || "Admin", role: "Super Admin" }}
         conversations={conversations}
@@ -55,9 +66,11 @@ function WaChat() {
         messagesError={msgs.error ? "History could not be loaded" : null}
         className="h-[calc(100vh-170px)] min-h-[560px]"
         onCheckConnection={checkConnection}
+        openSignal={openSignal}
         checkingConnection={connection.isFetching}
         onAddContact={addContact}
       />
     </Card>
+    </>
   );
 }

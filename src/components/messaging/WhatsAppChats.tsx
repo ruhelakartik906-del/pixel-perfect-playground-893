@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { Plus, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserWorkspace } from '@/components/workspace/UserWorkspace';
 import { whatsAppQuery } from '@/lib/messaging-query';
@@ -11,6 +11,7 @@ export function WhatsAppChats() {
   const qc = useQueryClient();
   const { data: d, isPending, error } = useQuery(whatsAppQuery);
   const connection = useQuery({ queryKey: ['wa-connection-status'], queryFn: () => getWhatsAppConnectionStatus(), staleTime: 30000 });
+  const [openSignal, setOpenSignal] = useState(0);
   const [selected, setSelected] = useState('');
   const history = useQuery({ queryKey: ['wa-authorized-history', selected], queryFn: () => loadWhatsAppHistory({ data: { id: selected } }), enabled: !!selected });
 
@@ -41,7 +42,11 @@ export function WhatsAppChats() {
             {connected ? `Connected · ${connection.data?.phone ?? 'business number'}` : 'Not Connected · contacts and previews only'}
           </p>
         </div>
-        <Button asChild variant="outline"><Link to="/whatsapp/templates">WhatsApp Templates</Link></Button>
+        {connected ? (
+          <Button onClick={() => setOpenSignal((n) => n + 1)} className="bg-admin-blue text-primary-foreground hover:bg-admin-blue/90"><Plus className="size-4" />Add Number</Button>
+        ) : (
+          <Button variant="outline" onClick={() => setOpenSignal((n) => n + 1)} className="border-wa-green-deep/40 text-wa-green-deep hover:bg-wa-bubble"><ShieldCheck className="size-4" />Connect WhatsApp Business</Button>
+        )}
       </div>
       <WhatsAppWebChat
         me={{ name: 'Me', role: 'User' }}
@@ -58,6 +63,7 @@ export function WhatsAppChats() {
         emptyNote={!d?.permissions['whatsapp.view'] ? 'No authorized conversations — chats appear here once a verified business number is assigned to you.' : 'No chats yet. Add a client number to start.'}
         className="h-[calc(100vh-16rem)] min-h-[540px]"
         onCheckConnection={checkConnection}
+        openSignal={openSignal}
         checkingConnection={connection.isFetching}
         onAddContact={addContact}
       />
