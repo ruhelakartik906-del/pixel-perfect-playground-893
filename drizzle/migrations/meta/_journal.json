@@ -561,6 +561,13 @@
       "when": 1792592656191,
       "tag": "0079_secure_manual_routing_assignments",
       "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1792592751107,
+      "tag": "0080_exact_private_manual_lead_access",
+      "breakpoints": true
     }
   ]
 }

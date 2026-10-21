@@ -4743,10 +4743,20 @@ export type Database = {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
-      lead_record_allowed: {
-        Args: { _assignee: string; _company: string; _creator: string }
-        Returns: boolean
-      }
+      lead_record_allowed:
+        | {
+            Args: { _assignee: string; _company: string; _creator: string }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              _assignee: string
+              _company: string
+              _creator: string
+              _owner: string
+            }
+            Returns: boolean
+          }
       lead_status_action: {
         Args: { _action: string; _payload: Json }
         Returns: string
@@ -4789,6 +4799,10 @@ export type Database = {
       manual_routing_eligible: {
         Args: { _company: string; _user: string }
         Returns: boolean
+      }
+      manual_routing_lead_assign: {
+        Args: { _lead: string; _user: string }
+        Returns: Json
       }
       manual_routing_lead_create: { Args: { _payload: Json }; Returns: Json }
       manual_routing_recipients: {
