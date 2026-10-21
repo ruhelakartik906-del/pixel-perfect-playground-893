@@ -1,15 +1,75 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ArrowLeft,MessageCircle,Paperclip,Send,ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog,DialogContent,DialogHeader,DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UserWorkspace } from '@/components/workspace/UserWorkspace';
-import { Pick } from '@/components/admin/work/WorkFields';
 import { whatsAppQuery } from '@/lib/messaging-query';
 import { loadWhatsAppHistory } from '@/lib/messaging.functions';
-import { cn } from '@/lib/utils';
-export function WhatsAppChats(){const {data:d,isPending,error}=useQuery(whatsAppQuery),[setup,setSetup]=useState(false),[q,setQ]=useState(''),[filter,setFilter]=useState('all'),[selected,setSelected]=useState('');const history=useQuery({queryKey:['wa-authorized-history',selected],queryFn:()=>loadWhatsAppHistory({data:{id:selected}}),enabled:!!selected});const c=d?.conversations.find(c=>c.id===selected),lead=d?.leads.find(l=>l.id===c?.lead_id||l.phone.replace(/\D/g,'')===c?.wa_phone.replace(/\D/g,''));const rows=d?.conversations.filter(c=>(!q||`${c.contact_name} ${c.wa_phone}`.toLowerCase().includes(q.toLowerCase()))&&(filter==='all'||filter==='unread'&&c.unread_count>0||filter==='assigned'&&c.assigned_to===d.userId))??[];
-return <UserWorkspace><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-2xl font-bold">WhatsApp Chats</h1><p className="mt-1 text-sm text-warning">Not Connected</p></div><Button variant="outline" onClick={()=>setSetup(true)}><ShieldCheck/>Connect WhatsApp Business</Button></div>{isPending?<p>Loading…</p>:error?<p role="alert">{error.message}</p>:!d?.permissions['whatsapp.view']?<div className="border bg-card p-8 text-center"><MessageCircle className="mx-auto mb-3 size-10 text-muted-foreground"/><h2 className="text-lg font-semibold">No WhatsApp Business number connected</h2><p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Conversations appear here only after an official WhatsApp Business number is verified and assigned to you. Nothing is sent or received until then.</p><Button className="mt-4" variant="outline" onClick={()=>setSetup(true)}><ShieldCheck/>Setup steps</Button></div>:<div className="flex min-h-[460px] overflow-hidden border bg-card"><aside className={cn('w-full shrink-0 border-r md:block md:w-72',selected?'hidden':'block')}><div className="grid gap-3 border-b p-4"><Input aria-label="Search contacts" placeholder="Search contacts" value={q} onChange={e=>setQ(e.target.value)}/><Pick label="Conversation filter" value={filter} onChange={v=>setFilter(v||'all')} options={[{value:'all',label:'All conversations'},{value:'unread',label:'Unread'},{value:'assigned',label:'Assigned to me'}]}/></div>{rows.map(c=><Button key={c.id} variant="ghost" className="h-auto w-full justify-start rounded-none border-b p-4" onClick={()=>setSelected(c.id)}><span className="min-w-0 text-left"><span className="block truncate font-semibold">{c.contact_name||c.wa_phone}</span><span className="block text-xs text-muted-foreground">{c.wa_phone}</span>{c.last_message_at&&<span className="block text-xs text-muted-foreground">{new Date(c.last_message_at).toLocaleString()}</span>}</span>{c.unread_count>0&&<span className="ml-auto text-admin-blue">{c.unread_count}</span>}</Button>)}{!rows.length&&<p className="p-8 text-center text-sm text-muted-foreground">No authorized conversations</p>}</aside><main className={cn('min-w-0 flex-1',selected?'flex flex-col':'hidden md:flex md:flex-col')}>{!c?<div className="grid flex-1 place-content-center justify-items-center gap-4 p-8 text-center"><MessageCircle className="size-14 text-admin-blue"/><h2 className="text-xl font-bold">WhatsApp Business · Setup Required</h2><p className="max-w-sm text-sm text-muted-foreground">Official Meta credentials and a verified webhook are not configured. Sending, receiving and approval sync are unavailable.</p><Button variant="outline" onClick={()=>setSetup(true)}>Connection requirements</Button></div>:<><header className="flex gap-3 border-b p-4"><Button className="md:hidden" variant="ghost" size="icon" aria-label="Back to conversations" onClick={()=>setSelected('')}><ArrowLeft/></Button><div><h2 className="font-semibold">{c.contact_name||c.wa_phone}</h2><p className="text-sm text-muted-foreground">{c.wa_phone}</p>{lead&&<Link to="/my-leads" className="text-sm text-admin-blue">{lead.customer_name} · CRM Lead</Link>}</div></header><div className="flex-1 space-y-3 p-4">{history.error?<p role="alert">History could not be loaded</p>:history.data?.map(m=><div key={m.id} className={cn('flex',m.direction==='outbound'?'justify-end':'justify-start')}><div className="max-w-[85%] rounded-lg border bg-admin-bg p-3"><p className="whitespace-pre-wrap break-words text-sm">{m.body}</p><p className="mt-2 text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()} · {m.status}</p></div></div>)}</div><div className="flex gap-2 border-t p-3"><Button variant="ghost" size="icon" aria-label="Attach file" disabled><Paperclip/></Button><Input disabled placeholder="Sending requires a verified connection"/><Button variant="outline" disabled>Template</Button><Button size="icon" aria-label="Send WhatsApp message" disabled><Send/></Button></div></>}</main></div>}
-<Dialog open={setup} onOpenChange={setSetup}><DialogContent><DialogHeader><DialogTitle>Official WhatsApp Business Setup</DialogTitle></DialogHeader><p className="text-sm font-semibold text-warning">Not Connected · Setup required</p><div className="space-y-2 text-sm"><h3 className="font-semibold">Missing in this app</h3><ul className="list-disc space-y-1 pl-5"><li>A verified WhatsApp Business connection and assigned business number</li><li>A configured sending service and signed incoming-message receiver</li><li>Verified delivery-status tracking and Meta template approval sync</li></ul></div><div className="space-y-2 text-sm"><h3 className="font-semibold">Administrator setup requirements</h3><ul className="list-disc space-y-1 pl-5"><li>Connect an official WhatsApp Business account in Lovable Connectors; complete Meta business, email and phone verification</li><li>Use a registered business phone number with authorized messaging and template-management permissions</li><li>Configure and deploy the signed receiver, then select this project under the connection’s Incoming messages setting</li><li>Assign company access and check customer consent before enabling sending</li><li>Free-form replies require a customer message within 24 hours; otherwise use a Meta-approved template</li></ul></div><p className="text-sm text-muted-foreground">This button shows requirements only; it does not connect your number. Personal WhatsApp OTP or QR login is not supported. Local template drafts are not Meta-approved messages.</p><Button asChild variant="outline"><Link to="/whatsapp/templates">WhatsApp Templates</Link></Button></DialogContent></Dialog></UserWorkspace>;}
+import { WhatsAppWebChat, type WaConversation, type WaChatMessage } from '@/components/messaging/WhatsAppWebChat';
+
+export function WhatsAppChats() {
+  const { data: d, isPending, error } = useQuery(whatsAppQuery);
+  const [setup, setSetup] = useState(false);
+  const [selected, setSelected] = useState('');
+  const history = useQuery({ queryKey: ['wa-authorized-history', selected], queryFn: () => loadWhatsAppHistory({ data: { id: selected } }), enabled: !!selected });
+
+  const conversations: WaConversation[] = (d?.conversations ?? []).map((c) => {
+    const lead = d?.leads.find((l) => l.id === c.lead_id || l.phone.replace(/\D/g, '') === c.wa_phone.replace(/\D/g, ''));
+    return { id: c.id, name: c.contact_name || c.wa_phone, phone: c.wa_phone, at: c.last_message_at, unread: c.unread_count, kind: 'contact', leadTo: lead ? '/my-leads' : undefined, leadLabel: lead?.customer_name };
+  });
+  const messages: WaChatMessage[] = (history.data ?? []).map((m) => ({ id: m.id, direction: m.direction === 'outbound' ? 'outbound' : 'inbound', body: m.body, at: m.created_at, status: m.status }));
+
+  return (
+    <UserWorkspace>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">WhatsApp Chats</h1>
+          <p className="mt-1 text-sm text-warning">Not Connected · demo preview below</p>
+        </div>
+        <Button variant="outline" onClick={() => setSetup(true)}><ShieldCheck />Connect WhatsApp Business</Button>
+      </div>
+      <WhatsAppWebChat
+        me={{ name: 'Me', role: 'User' }}
+        conversations={conversations}
+        connected={false}
+        loading={isPending}
+        error={error ? error.message : null}
+        selectedId={selected}
+        onSelect={setSelected}
+        messages={messages}
+        messagesLoading={history.isPending}
+        messagesError={history.error ? 'History could not be loaded' : null}
+        emptyNote={!d?.permissions['whatsapp.view'] ? 'No authorized conversations — chats appear here once a verified business number is assigned to you.' : 'No authorized conversations'}
+        className="h-[calc(100vh-16rem)] min-h-[540px]"
+      />
+      <Dialog open={setup} onOpenChange={setSetup}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Official WhatsApp Business Setup</DialogTitle></DialogHeader>
+          <p className="text-sm font-semibold text-warning">Not Connected · Setup required</p>
+          <div className="space-y-2 text-sm">
+            <h3 className="font-semibold">Missing in this app</h3>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>A verified WhatsApp Business connection and assigned business number</li>
+              <li>A configured sending service and signed incoming-message receiver</li>
+              <li>Verified delivery-status tracking and Meta template approval sync</li>
+            </ul>
+          </div>
+          <div className="space-y-2 text-sm">
+            <h3 className="font-semibold">Administrator setup requirements</h3>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>Connect an official WhatsApp Business account in Lovable Connectors; complete Meta business, email and phone verification</li>
+              <li>Use a registered business phone number with authorized messaging and template-management permissions</li>
+              <li>Configure and deploy the signed receiver, then select this project under the connection’s Incoming messages setting</li>
+              <li>Assign company access and check customer consent before enabling sending</li>
+              <li>Free-form replies require a customer message within 24 hours; otherwise use a Meta-approved template</li>
+            </ul>
+          </div>
+          <p className="text-sm text-muted-foreground">This button shows requirements only; it does not connect your number. Personal WhatsApp OTP or QR login is not supported. Local template drafts are not Meta-approved messages.</p>
+          <Button asChild variant="outline"><Link to="/whatsapp/templates">WhatsApp Templates</Link></Button>
+        </DialogContent>
+      </Dialog>
+    </UserWorkspace>
+  );
+}
