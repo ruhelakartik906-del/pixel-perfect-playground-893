@@ -484,6 +484,13 @@
       "when": 1792524023257,
       "tag": "0068_invitation_acceptance_before_employee_access",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1792556891509,
+      "tag": "0069_whatsapp_add_contact_rpc",
+      "breakpoints": true
     }
   ]
 }

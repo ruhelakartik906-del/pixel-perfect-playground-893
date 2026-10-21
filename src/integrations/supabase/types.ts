@@ -4735,6 +4735,10 @@ export type Database = {
         Returns: undefined
       }
       user_workspace_allowed: { Args: never; Returns: boolean }
+      whatsapp_add_contact: {
+        Args: { _name: string; _phone: string }
+        Returns: string
+      }
     }
     Enums: {
       account_status: "pending" | "active" | "blocked"
