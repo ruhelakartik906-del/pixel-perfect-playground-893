@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { invitationSchema, validateInvitationRedirect } from '@/lib/admin-invitation';
+import { invitationSchema, validateInvitationRedirect, INVITATION_REDIRECT_URL } from '@/lib/admin-invitation';
 
 const mocks = vi.hoisted(() => ({ rpc: vi.fn(), from: vi.fn(), invite: vi.fn(), setup: vi.fn(), adminFrom: vi.fn() }));
 vi.mock('@tanstack/react-start', () => ({ createServerFn: () => {
@@ -10,7 +10,7 @@ vi.mock('@/integrations/supabase/auth-middleware', () => ({ requireSupabaseAuth:
 vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { auth: { admin: { inviteUserByEmail: mocks.invite } }, rpc: mocks.setup, from: mocks.adminFrom } }));
 import { inviteUser, saveMailbox, disconnectMailbox } from '@/lib/admin-users.functions';
 const context = { userId: '00000000-0000-4000-8000-000000000001', supabase: { rpc: mocks.rpc, from: mocks.from } };
-const draft: ReturnType<typeof invitationSchema.parse> = { email: 'invite@example.test', full_name: 'Invited user', phone: '', role: 'employee', access_role_id: null, company_id: null, redirect_to: 'https://routiva.test/login' };
+const draft: ReturnType<typeof invitationSchema.parse> = { email: 'invite@example.test', full_name: 'Invited user', phone: '', role: 'employee', access_role_id: null, company_id: null, redirect_to: INVITATION_REDIRECT_URL };
 type Invocation = (input: { context: typeof context; data: typeof draft }) => Promise<unknown>;
 const invite = inviteUser as unknown as Invocation;
 
@@ -29,6 +29,10 @@ describe('Administrative invitation safeguards', () => {
     expect(mocks.setup).toHaveBeenCalledWith('admin_complete_invitation', expect.objectContaining({ _actor: context.userId, _user: 'new-user', _role: 'employee' }));
     expect(mocks.setup.mock.calls[0]?.[1]).not.toHaveProperty('_company');
     expect(mocks.adminFrom).not.toHaveBeenCalled();
+    expect(mocks.invite).toHaveBeenCalledWith('invite@example.test', {
+      data: { full_name: 'Invited user', phone: '' },
+      redirectTo: 'https://pixel-perfect-playground-893.lovable.app/login',
+    });
   });
   it.each(['pending','blocked'])('denies %s administrators before any privileged operation', async () => {
     mocks.rpc.mockResolvedValue({ data: false, error: null });
@@ -63,11 +67,14 @@ describe('Administrative invitation safeguards', () => {
     await expect(invite({ context, data: draft })).rejects.toThrow('Invite unavailable');
     expect(mocks.setup).not.toHaveBeenCalled();
   });
-  it.each(['https://evil.test/login','https://routiva.test/admin','https://routiva.test/login?next=evil','https://routiva.test/login#token','https://user:pass@routiva.test/login'])('rejects unsafe return address %s', address => {
-    expect(() => validateInvitationRedirect(address, 'https://routiva.test')).toThrow('Invalid invitation');
+  it.each(['https://evil.test/login','https://pixel-perfect-playground-893.lovable.app/admin','https://pixel-perfect-playground-893.lovable.app/login?next=evil','https://pixel-perfect-playground-893.lovable.app/login#token','https://user:pass@pixel-perfect-playground-893.lovable.app/login','https://id-preview--48e00644-857c-4d61-b9dc-512233910ecd.lovable.app/login','https://lovable.dev/auth-bridge'])('rejects unsafe return address %s', address => {
+    expect(() => validateInvitationRedirect(address)).toThrow('Invalid invitation');
   });
-  it('accepts only the existing same-origin login return address', () => {
-    expect(() => validateInvitationRedirect(draft.redirect_to, 'https://routiva.test')).not.toThrow();
-    expect(() => validateInvitationRedirect(draft.redirect_to, null)).toThrow();
+  it('accepts only the published CRM login return address', () => {
+    expect(() => validateInvitationRedirect('https://pixel-perfect-playground-893.lovable.app/login')).not.toThrow();
+  });
+  it('rejects a preview destination before sending an email', async () => {
+    await expect(invite({ context, data: { ...draft, redirect_to: 'https://id-preview--48e00644-857c-4d61-b9dc-512233910ecd.lovable.app/login' } })).rejects.toThrow('Invalid invitation');
+    expect(mocks.invite).not.toHaveBeenCalled();
   });
 });

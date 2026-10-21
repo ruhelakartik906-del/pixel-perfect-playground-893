@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { getRequest } from '@tanstack/react-start/server';
-import { invitationSchema, validateInvitationRedirect } from './admin-invitation';
+import { invitationSchema, validateInvitationRedirect, INVITATION_REDIRECT_URL } from './admin-invitation';
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("routing_admin");
@@ -33,7 +32,7 @@ export const inviteUser = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => invitationSchema.parse(i))
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
-    validateInvitationRedirect(data.redirect_to, getRequest().headers.get('origin'));
+    validateInvitationRedirect(data.redirect_to);
     if (data.company_id) {
       const company = await context.supabase.from('companies').select('id').eq('id', data.company_id).eq('is_active', true).maybeSingle();
       if (company.error || !company.data) throw new Error('Select an active company');
@@ -47,7 +46,7 @@ export const inviteUser = createServerFn({ method: "POST" })
     if (existing.data) throw new Error('This account already exists. Do not send a duplicate invitation.');
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inv, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
-      data: { full_name: data.full_name, phone: data.phone }, redirectTo: data.redirect_to,
+      data: { full_name: data.full_name, phone: data.phone }, redirectTo: INVITATION_REDIRECT_URL,
     });
     if (error || !inv.user) throw new Error(error?.message ?? "Invite failed");
     const id = inv.user.id;
