@@ -98,6 +98,7 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
   CREATE POLICY qa_admin_read ON leads FOR SELECT TO authenticated USING(routing_admin());`);
   await sql.unsafe(readFileSync('drizzle/migrations/0079_secure_manual_routing_assignments.sql','utf8'));
   await sql.unsafe(readFileSync('drizzle/migrations/0080_exact_private_manual_lead_access.sql','utf8'));
+  await sql.unsafe(readFileSync('drizzle/migrations/0081_manual_lead_duplicate_check_alias.sql','utf8'));
  });
  const manualPayload=(target:string|null,phone='9876543210',company:string|null=null)=>({request_id:crypto.randomUUID(),company_id:company,assign_user:target,customer_name:'Manual assignment QA',country_code:'+91',mobile:phone,email:'',business_name:'',business_category:'',address:'',city:'',state:'',service:'Meta Ads',notes:'',source:'Manual',priority:'medium'});
  async function manualAdmin(){await sql`SELECT set_config('qa.uid',${other},false),set_config('qa.admin','true',false)`;}
