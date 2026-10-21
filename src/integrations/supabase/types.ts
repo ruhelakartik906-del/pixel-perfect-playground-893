@@ -793,6 +793,9 @@ export type Database = {
       }
       crm_stages: {
         Row: {
+          board_closed: boolean
+          board_initial: boolean
+          board_label: string | null
           color: string
           created_at: string
           id: string
@@ -803,6 +806,9 @@ export type Database = {
           position: number
         }
         Insert: {
+          board_closed?: boolean
+          board_initial?: boolean
+          board_label?: string | null
           color?: string
           created_at?: string
           id?: string
@@ -813,6 +819,9 @@ export type Database = {
           position?: number
         }
         Update: {
+          board_closed?: boolean
+          board_initial?: boolean
+          board_label?: string | null
           color?: string
           created_at?: string
           id?: string
@@ -4581,6 +4590,19 @@ export type Database = {
       is_company_member: {
         Args: { _company: string; _user: string }
         Returns: boolean
+      }
+      lead_board_move: {
+        Args: {
+          _id: string
+          _outcome?: string
+          _stage: string
+          _updated_at: string
+        }
+        Returns: string
+      }
+      lead_status_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
       }
       make_authenticated_intake: {
         Args: {
