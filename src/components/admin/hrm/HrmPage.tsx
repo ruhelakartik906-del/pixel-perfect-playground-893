@@ -710,7 +710,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           extra={data?.extra || {}}
           month={month}
           setMonth={setMonth}
-          onOpen={r=>{if(!self&&r["storage"]!=="personal"&&r["hr_employee_id"])edit({...r,employee_id:r["hr_employee_id"]});else setView(r);}}
+          onOpen={r=>{if(!self&&r["storage"]!=="personal"&&(r["hr_employee_id"]||!data?.isAdmin))edit({...r,employee_id:r["hr_employee_id"]||r.employee_id});else setView(r);}}
           onRoster={data?.isAdmin&&!self?setRosterTarget:undefined}
         />
       ) : module === "calendar" ? (
@@ -826,7 +826,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
                 .map((f) => {
                   const value = getValue(form, f.key);
                   const opts = f.source
-                    ? ((data?.[f.source] || []) as HrRow[]).filter(o=>module!=="attendance"||f.source!=="people"||!!o["hr_employee_id"]).filter(
+                    ? ((data?.[f.source] || []) as HrRow[]).filter(o=>module!=="attendance"||f.source!=="people"||!data?.isAdmin||!!o["hr_employee_id"]).map(o=>module==="attendance"&&f.source==="people"&&data?.isAdmin?{...o,id:o["hr_employee_id"]}:o).filter(
                         (o) =>
                           f.source === "companies" ||
                           f.source === "roles" ||
@@ -1042,7 +1042,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
                     ))}
                 </div>
               )}
-              {module === "attendance" && view.id && !self && view["storage"] !== "personal" && view["hr_employee_id"] && (
+              {module === "attendance" && view.id && !self && view["storage"] !== "personal" && (view["hr_employee_id"]||!data?.isAdmin) && (
                 <Button
                   variant="outline"
                   onClick={() => {
