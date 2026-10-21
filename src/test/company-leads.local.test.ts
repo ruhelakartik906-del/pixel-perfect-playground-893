@@ -151,13 +151,16 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
   const originalGuard=readFileSync('drizzle/migrations/0031_user_crm_lead_access.sql','utf8');
   await sql.unsafe(originalGuard.slice(originalGuard.indexOf('CREATE OR REPLACE FUNCTION public.user_lead_guard()'),originalGuard.indexOf('CREATE OR REPLACE FUNCTION public.user_lead_action(')));
   await sql.unsafe(`CREATE FUNCTION guard_crm_record() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.updated_at:=clock_timestamp(); RETURN NEW; END $$; CREATE TRIGGER leads_guard BEFORE UPDATE ON leads FOR EACH ROW EXECUTE FUNCTION guard_crm_record();`);
-  const ids=['77777777-7777-4777-8777-777777777771','77777777-7777-4777-8777-777777777772','77777777-7777-4777-8777-777777777773'];
+  const ids=['77777777-7777-4777-8777-777777777771','77777777-7777-4777-8777-777777777772','77777777-7777-4777-8777-777777777773'] as const;
   for(const id of ids)await sql`INSERT INTO leads(id,pipeline_id,stage_id,assigned_to,company_id,private_owner_id,created_by) VALUES(${id},${p},${initial},${user},null,${user},${other})`;
   await sql`SELECT set_config('qa.uid',${user},false),set_config('qa.admin','false',false),set_config('qa.company','false',false)`;
   const assignedMove=(id:string,stage:string,outcome:string|null)=>sql`SELECT lead_assigned_board_move(${id},(SELECT updated_at FROM leads WHERE id=${id}),${stage},${outcome})`;
   await expect(assignedMove(ids[0],contacted,null)).rejects.toThrow('Only permitted lead details may change');
   expect((await sql`SELECT stage_id,board_moved_at FROM leads WHERE id=${ids[0]}`)[0]).toMatchObject({stage_id:initial,board_moved_at:null});
   await sql.unsafe(readFileSync('drizzle/migrations/0087_secure_assigned_board_move_timestamp.sql','utf8'));
+  await sql.unsafe('ALTER TABLE leads ADD COLUMN automation_stage_revision bigint DEFAULT 0');
+  const automationSql=readFileSync('drizzle/migrations/0058_automation_stage_changed_tasks.sql','utf8');
+  await sql.unsafe(automationSql.slice(automationSql.indexOf('CREATE FUNCTION public.automation_stage_revision_guard()'),automationSql.indexOf('CREATE FUNCTION public.automation_lead_stage_changed()')));
   await sql`UPDATE user_roles SET role='client' WHERE user_id=${user}`;
   await assignedMove(ids[0],contacted,null);
   expect((await sql`SELECT stage_id,status,assigned_to,private_owner_id FROM leads WHERE id=${ids[0]}`)[0]).toMatchObject({stage_id:contacted,status:'open',assigned_to:user,private_owner_id:user});
@@ -168,6 +171,7 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
   for(const id of ids.slice(1))await assignedMove(id,closed,'lost');
   expect(await sql`SELECT id FROM leads WHERE id=ANY(${ids}) AND board_moved_at IS NOT NULL`).toHaveLength(3);
   expect(await sql`SELECT id FROM leads WHERE id=ANY(${ids.slice(1)}) AND stage_id=${closed} AND status='lost'`).toHaveLength(2);
+  expect((await sql`SELECT automation_stage_revision FROM leads WHERE id=ANY(${ids})`).map(r=>String(r['automation_stage_revision']))).toEqual(['1','1','1']);
   for(const state of ['pending','blocked']){await sql`UPDATE profiles SET account_status=${state} WHERE id=${user}`;await expect(assignedMove(ids[0],initial,null)).rejects.toThrow('access denied');}
   await sql`UPDATE profiles SET account_status='active' WHERE id=${user}`;
   await sql`SELECT set_config('qa.uid',${other},false)`;await expect(assignedMove(ids[0],initial,null)).rejects.toThrow('access denied');
