@@ -6,6 +6,7 @@ vi.mock('@tanstack/react-start', () => ({ createServerFn: () => {
   return builder;
 } }));
 vi.mock('@/integrations/supabase/auth-middleware', () => ({ requireSupabaseAuth: {} }));
+vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { auth: { admin: { updateUserById: mocks.password } } } }));
 import { acceptEmployeeInvitation } from '@/lib/auth-access.functions';
 
 const id = '00000000-0000-4000-8000-000000000001';
@@ -24,7 +25,7 @@ describe('Employee invitation acceptance', () => {
   });
   it('activates only the verified caller after successful password setup', async () => {
     expect(await accept({ context, data })).toEqual({ accepted: true });
-    expect(mocks.password).toHaveBeenCalledWith({ password: data.password });
+    expect(mocks.password).toHaveBeenCalledWith(id, { password: data.password });
     expect(mocks.rpc).toHaveBeenCalledWith('accept_employee_invitation');
     expect(mocks.password.mock.invocationCallOrder[0]).toBeLessThan(mocks.rpc.mock.invocationCallOrder[0] ?? 0);
   });
