@@ -31,6 +31,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
 import { Route as AuthenticatedFollowUpsRouteImport } from './routes/_authenticated/follow-ups'
 import { Route as AuthenticatedInvoicesRouteImport } from './routes/_authenticated/invoices'
+import { Route as AuthenticatedLeadStatusRouteImport } from './routes/_authenticated/lead-status'
 import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
 import { Route as AuthenticatedMyLeadsRouteImport } from './routes/_authenticated/my-leads'
 import { Route as AuthenticatedMyReportsRouteImport } from './routes/_authenticated/my-reports'
@@ -60,6 +61,7 @@ import { Route as AuthenticatedAdminCrmCrmSystemSetupRouteImport } from './route
 import { Route as AuthenticatedAdminCrmCustomFormsRouteImport } from './routes/_authenticated/admin/crm/custom-forms'
 import { Route as AuthenticatedAdminCrmDealsRouteImport } from './routes/_authenticated/admin/crm/deals'
 import { Route as AuthenticatedAdminCrmFollowUpsRouteImport } from './routes/_authenticated/admin/crm/follow-ups'
+import { Route as AuthenticatedAdminCrmLeadStatusRouteImport } from './routes/_authenticated/admin/crm/lead-status'
 import { Route as AuthenticatedAdminCrmLeadsRouteImport } from './routes/_authenticated/admin/crm/leads'
 import { Route as AuthenticatedAdminCrmPipelineRouteImport } from './routes/_authenticated/admin/crm/pipeline'
 import { Route as AuthenticatedAdminCrmReportsRouteImport } from './routes/_authenticated/admin/crm/reports'
@@ -216,6 +218,11 @@ const AuthenticatedFollowUpsRoute = AuthenticatedFollowUpsRouteImport.update({
 const AuthenticatedInvoicesRoute = AuthenticatedInvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLeadStatusRoute = AuthenticatedLeadStatusRouteImport.update({
+  id: '/lead-status',
+  path: '/lead-status',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMyHrRoute = AuthenticatedMyHrRouteImport.update({
@@ -377,6 +384,12 @@ const AuthenticatedAdminCrmFollowUpsRoute =
   AuthenticatedAdminCrmFollowUpsRouteImport.update({
     id: '/crm/follow-ups',
     path: '/crm/follow-ups',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCrmLeadStatusRoute =
+  AuthenticatedAdminCrmLeadStatusRouteImport.update({
+    id: '/crm/lead-status',
+    path: '/crm/lead-status',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminCrmLeadsRoute =
@@ -690,6 +703,7 @@ export interface FileRoutesByFullPath {
   '/deals': typeof AuthenticatedDealsRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/invoices': typeof AuthenticatedInvoicesRoute
+  '/lead-status': typeof AuthenticatedLeadStatusRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/my-leads': typeof AuthenticatedMyLeadsRoute
   '/my-reports': typeof AuthenticatedMyReportsRoute
@@ -719,6 +733,7 @@ export interface FileRoutesByFullPath {
   '/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
   '/admin/crm/follow-ups': typeof AuthenticatedAdminCrmFollowUpsRoute
+  '/admin/crm/lead-status': typeof AuthenticatedAdminCrmLeadStatusRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/pipeline': typeof AuthenticatedAdminCrmPipelineRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
@@ -789,6 +804,7 @@ export interface FileRoutesByTo {
   '/deals': typeof AuthenticatedDealsRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/invoices': typeof AuthenticatedInvoicesRoute
+  '/lead-status': typeof AuthenticatedLeadStatusRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
   '/my-leads': typeof AuthenticatedMyLeadsRoute
   '/my-reports': typeof AuthenticatedMyReportsRoute
@@ -818,6 +834,7 @@ export interface FileRoutesByTo {
   '/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
   '/admin/crm/follow-ups': typeof AuthenticatedAdminCrmFollowUpsRoute
+  '/admin/crm/lead-status': typeof AuthenticatedAdminCrmLeadStatusRoute
   '/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/admin/crm/pipeline': typeof AuthenticatedAdminCrmPipelineRoute
   '/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
@@ -891,6 +908,7 @@ export interface FileRoutesById {
   '/_authenticated/deals': typeof AuthenticatedDealsRoute
   '/_authenticated/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/_authenticated/invoices': typeof AuthenticatedInvoicesRoute
+  '/_authenticated/lead-status': typeof AuthenticatedLeadStatusRoute
   '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
   '/_authenticated/my-leads': typeof AuthenticatedMyLeadsRoute
   '/_authenticated/my-reports': typeof AuthenticatedMyReportsRoute
@@ -920,6 +938,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/crm/custom-forms': typeof AuthenticatedAdminCrmCustomFormsRoute
   '/_authenticated/admin/crm/deals': typeof AuthenticatedAdminCrmDealsRoute
   '/_authenticated/admin/crm/follow-ups': typeof AuthenticatedAdminCrmFollowUpsRoute
+  '/_authenticated/admin/crm/lead-status': typeof AuthenticatedAdminCrmLeadStatusRoute
   '/_authenticated/admin/crm/leads': typeof AuthenticatedAdminCrmLeadsRoute
   '/_authenticated/admin/crm/pipeline': typeof AuthenticatedAdminCrmPipelineRoute
   '/_authenticated/admin/crm/reports': typeof AuthenticatedAdminCrmReportsRoute
@@ -993,6 +1012,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/follow-ups'
     | '/invoices'
+    | '/lead-status'
     | '/my-hr'
     | '/my-leads'
     | '/my-reports'
@@ -1022,6 +1042,7 @@ export interface FileRouteTypes {
     | '/admin/crm/custom-forms'
     | '/admin/crm/deals'
     | '/admin/crm/follow-ups'
+    | '/admin/crm/lead-status'
     | '/admin/crm/leads'
     | '/admin/crm/pipeline'
     | '/admin/crm/reports'
@@ -1092,6 +1113,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/follow-ups'
     | '/invoices'
+    | '/lead-status'
     | '/my-hr'
     | '/my-leads'
     | '/my-reports'
@@ -1121,6 +1143,7 @@ export interface FileRouteTypes {
     | '/admin/crm/custom-forms'
     | '/admin/crm/deals'
     | '/admin/crm/follow-ups'
+    | '/admin/crm/lead-status'
     | '/admin/crm/leads'
     | '/admin/crm/pipeline'
     | '/admin/crm/reports'
@@ -1193,6 +1216,7 @@ export interface FileRouteTypes {
     | '/_authenticated/deals'
     | '/_authenticated/follow-ups'
     | '/_authenticated/invoices'
+    | '/_authenticated/lead-status'
     | '/_authenticated/my-hr'
     | '/_authenticated/my-leads'
     | '/_authenticated/my-reports'
@@ -1222,6 +1246,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/crm/custom-forms'
     | '/_authenticated/admin/crm/deals'
     | '/_authenticated/admin/crm/follow-ups'
+    | '/_authenticated/admin/crm/lead-status'
     | '/_authenticated/admin/crm/leads'
     | '/_authenticated/admin/crm/pipeline'
     | '/_authenticated/admin/crm/reports'
@@ -1449,6 +1474,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInvoicesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lead-status': {
+      id: '/_authenticated/lead-status'
+      path: '/lead-status'
+      fullPath: '/lead-status'
+      preLoaderRoute: typeof AuthenticatedLeadStatusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-hr': {
       id: '/_authenticated/my-hr'
       path: '/my-hr'
@@ -1650,6 +1682,13 @@ declare module '@tanstack/react-router' {
       path: '/crm/follow-ups'
       fullPath: '/admin/crm/follow-ups'
       preLoaderRoute: typeof AuthenticatedAdminCrmFollowUpsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/crm/lead-status': {
+      id: '/_authenticated/admin/crm/lead-status'
+      path: '/crm/lead-status'
+      fullPath: '/admin/crm/lead-status'
+      preLoaderRoute: typeof AuthenticatedAdminCrmLeadStatusRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/crm/leads': {
@@ -2007,6 +2046,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCrmCustomFormsRoute: typeof AuthenticatedAdminCrmCustomFormsRoute
   AuthenticatedAdminCrmDealsRoute: typeof AuthenticatedAdminCrmDealsRoute
   AuthenticatedAdminCrmFollowUpsRoute: typeof AuthenticatedAdminCrmFollowUpsRoute
+  AuthenticatedAdminCrmLeadStatusRoute: typeof AuthenticatedAdminCrmLeadStatusRoute
   AuthenticatedAdminCrmLeadsRoute: typeof AuthenticatedAdminCrmLeadsRoute
   AuthenticatedAdminCrmPipelineRoute: typeof AuthenticatedAdminCrmPipelineRoute
   AuthenticatedAdminCrmReportsRoute: typeof AuthenticatedAdminCrmReportsRoute
@@ -2078,6 +2118,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminCrmCustomFormsRoute,
     AuthenticatedAdminCrmDealsRoute: AuthenticatedAdminCrmDealsRoute,
     AuthenticatedAdminCrmFollowUpsRoute: AuthenticatedAdminCrmFollowUpsRoute,
+    AuthenticatedAdminCrmLeadStatusRoute: AuthenticatedAdminCrmLeadStatusRoute,
     AuthenticatedAdminCrmLeadsRoute: AuthenticatedAdminCrmLeadsRoute,
     AuthenticatedAdminCrmPipelineRoute: AuthenticatedAdminCrmPipelineRoute,
     AuthenticatedAdminCrmReportsRoute: AuthenticatedAdminCrmReportsRoute,
@@ -2162,6 +2203,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
   AuthenticatedFollowUpsRoute: typeof AuthenticatedFollowUpsRoute
   AuthenticatedInvoicesRoute: typeof AuthenticatedInvoicesRoute
+  AuthenticatedLeadStatusRoute: typeof AuthenticatedLeadStatusRoute
   AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
   AuthenticatedMyLeadsRoute: typeof AuthenticatedMyLeadsRoute
   AuthenticatedMyReportsRoute: typeof AuthenticatedMyReportsRoute
@@ -2183,6 +2225,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDealsRoute: AuthenticatedDealsRoute,
   AuthenticatedFollowUpsRoute: AuthenticatedFollowUpsRoute,
   AuthenticatedInvoicesRoute: AuthenticatedInvoicesRoute,
+  AuthenticatedLeadStatusRoute: AuthenticatedLeadStatusRoute,
   AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
   AuthenticatedMyLeadsRoute: AuthenticatedMyLeadsRoute,
   AuthenticatedMyReportsRoute: AuthenticatedMyReportsRoute,
