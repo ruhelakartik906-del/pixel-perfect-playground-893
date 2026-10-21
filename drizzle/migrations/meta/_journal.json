@@ -512,6 +512,13 @@
       "when": 1792563550212,
       "tag": "0072_lead_board_fail_closed_access",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1792572687267,
+      "tag": "0073_authorized_user_lead_status",
+      "breakpoints": true
     }
   ]
 }

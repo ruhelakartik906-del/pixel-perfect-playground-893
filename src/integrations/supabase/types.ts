@@ -4604,6 +4604,7 @@ export type Database = {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
+      lead_status_allowed: { Args: { _action: string }; Returns: boolean }
       make_authenticated_intake: {
         Args: {
           _dry_run: boolean
