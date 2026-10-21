@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { authDestination, loginDestination } from '@/lib/auth-destination';
 import { registerSchema } from '@/lib/auth-validation';
+import { accountStatePath } from '@/lib/account-status';
 
 describe('verified login destinations', () => {
+  it('keeps pending company-access denial on approval instead of bouncing to Dashboard', () => {
+    expect(accountStatePath('pending', 'pending')).toBe('/pending-approval');
+    expect(accountStatePath('pending', undefined)).toBe('/pending-approval');
+    expect(accountStatePath('pending', 'active')).toBe('/dashboard');
+    expect(accountStatePath('pending', 'blocked')).toBe('/restricted');
+  });
+  it.each(['/my-leads', '/lead-status', '/pipeline'])('preserves the Leads login return %s', path => {
+    expect(loginDestination('/dashboard', path)).toBe(path);
+    expect(loginDestination('/restricted', path)).toBe('/restricted');
+    expect(loginDestination('/pending-approval', path)).toBe('/pending-approval');
+  });
   it('sends active Super Admin to the existing Admin panel', () => {
     expect(authDestination('active', ['super_admin'])).toBe('/admin/dashboard');
   });

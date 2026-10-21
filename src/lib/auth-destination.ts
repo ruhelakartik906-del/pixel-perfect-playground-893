@@ -10,7 +10,7 @@ export function authDestination(status: AccountStatus | null | undefined, roles:
   return '/dashboard';
 }
 
-const userPaths = ['/dashboard', '/my-leads', '/my-work-table', '/deals', '/tasks', '/follow-ups', '/calendar', '/team-chat', '/whatsapp/chats', '/whatsapp/templates', '/proposals', '/invoices', '/my-reports', '/support', '/settings', '/my-hr'];
+const userPaths = ['/dashboard', '/my-leads', '/lead-status', '/pipeline', '/my-work-table', '/deals', '/tasks', '/follow-ups', '/calendar', '/team-chat', '/whatsapp/chats', '/whatsapp/templates', '/proposals', '/invoices', '/my-reports', '/support', '/settings', '/my-hr'];
 
 export function loginDestination(destination: AuthDestination, requested: string | null): string {
   if (!requested || !requested.startsWith('/') || requested.startsWith('//') || /[\\\s\u0000-\u001f]/.test(requested)) return destination;
