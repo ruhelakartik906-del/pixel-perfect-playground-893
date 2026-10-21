@@ -137,4 +137,11 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
   await expect(sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(user,'9876543215',other))})`).rejects.toThrow('unauthorized');
   const r=await sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(user,'9876543215',p))}) AS data`;expect((await sql`SELECT company_id,private_owner_id FROM leads WHERE id=${r[0]?.['data'].id}`)[0]).toMatchObject({company_id:p,private_owner_id:null});
  });
+ it('ordinary users cannot call manual creation or probe internal recipient eligibility',async()=>{
+  await sql.unsafe(readFileSync('drizzle/migrations/0083_private_manual_recipient_helper.sql','utf8'));
+  await sql`SELECT set_config('qa.uid',${user},false),set_config('qa.admin','false',false)`;
+  await expect(sql`SELECT manual_routing_lead_create(${sql.json(manualPayload(user,'9876543216'))})`).rejects.toThrow('Super Admin');
+  await expect(sql`SELECT manual_routing_recipients()`).rejects.toThrow('Super Admin');
+  await sql.unsafe('SET ROLE authenticated');await expect(sql`SELECT manual_routing_eligible(${other},null)`).rejects.toThrow('permission denied');await sql.unsafe('RESET ROLE');
+ });
 });
