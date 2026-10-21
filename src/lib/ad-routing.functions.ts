@@ -27,7 +27,19 @@ export const loadAdRouting = createServerFn({ method: "GET" }).middleware([requi
     && roles.some((r: any) => r.user_id === m.user_id && ["employee", "manager", "super_admin"].includes(r.role))
     && !roles.some((r: any) => r.user_id === m.user_id && r.role === "client")
     && !employees.some((e: any) => e.profile_id === m.user_id && e.company_id === m.company_id && (!e.is_active || e.access_status !== "approved")));
-  return { rules: rules.filter((r) => r.status !== "deleted"), steps, events, queue, leads, companies, people, eligible, audits };
+  const eligibleKeys = new Set(eligible.map((m: any) => `${m.company_id}:${m.user_id}`));
+  const excluded = members.filter((m: any) => !eligibleKeys.has(`${m.company_id}:${m.user_id}`)).map((m: any) => {
+    const person = people.find((p: any) => p.id === m.user_id);
+    const company = companies.find((c: any) => c.id === m.company_id);
+    const memberRoles = roles.filter((r: any) => r.user_id === m.user_id).map((r: any) => r.role);
+    const hr = employees.find((e: any) => e.profile_id === m.user_id && e.company_id === m.company_id);
+    const reason = !person ? "profile missing" : person.account_status !== "active" ? `account ${person.account_status}` : !company ? "company missing"
+      : !company.is_active ? "company inactive" : memberRoles.includes("client") ? "client accounts cannot receive routed leads"
+      : !memberRoles.some((r: string) => ["employee", "manager", "super_admin"].includes(r)) ? "no staff role"
+      : hr && (!hr.is_active || hr.access_status !== "approved") ? "HR access not approved" : "not eligible";
+    return { company_id: m.company_id, user_id: m.user_id, reason };
+  });
+  return { rules: rules.filter((r) => r.status !== "deleted"), steps, events, queue, leads, companies, people, eligible, excluded, audits };
 });
 
 const source = z.string().trim().max(255).default("");
