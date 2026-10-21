@@ -4,7 +4,7 @@ import { Loader2, Lock, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { workspacePathForStatus, type AccountStatus } from "@/lib/account-status";
+import { accountStatePath, type AccountStatus } from "@/lib/account-status";
 
 export function AccountState({ kind }: { kind: "pending" | "restricted" }) {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export function AccountState({ kind }: { kind: "pending" | "restricted" }) {
       }
       const { data } = await supabase.from("profiles").select("account_status").eq("id", userData.user.id).maybeSingle();
       const status = data?.account_status as AccountStatus | undefined;
-      const path: string = workspacePathForStatus(status);
+      const path = accountStatePath(kind, status);
       if ((kind === "pending" && path !== "/pending-approval") || (kind === "restricted" && path !== "/restricted")) {
         navigate({ to: path, replace: true });
         return;
