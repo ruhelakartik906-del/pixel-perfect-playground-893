@@ -20,7 +20,7 @@ describe('Employee invitation acceptance', () => {
     vi.resetAllMocks();
     mocks.user.mockResolvedValue({ data: { user: { id, invited_at: '2026-10-20', email_confirmed_at: '2026-10-20' } }, error: null });
     mocks.profile.mockResolvedValue({ data: { account_status: 'pending' }, error: null });
-    mocks.password.mockResolvedValue({ error: null });
+    mocks.password.mockResolvedValue({ data: { user: { id } }, error: null });
     mocks.rpc.mockResolvedValue({ data: id, error: null });
   });
   it('activates only the verified caller after successful password setup', async () => {
