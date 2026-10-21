@@ -554,6 +554,13 @@
       "when": 1792589438460,
       "tag": "0078_assigned_board_move",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1792592656191,
+      "tag": "0079_secure_manual_routing_assignments",
+      "breakpoints": true
     }
   ]
 }

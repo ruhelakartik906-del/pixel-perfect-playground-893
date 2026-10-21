@@ -4786,6 +4786,18 @@ export type Database = {
         Args: { _action: string; _payload: Json }
         Returns: string
       }
+      manual_routing_eligible: {
+        Args: { _company: string; _user: string }
+        Returns: boolean
+      }
+      manual_routing_lead_create: { Args: { _payload: Json }; Returns: Json }
+      manual_routing_recipients: {
+        Args: never
+        Returns: {
+          company_id: string
+          user_id: string
+        }[]
+      }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
       personal_attendance_action: { Args: { _action: string }; Returns: string }
       route_lead: {
