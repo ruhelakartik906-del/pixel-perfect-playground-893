@@ -38,6 +38,7 @@
   --color-soft: var(--soft);
   --color-cyan: var(--cyan);
   --color-success: var(--success);
+  --color-attendance-present: var(--attendance-present);
   --color-success-soft: var(--success-soft);
   --color-status-action: var(--status-action);
   --color-warning: var(--warning);
@@ -99,6 +100,7 @@
   --soft: oklch(0.955 0.025 262);
   --cyan: oklch(0.77 0.14 205);
   --success: #2584F5;
+  --attendance-present: #15803d;
   --success-soft: #e7f1fe;
   --warning: oklch(0.7 0.15 65);
   --warning-soft: oklch(0.97 0.04 80);

@@ -11,7 +11,7 @@
 
 - Public chrome stays outside workspaces; compact AuthCard is Login/Register-only — why: shared chrome and isolated spacing.
 - Make management uses Admin-gated functions, hashed credentials, source mappings and redacted logs; intake uses the existing public route and locked canonical Leads/routing RPCs — why: isolation, safe rotation and atomic quotas.
-- Protected CRM workspace pages live under `src/routes/_authenticated/`; public marketing/auth pages stay top-level — why: account gating should not affect crawlable public pages.
+- CRM pages use `src/routes/_authenticated/`; public marketing/auth stay top-level — why: gate workspaces, not crawlable pages.
 - Master Admin uses protected admin routes, shared nav/UI, a role guard and fallback splat — why: authorized access and working links.
 - First Super Admin provisioning uses only private secrets via `provision-admin.functions.ts` and stops once one exists; logins share authenticated `auth-access.functions.ts` with stored roles/status — why: public signup cannot grant privileges, and blocked/pending checks precede role redirects.
 - Leads use scoped RPCs, canonical reads, ad-private owners and atomic Board stage/outcome/first-move saves — why: preserve company privacy, quotas and detail guards.
@@ -35,3 +35,5 @@
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
 - Automation uses canonical work and unique events; retry fault tests use unchanged SQL in disposable localhost DBs — why: safe scope/deduplication without production faults.
+
+- Attendance projects existing HR/personal summaries (HR wins per account/date), never copies check-ins; independent Super-Admin-only roster exclusion preserves HR identity.

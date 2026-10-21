@@ -63,6 +63,7 @@ import { hrConfig, human } from "./config";
 import { HrmCalendar } from "./HrmCalendar";
 import { HrmAttendance } from "./HrmAttendance";
 import { BulkAttendance } from "./BulkAttendance";
+import { manageAttendanceRoster } from "@/lib/personal-attendance.functions";
 function getValue(row: HrRow, key: string) {
   return key.startsWith("details.") ? row.details?.[key.slice(8)] : row[key];
 }
@@ -107,9 +108,13 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
   const [balance, setBalance] = useState<HrRow | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const bulkSave = useServerFn(saveBulkAttendance);
+  const rosterSave = useServerFn(manageAttendanceRoster);
+  const [rosterTarget,setRosterTarget]=useState<HrRow|null>(null);
+  const [showExcluded,setShowExcluded]=useState(false);
   const query = useQuery({
     queryKey: ["hr-workspace", module, month],
     queryFn: () => fetch({ data: { module, month } }),
+    refetchInterval: module === "attendance" ? 30000 : false,
   });
   const data = query.data;
   const hist = useQuery({
@@ -133,7 +138,8 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
   const people = (data?.people || []).filter(
     (p) =>
       (!self || p.profile_id === data?.userId) &&
-      (!company || p.company_id === company) &&
+      (!company || p.company_id === company || (module === "attendance" && p["company_ids"]?.includes(company))) &&
+      (module !== "attendance" || !data?.isAdmin || !!p["excluded"] === showExcluded) &&
       (!status || module !== "attendance" || Array.from({length: new Date(Number(month.slice(0,4)),Number(month.slice(5)),0).getDate()},(_,i)=>`${month}-${String(i+1).padStart(2,"0")}`).some(date=>attendanceCell(p,date,data?.extra["attendance"]||[],data?.extra["holidays"]||[],data?.extra["leaves"]||[]).status===status)) &&
       (!q || `${p.name} ${p.email}`.toLowerCase().includes(q.toLowerCase())),
   );
@@ -216,6 +222,8 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
     if (module === "meeting") p.kind = "meeting";
     if (["announcement", "document"].includes(module)) p.end_date = p.end_date || null;
     if (module === "attendance") {
+      const selected=data?.people.find(e=>e.id===r.employee_id);
+      p.employee_id=r["hr_employee_id"]||selected?.["hr_employee_id"]||r.employee_id;
       p.check_in = r.check_in_time ? indiaTimestamp(r.date, r.check_in_time) : null;
       p.check_out = r.check_out_time ? indiaTimestamp(r.date, r.check_out_time) : null;
     }
@@ -631,7 +639,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
                 setPage(1);
               }}
             >
-              <option value="">All authorized companies</option>
+              <option value="">{module === "attendance" && data?.isAdmin ? "All Users" : "All authorized companies"}</option>
               {data?.companies.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -691,6 +699,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           )}
         </div>
       )}
+      {module==="attendance"&&data?.isAdmin&&!self&&<Button variant="outline" onClick={()=>setShowExcluded(!showExcluded)}>{showExcluded?"Attendance List":"Excluded Users"}</Button>}
       {query.isLoading ? (
         <Card>
           <EmptyState title="Loading…" />
@@ -701,7 +710,8 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           extra={data?.extra || {}}
           month={month}
           setMonth={setMonth}
-          onOpen={self ? setView : edit}
+          onOpen={r=>{if(!self&&r["storage"]!=="personal"&&(r["hr_employee_id"]||!data?.isAdmin))edit({...r,employee_id:r["hr_employee_id"]||r.employee_id});else setView(r);}}
+          onRoster={data?.isAdmin&&!self?setRosterTarget:undefined}
         />
       ) : module === "calendar" ? (
         <HrmCalendar extra={data?.extra || {}} month={month} setMonth={setMonth} onOpen={setView} />
@@ -816,7 +826,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
                 .map((f) => {
                   const value = getValue(form, f.key);
                   const opts = f.source
-                    ? ((data?.[f.source] || []) as HrRow[]).filter(
+                    ? ((data?.[f.source] || []) as HrRow[]).filter(o=>module!=="attendance"||f.source!=="people"||!data?.isAdmin||!!o["hr_employee_id"]).map(o=>module==="attendance"&&f.source==="people"&&data?.isAdmin?{...o,id:o["hr_employee_id"]}:o).filter(
                         (o) =>
                           f.source === "companies" ||
                           f.source === "roles" ||
@@ -1032,7 +1042,7 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
                     ))}
                 </div>
               )}
-              {module === "attendance" && view.id && !self && (
+              {module === "attendance" && view.id && !self && view["storage"] !== "personal" && (view["hr_employee_id"]||!data?.isAdmin) && (
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -1161,7 +1171,8 @@ export function HrmPage({ module, self = false }: { module: HrModule; self?: boo
           </Button>
         </DialogContent>
       </Dialog>
-      <BulkAttendance people={people} open={bulkOpen} onClose={() => setBulkOpen(false)} onSave={async payload => { await bulkSave({ data: payload }); refresh(); toast.success("Attendance saved"); }} />
+      <Dialog open={!!rosterTarget} onOpenChange={o=>!o&&!busy&&setRosterTarget(null)}><DialogContent><DialogHeader><DialogTitle>{rosterTarget?.["excluded"]?"Restore to Attendance List":"Remove from Attendance List"}</DialogTitle></DialogHeader><p>{rosterTarget?.name||rosterTarget?.email}</p><p className="text-sm text-muted-foreground">CRM account and historical attendance will remain unchanged.</p><Button disabled={busy} onClick={async()=>{if(!rosterTarget||busy)return;setBusy(true);try{await rosterSave({data:{userId:rosterTarget.profile_id,excluded:!rosterTarget["excluded"]}});setRosterTarget(null);refresh();toast.success("Attendance list updated");}catch(e){toast.error((e as Error).message);}finally{setBusy(false);}}}>{busy?"Saving…":"Confirm"}</Button></DialogContent></Dialog>
+      <BulkAttendance people={module==="attendance"?people.filter(p=>p["hr_employee_id"]).map(p=>({...p,id:p["hr_employee_id"]})):people} open={bulkOpen} onClose={() => setBulkOpen(false)} onSave={async payload => { await bulkSave({ data: payload }); refresh(); toast.success("Attendance saved"); }} />
       <Dialog open={!!balance} onOpenChange={(o) => !o && setBalance(null)}>
         <DialogContent>
           <DialogHeader>
