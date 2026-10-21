@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { ALL_PERMISSIONS, canDeleteRole, summarize, validTemplateName } from "@/lib/permissions";
 
 describe("permissions", () => {
+  it("requires separate explicit shared-status permissions rather than lead editing", () => {
+    expect(ALL_PERMISSIONS).toContain("lead_status.create");
+    expect(ALL_PERMISSIONS).toContain("lead_status.edit");
+    expect(ALL_PERMISSIONS).toContain("lead_status.delete");
+  });
   it("catalog has view/create/edit/delete for each module", () => {
     expect(ALL_PERMISSIONS).toContain("lead.delete");
     expect(ALL_PERMISSIONS.length % 4).toBe(0);
