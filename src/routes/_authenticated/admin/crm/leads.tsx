@@ -44,7 +44,7 @@ async function load() {
   if (err) throw err;
   const people = (r[5].data as { id: string; full_name: string; email: string; account_status: string }[]);
   return {
-    leads: r[0].data as Lead[], stages: r[1].data as import("@/lib/leads-board").BoardStage[], sources: r[2].data as Named[],
+    leads: r[0] as Lead[], stages: r[1].data as import("@/lib/leads-board").BoardStage[], sources: r[2].data as Named[],
     defaultPipeline: (r[3].data as { id: string; is_default: boolean }[]).find((p) => p.is_default)?.id ?? null,
     columns: (r[4].data?.columns as string[] | undefined) ?? leadColumnCatalog.map((c) => c.id),
     people: people.map((p) => ({ id: p.id, name: p.full_name || p.email, active: p.account_status === "active" })),
