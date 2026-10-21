@@ -60,7 +60,7 @@ function MyAttendance() {
         {Array.from({ length: days }, (_, i) => {
           const date = `${month}-${String(i + 1).padStart(2, '0')}`;
           const cell = person ? attendanceCell(person, date, records, rows.data?.holidays ?? [], rows.data?.leaves ?? []) : { status: 'unrecorded', label: '' };
-          return <div key={date} aria-label={`${date}: ${cell.status}`} className={`min-h-16 rounded border p-2 text-center text-xs ${cell.status === 'present' ? 'bg-attendance-present/10 text-attendance-present' : cell.status === 'absent' ? 'bg-admin-red/10 text-admin-red' : cell.status === 'half_day' ? 'bg-admin-blue/10 text-admin-blue' : 'text-muted-foreground'}`}>{i + 1}<div className="mt-1 break-words font-semibold">{cell.label}</div></div>;
+          return <div key={date} aria-label={`${date}: ${cell.status}`} className={`min-h-16 rounded border px-1 py-2 text-center text-xs ${cell.status === 'present' ? 'bg-attendance-present/10 text-attendance-present' : cell.status === 'absent' ? 'bg-admin-red/10 text-admin-red' : cell.status === 'half_day' ? 'bg-admin-blue/10 text-admin-blue' : 'text-muted-foreground'}`}>{i + 1}<div className="mt-1 break-words text-[10px] font-semibold">{cell.label}</div></div>;
         })}
       </div>
     </div>
@@ -69,7 +69,7 @@ function MyAttendance() {
         {rows.isPending ? <tr><td className="p-3" colSpan={4}>Loading…</td></tr> : !monthRecords.length ? <tr><td className="p-3 text-muted-foreground" colSpan={4}>No attendance recorded yet.</td></tr> : monthRecords.map(r => <tr key={r.id} className="border-b"><td className="p-3">{r.attendance_date}</td><td className="p-3">{r.status === 'half_day' ? 'Half Day' : r.status === 'present' ? 'Present' : r.status}</td><td className="p-3">{time(r.check_in)}</td><td className="p-3">{time(r.check_out)}</td></tr>)}
       </tbody></table>
     </div>
-    {official.isSuccess && official.data.manageable.some(x => x !== 'attendance') && <section>
+    {official.isSuccess && official.data.people.some(p=>p.profile_id===official.data.userId) && <section>
       <h2 className="mb-3 font-semibold">Official HR (company-linked)</h2>
       <div className="mb-3 flex flex-wrap gap-2">{(['leave', 'document', 'meeting', 'announcement'] as HrModule[]).map(x => <Button key={x} size="sm" variant={module === x ? 'default' : 'outline'} onClick={() => setModule(x)}>{x.charAt(0).toUpperCase() + x.slice(1)}</Button>)}</div>
       <HrmPage key={module} module={module} self />

@@ -7,6 +7,7 @@ describe.skipIf(process.env['LEADS_LOCAL_QA']!=='1')('Actual attendance RPCs in 
  const roster=async()=> (await sql`select crm_attendance_workspace() as w`)[0]?.['w'];
  const actor=async(id:string)=>{await sql`select set_config('qa.uid',${id},false)`;};
  beforeAll(async()=>{
+ await sql.unsafe('DROP SCHEMA IF EXISTS auth CASCADE; DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
  await sql.unsafe(`CREATE SCHEMA auth; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$;
  CREATE TABLE profiles(id uuid PRIMARY KEY,full_name text,email text,account_status text,created_at timestamptz DEFAULT now());
  CREATE TABLE user_roles(user_id uuid,role text); CREATE TABLE companies(id uuid PRIMARY KEY,is_active boolean); CREATE TABLE company_members(user_id uuid,company_id uuid);
