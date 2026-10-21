@@ -31,7 +31,7 @@ describe('Administrative invitation safeguards', () => {
     expect(mocks.adminFrom).not.toHaveBeenCalled();
     expect(mocks.invite).toHaveBeenCalledWith('invite@example.test', {
       data: { full_name: 'Invited user', phone: '' },
-      redirectTo: 'https://pixel-perfect-playground-893.lovable.app/login',
+      redirectTo: 'https://pixel-perfect-playground-893.lovable.app/accept-invitation',
     });
   });
   it.each(['pending','blocked'])('denies %s administrators before any privileged operation', async () => {
@@ -70,8 +70,9 @@ describe('Administrative invitation safeguards', () => {
   it.each(['https://evil.test/login','https://pixel-perfect-playground-893.lovable.app/admin','https://pixel-perfect-playground-893.lovable.app/login?next=evil','https://pixel-perfect-playground-893.lovable.app/login#token','https://user:pass@pixel-perfect-playground-893.lovable.app/login','https://id-preview--48e00644-857c-4d61-b9dc-512233910ecd.lovable.app/login','https://lovable.dev/auth-bridge'])('rejects unsafe return address %s', address => {
     expect(() => validateInvitationRedirect(address)).toThrow('Invalid invitation');
   });
-  it('accepts only the published CRM login return address', () => {
-    expect(() => validateInvitationRedirect('https://pixel-perfect-playground-893.lovable.app/login')).not.toThrow();
+  it('accepts only the published CRM acceptance return address', () => {
+    expect(() => validateInvitationRedirect('https://pixel-perfect-playground-893.lovable.app/accept-invitation')).not.toThrow();
+    expect(() => validateInvitationRedirect('https://pixel-perfect-playground-893.lovable.app/login')).toThrow();
   });
   it('rejects a preview destination before sending an email', async () => {
     await expect(invite({ context, data: { ...draft, redirect_to: 'https://id-preview--48e00644-857c-4d61-b9dc-512233910ecd.lovable.app/login' } })).rejects.toThrow('Invalid invitation');
