@@ -25,10 +25,10 @@ export function boardDateMatches(iso: string, from: string, to: string) {
 }
 export const boardMoveSchema = z.object({id:z.string().uuid(), updated_at:z.string().datetime({offset:true}), stage_id:z.string().uuid(), outcome:z.enum(['won','lost']).nullable().default(null)}).strict();
 export const statusActionSchema = z.discriminatedUnion('action',[
-  z.object({action:z.literal('create'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().optional(),is_default:z.boolean().optional(),name:z.string().trim().min(1).max(80),color:z.string().regex(/^#[0-9a-fA-F]{6}$/)}).strict(),
-  z.object({action:z.literal('edit'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().optional(),is_default:z.boolean().optional(),id:z.string().uuid(),name:z.string().trim().min(1).max(80),color:z.string().regex(/^#[0-9a-fA-F]{6}$/)}).strict(),
-  z.object({action:z.literal('delete'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().optional(),id:z.string().uuid()}).strict(),
-  z.object({action:z.literal('reorder'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().optional(),ids:z.array(z.string().uuid()).min(1)}).strict(),
+  z.object({action:z.literal('create'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().nullable().optional(),is_default:z.boolean().optional(),name:z.string().trim().min(1).max(80),color:z.string().regex(/^#[0-9a-fA-F]{6}$/)}).strict(),
+  z.object({action:z.literal('edit'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().nullable().optional(),is_default:z.boolean().optional(),id:z.string().uuid(),name:z.string().trim().min(1).max(80),color:z.string().regex(/^#[0-9a-fA-F]{6}$/)}).strict(),
+  z.object({action:z.literal('delete'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().nullable().optional(),id:z.string().uuid()}).strict(),
+  z.object({action:z.literal('reorder'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().nullable().optional(),ids:z.array(z.string().uuid()).min(1)}).strict(),
 ]);
 export const leadCacheKeys = [['admin-leads'],['user-crm'],['lead-status'],['crm-setup'],['admin-pipeline-preview']];
 export function parseCompanyStages(value: unknown) { return z.array(z.object({id:z.string().uuid(),name:z.string(),board_label:z.string().nullable(),color:z.string(),position:z.number(),pipeline_id:z.string().uuid(),is_active:z.boolean(),board_initial:z.boolean(),board_closed:z.boolean(),company_id:z.string().uuid().nullable(),is_default:z.boolean(),created_at:z.string(),kind:z.string()})).parse(value); }
