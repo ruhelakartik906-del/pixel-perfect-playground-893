@@ -98,8 +98,8 @@
   --surface: oklch(0.985 0.006 262);
   --soft: oklch(0.955 0.025 262);
   --cyan: oklch(0.77 0.14 205);
-  --success: oklch(0.6 0.15 155);
-  --success-soft: oklch(0.96 0.04 155);
+  --success: #2584F5;
+  --success-soft: #e7f1fe;
   --warning: oklch(0.7 0.15 65);
   --warning-soft: oklch(0.97 0.04 80);
   --chart-1: oklch(0.53 0.21 263);
@@ -121,7 +121,7 @@
   --admin-blue: oklch(0.62 0.19 256);
   --admin-purple: oklch(0.58 0.22 290);
   --admin-pink: oklch(0.63 0.22 0);
-  --admin-green: oklch(0.72 0.19 150);
+  --admin-green: #2584F5;
   --admin-orange: oklch(0.77 0.16 70);
   --admin-red: oklch(0.64 0.21 25);
   --wa-green: oklch(0.72 0.16 156);
@@ -141,9 +141,9 @@
   --shadow-card: 0 1px 2px oklch(0.3 0.05 262 / 0.04), 0 8px 24px -12px oklch(0.3 0.08 262 / 0.12);
   --shadow-float: 0 24px 60px -20px oklch(0.4 0.15 262 / 0.28);
   --shadow-cta: 0 10px 24px -8px oklch(0.53 0.21 263 / 0.55);
-  --gradient-leads: linear-gradient(100deg, #bbdfce, #d3efde 55%, #f0f8ee);
-  --leads-banner-border: #bad8c5;
-  --status-action: #008368;
+  --gradient-leads: linear-gradient(100deg, #cfe2fc, #deecfd 55%, #f0f7ff);
+  --leads-banner-border: #bcd6f8;
+  --status-action: #2584F5;
   --status-swatch-blue: #dbeafe;
   --status-swatch-purple: #e9d5ff;
   --status-swatch-yellow: #fef3c7;
