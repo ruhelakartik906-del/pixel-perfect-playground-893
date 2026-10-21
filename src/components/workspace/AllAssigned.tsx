@@ -46,7 +46,7 @@ export function AllAssigned() {
   const openMove = (ids: string[]) => { setTarget(ids); setStageId(''); setOutcome(''); };
   async function confirm() {
     if (!chosen) return;
-    if (chosen.board_closed && !outcome) return toast.error('Choose Won or Lost');
+    if (chosen.board_closed && !outcome) { toast.error('Choose Won or Lost'); return; }
     setBusy(true); let ok = 0; const failed: string[] = [];
     for (const l of targetLeads) {
       const st = stagesFor(l).find(s => s.id === chosen.id) || stagesFor(l).find(s => chosen.board_closed ? s.board_closed : chosen.board_initial ? s.board_initial : stageLabel(s) === stageLabel(chosen));
