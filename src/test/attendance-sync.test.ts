@@ -1,0 +1,20 @@
+import { describe,it,expect } from 'vitest';
+import { attendanceCell,indiaDate } from '@/lib/hrm-model';
+const user={id:'u',company_id:null,attendance_start:'2026-10-01'};
+const today='2026-10-21';
+describe('CRM attendance calendar',()=>{
+ it('completed working day is absent for an enrolled account',()=>expect(attendanceCell(user,'2026-10-20',[],[],[],today).status).toBe('absent'));
+ it('today is not finalized',()=>expect(attendanceCell(user,today,[],[],[],today).status).toBe('unrecorded'));
+ it('future weekend remains blank',()=>expect(attendanceCell(user,'2026-10-24',[],[],[],today)).toEqual({status:'unrecorded',label:''}));
+ it('future recorded absence is not displayed',()=>expect(attendanceCell(user,'2026-10-22',[{id:'a',employee_id:'u',attendance_date:'2026-10-22',status:'absent'}],[],[],today).status).toBe('unrecorded'));
+ it('days before account creation are not absences',()=>expect(attendanceCell(user,'2026-09-30',[],[],[],today).status).toBe('unrecorded'));
+ it('weekends do not become absences',()=>expect(attendanceCell(user,'2026-10-17',[],[],[],today).status).toBe('weekend'));
+ it('company membership holidays are respected without an HR employee',()=>expect(attendanceCell({...user,company_ids:['c']},'2026-10-20',[],[{id:'h',company_id:'c',status:'active',start_date:'2026-10-20',end_date:'2026-10-20'}],[],today).status).toBe('holiday'));
+ it('another company holiday cannot suppress an absence',()=>expect(attendanceCell({...user,company_ids:['c']},'2026-10-20',[],[{id:'h',company_id:'other',status:'active',start_date:'2026-10-20',end_date:'2026-10-20'}],[],today).status).toBe('absent'));
+ it('approved leave prevents absence',()=>expect(attendanceCell(user,'2026-10-20',[],[],[{id:'l',employee_id:'u',status:'approved',start_date:'2026-10-20',end_date:'2026-10-20'}],today).status).toBe('leave'));
+ it('pending leave does not prevent completed-day absence',()=>expect(attendanceCell(user,'2026-10-20',[],[],[{id:'l',employee_id:'u',status:'pending',start_date:'2026-10-20',end_date:'2026-10-20'}],today).status).toBe('absent'));
+ it('own persisted present takes precedence',()=>expect(attendanceCell(user,today,[{id:'a',employee_id:'u',attendance_date:today,status:'present'}],[],[],today).status).toBe('present'));
+ it('own persisted Half Day is shared',()=>expect(attendanceCell(user,today,[{id:'a',employee_id:'u',attendance_date:today,status:'half_day'}],[],[],today).status).toBe('half_day'));
+ it('another user record cannot count as own attendance',()=>expect(attendanceCell(user,'2026-10-20',[{id:'a',employee_id:'other',attendance_date:'2026-10-20',status:'present'}],[],[],today).status).toBe('absent'));
+ it('Kolkata date advances before UTC midnight',()=>expect(indiaDate('2026-10-20T19:00:00Z')).toBe('2026-10-21'));
+});
