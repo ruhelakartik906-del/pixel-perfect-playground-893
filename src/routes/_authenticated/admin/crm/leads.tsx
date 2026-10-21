@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Breadcrumb, Card, DataTable, EmptyState, PageHeader, SearchInput, StatusBadge, TabBar, ToolbarButton } from "@/components/admin/ui";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { leadColumnCatalog } from "@/lib/crm-config";
 import { AddLeadDialog } from "@/components/pipeline/AddLeadDialog";
 import type { BoardStage } from "@/lib/leads-board";
@@ -146,7 +147,7 @@ function LeadDrawer({ lead, onClose, data }: { lead: Lead | null; onClose: () =>
             <div className="grid grid-cols-2 gap-3">
               <label className="font-semibold">Stage
                 <select value={lead.stage_id ?? ""} onChange={(e) => update({ stage_id: e.target.value || null })} className="mt-1 h-10 w-full rounded-md border bg-card px-2 font-normal">
-                  <option value="">—</option>{data.stages.filter(s=>s.pipeline_id===lead.pipeline_id&&s.is_active&&!s.board_closed).map((s) => <option key={s.id} value={s.id}>{s.board_label || s.name}</option>)}
+                  <option value="">—</option>{data.stages.filter(s=>s.pipeline_id===lead.pipeline_id&&s.is_active&&!s.board_closed&&(!s.company_id||s.company_id===lead.company_id)).map((s) => <option key={s.id} value={s.id}>{s.board_label || s.name}</option>)}
                 </select>
               </label>
               <label className="font-semibold">Assignee
@@ -155,6 +156,7 @@ function LeadDrawer({ lead, onClose, data }: { lead: Lead | null; onClose: () =>
                 </select>
               </label>
             </div>
+            <Button variant="destructive" onClick={async()=>{if(!window.confirm('Delete this lead? Linked records may prevent deletion.'))return;const result=await db.from('leads').delete().eq('id',lead.id);if(result.error){toast.error('This lead could not be deleted. Preserve any linked history.');return;}await qc.invalidateQueries({queryKey:QK});onClose();toast.success('Lead deleted');}}>Delete Lead</Button>
             <section>
               <h3 className="mb-2 font-bold">Form answers</h3>
               {answers.length ? answers.map(([k, v]) => <p key={k}><span className="text-muted-foreground">{k}:</span> {String(v)}</p>)
