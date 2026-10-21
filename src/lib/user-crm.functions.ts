@@ -23,7 +23,9 @@ export const loadUserCrm = createServerFn({ method: 'GET' }).middleware([require
   }
   const memberships = allowed ? await all(o => db.from('company_members').select('company_id').eq('user_id', context.userId).order('id').range(o, o + 999)) : [];
   const companyIds = memberships.map(m => m.company_id);
-  const companies = companyIds.length ? await all(o => db.from('companies').select('id,name,is_active').in('id', companyIds).eq('is_active', true).order('id').range(o, o + 999)) : [];
+  const memberCompanies = companyIds.length ? await all(o => db.from('companies').select('id,name,is_active').in('id', companyIds).eq('is_active', true).order('id').range(o, o + 999)) : [];
+  const verifiedCompanies = await Promise.all(memberCompanies.map(async company=>{const result=await db.rpc('user_crm_company',{_company:company.id});if(result.error)throw new Error('Company access could not be verified');return result.data?company:null;}));
+  const companies=verifiedCompanies.filter((company):company is NonNullable<typeof company>=>company!==null);
   const authorizedIds = new Set(companies.map(c => c.id));
   const ids = [...authorizedIds];
   const [leads, deals, work, stages, sources] = await Promise.all([

@@ -107,9 +107,9 @@ export function LeadsPage() {
   return (
     <div className="space-y-5">
       <Breadcrumb label="Leads" />
-      <PageHeader title="Leads" description="" />
+      <PageHeader title="Leads" />
       <div className="flex flex-wrap items-center gap-3"><SearchInput value={q} onChange={setQ} placeholder="Search leads"/><div className="ml-auto flex gap-2"><ToolbarButton onClick={exportCsv}><Download className="size-4"/>Export</ToolbarButton><ToolbarButton onClick={()=>setImporting(true)}><Upload className="size-4"/>Import</ToolbarButton><ToolbarButton primary onClick={()=>setAddStage(data?.stages.find(s=>s.board_initial&&s.pipeline_id===data.defaultPipeline)||data?.stages.find(s=>s.is_active)||null)}><Plus className="size-4"/>Add Lead</ToolbarButton></div></div>
-      <TabBar tabs={tabs} active={tab} onChange={v=>setTab(v as Tab)}/>
+      <TabBar tabs={tabs} value={tab} onChange={v=>setTab(v as Tab)}/>
       {isLoading?<p className="py-20 text-center text-muted-foreground">Loading leads…</p>:error?<EmptyState title="Could not load leads" hint={(error as Error).message}/>:<div className="overflow-x-auto rounded-md border bg-card"><table className="w-full min-w-[900px] text-left text-sm"><thead className="border-b bg-muted"><tr><th className="p-3">Name</th>{cols.map(c=><th className="p-3" key={c.id}>{c.label}</th>)}</tr></thead><tbody>{filtered.map(l=><tr key={l.id} className="cursor-pointer border-b hover:bg-muted" onClick={()=>setOpen(l)}><td className="p-3 font-semibold">{l.customer_name}</td>{cols.map(c=><td key={c.id} className="p-3">{cell(l,c.id)}</td>)}</tr>)}</tbody></table>{!filtered.length&&<EmptyState title="No leads"/>}</div>}
 
       {addStage && data && <AddLeadDialog stage={addStage} stages={data.stages} sources={data.sources} companies={data.companies} close={()=>setAddStage(null)}/> }

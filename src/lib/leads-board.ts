@@ -31,4 +31,4 @@ export const statusActionSchema = z.discriminatedUnion('action',[
   z.object({action:z.literal('reorder'),pipeline_id:z.string().uuid(),company_id:z.string().uuid().optional(),ids:z.array(z.string().uuid()).min(1)}).strict(),
 ]);
 export const leadCacheKeys = [['admin-leads'],['user-crm'],['lead-status'],['crm-setup'],['admin-pipeline-preview']];
-export function parseCompanyStages(value: unknown): BoardStage[] { return z.array(z.object({id:z.string().uuid(),name:z.string(),board_label:z.string().nullable().optional(),color:z.string(),position:z.number(),pipeline_id:z.string().uuid(),is_active:z.boolean(),board_initial:z.boolean(),board_closed:z.boolean(),company_id:z.string().uuid().nullable(),is_default:z.boolean()})).parse(value); }
+export function parseCompanyStages(value: unknown) { return z.array(z.object({id:z.string().uuid(),name:z.string(),board_label:z.string().nullable(),color:z.string(),position:z.number(),pipeline_id:z.string().uuid(),is_active:z.boolean(),board_initial:z.boolean(),board_closed:z.boolean(),company_id:z.string().uuid().nullable(),is_default:z.boolean(),created_at:z.string(),kind:z.string()})).parse(value); }
