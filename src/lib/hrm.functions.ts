@@ -18,7 +18,7 @@ export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireS
  const extraTables=data.module==='calendar'?{holidays:'hr_holidays',leaves:'hr_leave_requests',meetings:'hr_meetings',schedules:'hr_schedules'}:['attendance','payroll'].includes(data.module)?{attendance:'hr_attendance',holidays:'hr_holidays',leaves:'hr_leave_requests'}:{};
  for(const [key,table] of Object.entries(extraTables))extra[key]=await readRows(table);
  let attendancePeople:HrRow[]|undefined;
- if(data.module==='attendance'){
+ if(data.module==='attendance'&&perms.data===true){
  const workspace=await context.supabase.rpc('crm_attendance_workspace',{_month:data.month});
  if(workspace.error)throw new Error(workspace.error.message);
  const unified=workspace.data as unknown as AttendanceWorkspace;
@@ -27,7 +27,7 @@ export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireS
  if(data.module==='leave'){const r=await context.supabase.from('hr_leave_balances').select('*');if(r.error)throw new Error(r.error.message);extra['balances']=r.data;}
  if(data.module==='announcement'){const r=await context.supabase.from('hr_announcement_attachments').select('id,announcement_id,filename,created_at').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra['attachments']=r.data as HrRow[];}
  if(data.module==='document'){const r=await context.supabase.from('hr_document_versions').select('*').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra['versions']=r.data;}
- return {rows:data.module==='attendance'?extra['attendance']||[]:result[0]||[],companies:result[1]||[],branches:result[2]||[],designations:result[3]||[],departments:result[4]||[],roles:result[5]||[],people:attendancePeople||(people.data||[]) as HrRow[],userId:context.userId,isAdmin:perms.data===true,manageable,extra};
+ return {rows:attendancePeople?extra['attendance']||[]:result[0]||[],companies:result[1]||[],branches:result[2]||[],designations:result[3]||[],departments:result[4]||[],roles:result[5]||[],people:attendancePeople||(people.data||[]) as HrRow[],userId:context.userId,isAdmin:perms.data===true,manageable,extra};
 });
 export const mutateHrm=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:moduleSchema,action:z.enum(['save','delete']),id:z.string().uuid().optional(),payload:z.record(z.unknown()).optional()}).parse(v)).handler(async({context,data})=>{
  if(['attendance','leave','payroll'].includes(data.module))throw new Error('Use the audited action');

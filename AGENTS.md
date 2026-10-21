@@ -35,3 +35,5 @@
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
 - Automation uses canonical work and unique events; retry fault tests use unchanged SQL in disposable localhost DBs — why: safe scope/deduplication without production faults.
+
+- Attendance uses a single authenticated projection of existing HR and personal summaries (HR wins per account/date), with no copied check-ins; roster exclusion is independent and Super-Admin-only — why: include personal CRM users without changing employee, leave or payroll identity.
