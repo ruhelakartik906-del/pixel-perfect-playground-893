@@ -8,8 +8,7 @@ describe.skipIf(process.env['LEADS_LOCAL_QA'] !== '1')('Ad routing active recipi
   const client='33333333-3333-4333-8333-333333333333', employee='44444444-4444-4444-8444-444444444444', admin='55555555-5555-4555-8555-555555555555';
   let rule: string; const leadIds: string[]=[];
   beforeAll(async () => {
-    await sql.unsafe(`DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS auth CASCADE; CREATE SCHEMA public; CREATE SCHEMA auth;
-      DO $$ BEGIN FOREACH r IN ARRAY ARRAY['authenticated','anon','service_role'] LOOP END LOOP; END $$;`.replace('DO $$ BEGIN FOREACH r IN ARRAY ARRAY[\'authenticated\',\'anon\',\'service_role\'] LOOP END LOOP; END $$;', ''));
+    await sql.unsafe(`DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS auth CASCADE; CREATE SCHEMA public; CREATE SCHEMA auth;`);
     await sql.unsafe(`CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$;
       CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql AS $$ SELECT 'authenticated'::text $$;
       CREATE TABLE profiles(id uuid PRIMARY KEY,full_name text,email text,account_status text);
@@ -34,6 +33,7 @@ describe.skipIf(process.env['LEADS_LOCAL_QA'] !== '1')('Ad routing active recipi
       CREATE POLICY company_read ON leads FOR SELECT TO authenticated USING((assigned_to=auth.uid() AND user_crm_company(company_id)) OR routing_admin());
       GRANT USAGE ON SCHEMA public,auth TO authenticated; GRANT SELECT ON leads,lead_activities TO authenticated;
       ALTER TABLE lead_activities ENABLE ROW LEVEL SECURITY;
+      CREATE FUNCTION lead_company_stage_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NEW; END $$;
       SELECT set_config('qa.uid','${admin}',false);`);
     await sql.unsafe(readFileSync('drizzle/migrations/0084_secure_ad_routing_active_recipients.sql','utf8'));
     await sql.unsafe(readFileSync('drizzle/migrations/0085_exact_ad_routed_private_boundary.sql','utf8'));
@@ -61,7 +61,8 @@ describe.skipIf(process.env['LEADS_LOCAL_QA'] !== '1')('Ad routing active recipi
   });
   it('duplicate arrivals and assignment retries preserve exactly one event and accurate quotas',async()=>{
     await expect(insert('one')).rejects.toThrow('duplicate');
-    expect((await sql`SELECT route_lead(${leadIds[0]}) AS result`)[0]?.['result'].status).toBe('already_assigned');
+    const first=leadIds[0]; if(!first) throw new Error('First lead missing');
+    expect((await sql`SELECT route_lead(${first}) AS result`)[0]?.['result'].status).toBe('already_assigned');
     expect(await sql`SELECT lead_id FROM lead_assignment_events WHERE rule_id=${rule}`).toHaveLength(2);
   });
   it('source Page and company mismatches never route',async()=>{for(const id of [await insert('wrong-company',otherCompany),await insert('wrong-page',company,'789')])expect((await sql`SELECT assigned_to FROM leads WHERE id=${id}`)[0]?.['assigned_to']).toBe(null);});
