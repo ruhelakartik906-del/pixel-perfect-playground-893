@@ -12,13 +12,13 @@ export type WaConversation = {
   id: string;
   name: string;
   phone: string;
-  preview?: string;
-  at?: string | null;
-  unread?: number;
-  kind?: 'business' | 'contact' | 'group';
-  favorite?: boolean;
-  leadTo?: string;
-  leadLabel?: string;
+  preview?: string | undefined;
+  at?: string | null | undefined;
+  unread?: number | undefined;
+  kind?: 'business' | 'contact' | 'group' | undefined;
+  favorite?: boolean | undefined;
+  leadTo?: string | undefined;
+  leadLabel?: string | undefined;
 };
 
 export type WaChatMessage = {
