@@ -30,13 +30,13 @@ export const loadUserCrm = createServerFn({ method: 'GET' }).middleware([require
   const ids = [...authorizedIds];
   const [companyLeads, personalLeads, deals, work, stages, sources] = await Promise.all([
     ids.length ? all(o => db.from('leads').select('*').eq('assigned_to', context.userId).in('company_id', ids).order('id').range(o, o + 999)) : [],
-     allowed ? all(o => db.from('leads').select('*').eq('assigned_to', context.userId).is('company_id', null).order('id').range(o, o + 999)) : [],
+     allowed ? all(o => db.from('leads').select('*').eq('assigned_to', context.userId).or(`company_id.is.null,private_owner_id.eq.${context.userId}`).order('id').range(o, o + 999)) : [],
     ids.length ? all(o => db.from('deals').select('id,title,status,created_at,company_id').eq('assigned_to', context.userId).in('company_id', ids).order('id').range(o, o + 999)) : [],
     ids.length && !roles.includes('client') ? all(o => db.from('crm_work_items').select('*').eq('assigned_to', context.userId).in('company_id', ids).is('deleted_at', null).order('id').range(o, o + 999)) : [],
     all(o => db.from('crm_stages').select('*').eq('kind', 'lead').order('position').order('id').range(o, o + 999)),
     all(o => db.from('crm_options').select('id,name,is_active').eq('category', 'source').order('id').range(o, o + 999)),
   ]);
-  const ownLeads = allowed ? [...companyLeads.filter(l => l.company_id && authorizedIds.has(l.company_id)), ...personalLeads] : [];
+  const ownLeads = allowed ? [...companyLeads.filter(l => l.company_id && authorizedIds.has(l.company_id) && !personalLeads.some(p => p.id === l.id)), ...personalLeads] : [];
   const personalResult = allowed ? await db.rpc('lead_personal_stages') : null;
   if (personalResult?.error) throw new Error('Personal lead statuses could not be loaded');
   const personalStages = personalResult ? parseCompanyStages(personalResult.data) : [];
