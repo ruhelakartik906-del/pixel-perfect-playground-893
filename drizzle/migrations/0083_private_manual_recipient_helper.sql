@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.manual_routing_eligible(uuid,uuid) FROM authenticated;
+COMMENT ON FUNCTION public.manual_routing_eligible(uuid,uuid) IS 'Internal manual-only eligibility helper; callable through authorized Admin recipient and assignment routines. Automatic routing is unchanged.';

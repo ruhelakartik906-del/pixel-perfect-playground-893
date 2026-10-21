@@ -554,6 +554,41 @@
       "when": 1792589438460,
       "tag": "0078_assigned_board_move",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1792592656191,
+      "tag": "0079_secure_manual_routing_assignments",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1792592751107,
+      "tag": "0080_exact_private_manual_lead_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1792592860161,
+      "tag": "0081_manual_lead_duplicate_check_alias",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1792592907770,
+      "tag": "0082_manual_lead_phone_variable",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1792592983519,
+      "tag": "0083_private_manual_recipient_helper",
+      "breakpoints": true
     }
   ]
 }
