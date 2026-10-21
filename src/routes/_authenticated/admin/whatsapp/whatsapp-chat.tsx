@@ -71,5 +71,6 @@ function WaChat() {
         onAddContact={addContact}
       />
     </Card>
+    </>
   );
 }
