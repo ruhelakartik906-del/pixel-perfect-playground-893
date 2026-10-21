@@ -26,6 +26,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RestrictedRouteImport } from './routes/restricted'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAllAssignedRouteImport } from './routes/_authenticated/all-assigned'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
@@ -194,6 +195,12 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAllAssignedRoute =
+  AuthenticatedAllAssignedRouteImport.update({
+    id: '/all-assigned',
+    path: '/all-assigned',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
@@ -691,6 +698,7 @@ export interface FileRoutesByFullPath {
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/all-assigned': typeof AuthenticatedAllAssignedRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
@@ -791,6 +799,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
+  '/all-assigned': typeof AuthenticatedAllAssignedRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
@@ -894,6 +903,7 @@ export interface FileRoutesById {
   '/restricted': typeof RestrictedRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/all-assigned': typeof AuthenticatedAllAssignedRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/deals': typeof AuthenticatedDealsRoute
@@ -997,6 +1007,7 @@ export interface FileRouteTypes {
     | '/restricted'
     | '/terms'
     | '/admin'
+    | '/all-assigned'
     | '/calendar'
     | '/dashboard'
     | '/deals'
@@ -1097,6 +1108,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/restricted'
     | '/terms'
+    | '/all-assigned'
     | '/calendar'
     | '/dashboard'
     | '/deals'
@@ -1199,6 +1211,7 @@ export interface FileRouteTypes {
     | '/restricted'
     | '/terms'
     | '/_authenticated/admin'
+    | '/_authenticated/all-assigned'
     | '/_authenticated/calendar'
     | '/_authenticated/dashboard'
     | '/_authenticated/deals'
@@ -1424,6 +1437,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/all-assigned': {
+      id: '/_authenticated/all-assigned'
+      path: '/all-assigned'
+      fullPath: '/all-assigned'
+      preLoaderRoute: typeof AuthenticatedAllAssignedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/calendar': {
@@ -2176,6 +2196,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedAllAssignedRoute: typeof AuthenticatedAllAssignedRoute
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
@@ -2198,6 +2219,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedAllAssignedRoute: AuthenticatedAllAssignedRoute,
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDealsRoute: AuthenticatedDealsRoute,
