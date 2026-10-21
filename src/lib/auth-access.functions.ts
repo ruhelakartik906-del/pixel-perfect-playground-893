@@ -13,8 +13,12 @@ export const acceptEmployeeInvitation = createServerFn({ method: 'POST' })
     if (user.error || !user.data.user?.invited_at || !user.data.user.email_confirmed_at || profile.error || profile.data.account_status !== 'pending') {
       throw new Error('A verified pending invitation is required');
     }
-    const password = await context.supabase.auth.updateUser({ password: data.password });
-    if (password.error) throw new Error('The invitation password could not be saved');
+    // The bearer-scoped client has no stored session, so auth.updateUser always
+    // fails with "Auth session missing!". Set the password through the admin API
+    // for the bearer-verified invitee only; the checks above pin the identity.
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const password = await supabaseAdmin.auth.admin.updateUserById(context.userId, { password: data.password });
+    if (password.error || password.data.user?.id !== context.userId) throw new Error('The invitation password could not be saved');
     const accepted = await context.supabase.rpc('accept_employee_invitation');
     if (accepted.error || accepted.data !== context.userId) throw new Error('Invitation acceptance could not be completed');
     return { accepted: true };
