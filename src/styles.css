@@ -63,6 +63,14 @@
   --color-admin-green: var(--admin-green);
   --color-admin-orange: var(--admin-orange);
   --color-admin-red: var(--admin-red);
+  --color-wa-green: var(--wa-green);
+  --color-wa-green-deep: var(--wa-green-deep);
+  --color-wa-unread: var(--wa-unread);
+  --color-wa-bubble: var(--wa-bubble);
+  --color-wa-chat: var(--wa-chat);
+  --color-wa-panel: var(--wa-panel);
+  --color-wa-icon: var(--wa-icon);
+  --color-wa-tick: var(--wa-tick);
 }
 
 :root {
@@ -115,6 +123,14 @@
   --admin-green: oklch(0.72 0.19 150);
   --admin-orange: oklch(0.77 0.16 70);
   --admin-red: oklch(0.64 0.21 25);
+  --wa-green: oklch(0.72 0.16 156);
+  --wa-green-deep: oklch(0.6 0.11 157);
+  --wa-unread: oklch(0.77 0.2 152);
+  --wa-bubble: oklch(0.95 0.07 143);
+  --wa-chat: oklch(0.95 0.018 95);
+  --wa-panel: oklch(0.968 0.004 247);
+  --wa-icon: oklch(0.55 0.017 253);
+  --wa-tick: oklch(0.71 0.11 224);
 
   --gradient-brand: linear-gradient(135deg, oklch(0.53 0.21 263), oklch(0.77 0.14 205));
   --gradient-icon: linear-gradient(135deg, oklch(0.6 0.19 258), oklch(0.53 0.21 263));
@@ -194,6 +210,20 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
+}
+
+@utility bg-wa-chat-pattern {
+  background-color: var(--wa-chat);
+  background-image: radial-gradient(color-mix(in oklab, var(--wa-icon) 9%, transparent) 1px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+@keyframes wa-fill {
+  from { width: 6%; }
+  to { width: 100%; }
+}
+@utility animate-wa-fill {
+  animation: wa-fill 1.4s ease-out forwards;
 }
 
 @utility inp {

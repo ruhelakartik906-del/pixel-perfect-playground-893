@@ -82,3 +82,6 @@
 - [x] HRM Analytics integration; ten routes/forms/refresh and nine CSV exports checked; 23 rule tests passed
 - [ ] HRM financial/write and employee/manager authorization verification — blocked: no confirmed isolated backend or linked employee test account
 - [ ] HRM remaining scope: leave/announcement attachments, read indicators, explicit payroll duplicate override and expanded analytics — unfinished this pass
+
+## WhatsApp Web-style chat frontend (Phase 1, Oct 21)
+- [ ] Rebuild WhatsApp Chats as two-panel WhatsApp Web-style UI (frontend only, local demo state, no sends)
