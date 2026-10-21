@@ -5,3 +5,5 @@ export function templateVariables(body:string){return [...new Set([...body.match
 export function filledTemplate(body:string,samples:Record<string,string>){return body.replace(/\{\{(\d+)\}\}/g,(original,n:string)=>samples[n]||original);}
 export function unreadDirect(messages:{sender_id:string;recipient_id:string;read_at:string|null;group_id:string|null}[],me:string,peer:string){return messages.filter(m=>!m.group_id&&m.recipient_id===me&&m.sender_id===peer&&!m.read_at).length;}
 export function editableTemplate(t:{status:string;sync_status:string}){return t.status==='draft'&&t.sync_status==='not_synced';}
+export const waContactInput=z.object({name:z.string().trim().min(1,'Enter a client name').max(100,'Name is limited to 100 characters'),countryCode:z.string().trim().regex(/^\+?[1-9]\d{0,3}$/,'Select a valid country code'),phone:z.string().trim().regex(/^\d{6,14}$/,'Enter the WhatsApp number without spaces or symbols')});
+export function waContactE164(v:{countryCode:string;phone:string}){const cc=v.countryCode.replace(/\D/g,'');const local=v.phone.replace(/\D/g,'').replace(/^0+/,'');const digits=cc+local;return /^\d{8,15}$/.test(digits)?digits:null;}

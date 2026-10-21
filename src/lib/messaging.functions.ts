@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
-import { chatText,templateDraft } from './messaging';
+import { chatText,templateDraft,waContactInput,waContactE164 } from './messaging';
 import { validateSupportFile } from './support-model';
 import type { Json } from '@/integrations/supabase/types';
 export const loadMessaging=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
@@ -30,3 +30,16 @@ export const loadUserWhatsApp=createServerFn({method:'GET'}).middleware([require
 export const loadWhatsAppHistory=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({id:z.string().uuid()}).parse(v)).handler(async({context,data})=>{const c=await context.supabase.from('whatsapp_conversations').select('id').eq('id',data.id).single();if(c.error)throw new Error('Conversation access denied');const r=await context.supabase.from('whatsapp_messages').select('*').eq('conversation_id',data.id).order('created_at');if(r.error)throw new Error('History could not be loaded');return r.data;});
 export const saveTemplateDraft=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>templateDraft.parse(v)).handler(async({context,data})=>{const {id,...payload}=data;const permission=await context.supabase.rpc('messaging_allowed',{_permission:id?'template.edit':'template.create'});const personalOk=!payload.company_id&&(await context.supabase.rpc('user_workspace_allowed')).data===true;if(!permission.data&&!personalOk)throw new Error('Template management permission required');const p={...payload,status:'draft',sync_status:'not_synced',buttons:payload.buttons as Json,samples:payload.samples as Json};const r=id?await context.supabase.from('whatsapp_templates').update(p).eq('id',id).select('id').single():await context.supabase.from('whatsapp_templates').insert({...p,created_by:context.userId}).select('id').single();if(r.error)throw new Error('Draft could not be saved. Check permission, company and unique name.');return r.data.id;});
 export const deleteTemplateDraft=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({id:z.string().uuid()}).parse(v)).handler(async({context,data})=>{const permission=await context.supabase.rpc('messaging_allowed',{_permission:'template.delete'});if(!permission.data&&(await context.supabase.rpc('user_workspace_allowed')).data!==true)throw new Error('Template deletion permission required');const r=await context.supabase.from('whatsapp_templates').delete().eq('id',data.id).eq('status','draft').eq('sync_status','not_synced').select('id').single();if(r.error)throw new Error('Draft could not be deleted');});
+export const getWhatsAppConnectionStatus=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async()=>{
+ const lovKey=process.env['LOVABLE_API_KEY'];const waKey=process.env['WHATSAPP_API_KEY'];
+ if(!lovKey||!waKey)return {connected:false as const,phone:null as string|null,reason:'WhatsApp Business is not connected to this app yet.'};
+ const res=await fetch('https://connector-gateway.lovable.dev/whatsapp/phone_number?fields=display_phone_number,verified_name',{headers:{Authorization:`Bearer ${lovKey}`,'X-Connection-Api-Key':waKey}});
+ if(!res.ok){const body=await res.text();console.error(`WhatsApp status check failed [${res.status}]: ${body}`);return {connected:false as const,phone:null as string|null,reason:'The connected WhatsApp Business account could not be verified.'};}
+ const info=await res.json() as {display_phone_number?:string;verified_name?:string};
+ if(!info.display_phone_number)return {connected:false as const,phone:null as string|null,reason:'No verified business number is registered yet.'};
+ return {connected:true as const,phone:info.display_phone_number,name:info.verified_name??null};
+});
+export const addWhatsAppContact=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>waContactInput.parse(v)).handler(async({context,data})=>{
+ const digits=waContactE164(data);if(!digits)throw new Error('Enter a valid international WhatsApp number');
+ const r=await context.supabase.rpc('whatsapp_add_contact',{_name:data.name,_phone:digits});if(r.error)throw new Error(r.error.message);return r.data as string;
+});
