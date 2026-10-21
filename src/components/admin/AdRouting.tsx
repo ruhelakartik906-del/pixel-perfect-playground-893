@@ -12,6 +12,13 @@ import { validateAllocations, type Allocation } from "@/lib/routing";
 
 export const adRoutingQuery = queryOptions({ queryKey: ["ad-routing"], queryFn: () => loadAdRouting() });
 export const personName = (data: AdRoutingData, id: string) => data.people.find((p) => p.id === id)?.full_name || data.people.find((p) => p.id === id)?.email || "Unknown user";
+export const personLabel = (data: AdRoutingData, id: string) => { const p = data.people.find((x) => x.id === id); return p ? `${p.full_name || p.email} (${p.email})` : "Unknown user"; };
+export const eligibilityReason = (data: AdRoutingData, companyId: string) => {
+  if (!companyId) return "Select a company to see its eligible users.";
+  if (!data.companies.some((c) => c.id === companyId)) return "This company was not found.";
+  const reasons = [...new Set(data.excluded.filter((e) => e.company_id === companyId).map((e) => e.reason))];
+  return reasons.length ? `No eligible users for this company: ${reasons.join("; ")}.` : "No team members belong to this company yet.";
+};
 export const companyName = (data: AdRoutingData, id: string) => data.companies.find((c) => c.id === id)?.name || "No company";
 export function RoutingSelect({ value, onChange, children, label, disabled = false }: { value: string; onChange: (v: string) => void; children: React.ReactNode; label: string; disabled?: boolean }) {
   return <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled} className="h-10 max-w-full rounded-md border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-ring">{children}</select>;
