@@ -145,4 +145,36 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
   await expect(sql`SELECT manual_routing_recipients()`).rejects.toThrow('Super Admin');
   await sql.unsafe('SET ROLE authenticated');await expect(sql`SELECT manual_routing_eligible(${other},null)`).rejects.toThrow('permission denied');await sql.unsafe('RESET ROLE');
  });
+ it('assigned Board moves reproduce the timestamp rejection then persist single/bulk changes securely',async()=>{
+  await sql`SELECT set_config('qa.uid','',false)`;
+  await sql.unsafe(readFileSync('drizzle/migrations/0078_assigned_board_move.sql','utf8'));
+  const originalGuard=readFileSync('drizzle/migrations/0031_user_crm_lead_access.sql','utf8');
+  await sql.unsafe(originalGuard.slice(originalGuard.indexOf('CREATE OR REPLACE FUNCTION public.user_lead_guard()'),originalGuard.indexOf('CREATE OR REPLACE FUNCTION public.user_lead_action(')));
+  await sql.unsafe(`CREATE FUNCTION guard_crm_record() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.updated_at:=clock_timestamp(); RETURN NEW; END $$; CREATE TRIGGER leads_guard BEFORE UPDATE ON leads FOR EACH ROW EXECUTE FUNCTION guard_crm_record();`);
+  const ids=['77777777-7777-4777-8777-777777777771','77777777-7777-4777-8777-777777777772','77777777-7777-4777-8777-777777777773'];
+  for(const id of ids)await sql`INSERT INTO leads(id,pipeline_id,stage_id,assigned_to,company_id,private_owner_id,created_by) VALUES(${id},${p},${initial},${user},null,${user},${other})`;
+  await sql`SELECT set_config('qa.uid',${user},false),set_config('qa.admin','false',false),set_config('qa.company','false',false)`;
+  const assignedMove=(id:string,stage:string,outcome:string|null)=>sql`SELECT lead_assigned_board_move(${id},(SELECT updated_at FROM leads WHERE id=${id}),${stage},${outcome})`;
+  await expect(assignedMove(ids[0],contacted,null)).rejects.toThrow('Only permitted lead details may change');
+  expect((await sql`SELECT stage_id,board_moved_at FROM leads WHERE id=${ids[0]}`)[0]).toMatchObject({stage_id:initial,board_moved_at:null});
+  await sql.unsafe(readFileSync('drizzle/migrations/0087_secure_assigned_board_move_timestamp.sql','utf8'));
+  await sql`UPDATE user_roles SET role='client' WHERE user_id=${user}`;
+  await assignedMove(ids[0],contacted,null);
+  expect((await sql`SELECT stage_id,status,assigned_to,private_owner_id FROM leads WHERE id=${ids[0]}`)[0]).toMatchObject({stage_id:contacted,status:'open',assigned_to:user,private_owner_id:user});
+  const stamp=(await sql`SELECT board_moved_at,updated_at FROM leads WHERE id=${ids[0]}`)[0];
+  await assignedMove(ids[0],contacted,null);
+  expect((await sql`SELECT board_moved_at,updated_at FROM leads WHERE id=${ids[0]}`)[0]).toEqual(stamp);
+  await sql`UPDATE user_roles SET role='employee' WHERE user_id=${user}`;
+  for(const id of ids.slice(1))await assignedMove(id,closed,'lost');
+  expect(await sql`SELECT id FROM leads WHERE id=ANY(${ids}) AND board_moved_at IS NOT NULL`).toHaveLength(3);
+  expect(await sql`SELECT id FROM leads WHERE id=ANY(${ids.slice(1)}) AND stage_id=${closed} AND status='lost'`).toHaveLength(2);
+  for(const state of ['pending','blocked']){await sql`UPDATE profiles SET account_status=${state} WHERE id=${user}`;await expect(assignedMove(ids[0],initial,null)).rejects.toThrow('access denied');}
+  await sql`UPDATE profiles SET account_status='active' WHERE id=${user}`;
+  await sql`SELECT set_config('qa.uid',${other},false)`;await expect(assignedMove(ids[0],initial,null)).rejects.toThrow('access denied');
+  await sql`SELECT set_config('qa.uid',${user},false)`;
+  await expect(assignedMove(ids[0],closed,null)).rejects.toThrow('Choose Won or Lost');
+  await expect(sql`SELECT lead_assigned_board_move(${ids[0]},'2000-01-01',${initial},null)`).rejects.toThrow('Refresh');
+  await expect(sql`UPDATE leads SET board_moved_at=null WHERE id=${ids[0]}`).rejects.toThrow('authorized assigned Board move');
+  await expect(sql`UPDATE leads SET private_owner_id=${other} WHERE id=${ids[0]}`).rejects.toThrow('Only permitted lead details');
+ });
 });
