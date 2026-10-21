@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import {
-  ArrowLeft, Ban, Camera, Check, CheckCheck, ChevronDown, FileText, IdCard, Image as ImageIcon,
+  ArrowLeft, Ban, Camera, Check, CheckCheck, FileText, IdCard, Image as ImageIcon,
   MessageCirclePlus, Mic, MoreVertical, Paperclip, Phone, Plus, Search, ShieldAlert, Smile, UserPlus, X,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -327,7 +327,7 @@ export function WhatsAppWebChat(p: Props) {
               className="h-11 min-w-0 flex-1 rounded-full border bg-card px-4 text-[15px] outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/30 disabled:opacity-70"
             />
             {selectedIsDemo && draft.trim() ? (
-              <button aria-label="Send demo message" title="Send demo message" onClick={sendDemo} className="grid size-11 shrink-0 place-items-center rounded-full bg-wa-green-deep text-primary-foreground hover:opacity-90"><Check className="hidden" /><Send className="size-5" /></button>
+              <button aria-label="Send demo message" title="Send demo message" onClick={sendDemo} className="grid size-11 shrink-0 place-items-center rounded-full bg-wa-green-deep text-primary-foreground hover:opacity-90"><Send className="size-5" /></button>
             ) : (
               <button aria-label="Voice message" title="Voice message" onClick={() => toast.info(selectedIsDemo ? 'Voice messages: preview only.' : 'Sending requires a verified WhatsApp Business connection.')} className="grid size-11 shrink-0 place-items-center rounded-full text-wa-icon hover:bg-muted"><Mic className="size-5" /></button>
             )}
