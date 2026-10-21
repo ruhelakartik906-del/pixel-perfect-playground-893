@@ -45,7 +45,7 @@ describe.skipIf(!enabled)('Company User Leads RPC authorization',()=>{
  CREATE POLICY "Active CRM lead access" ON leads AS RESTRICTIVE FOR ALL TO authenticated USING(public.routing_admin() OR public.user_crm_company(company_id));
  CREATE POLICY lead_account_assignment_boundary ON leads AS RESTRICTIVE FOR ALL TO authenticated USING(public.routing_admin() OR (assigned_to=auth.uid() AND public.user_crm_company(company_id)));
  CREATE POLICY company_read ON leads FOR SELECT TO authenticated USING(assigned_to=auth.uid() AND public.user_crm_company(company_id));
- GRANT SELECT ON leads TO authenticated; GRANT USAGE ON SCHEMA auth TO authenticated; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
+ GRANT USAGE ON SCHEMA public TO authenticated; GRANT SELECT ON leads TO authenticated; GRANT USAGE ON SCHEMA auth TO authenticated; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
  CREATE TABLE lead_activities(lead_id uuid,actor_id uuid,type text,detail text);
  ALTER TABLE lead_activities ENABLE ROW LEVEL SECURITY;
  CREATE POLICY "Active CRM activity access" ON lead_activities AS RESTRICTIVE FOR ALL TO authenticated USING(true);
