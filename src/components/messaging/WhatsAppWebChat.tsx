@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import {
   ArrowLeft, Ban, Camera, Check, CheckCheck, FileText, IdCard, Image as ImageIcon,
-  MessageCirclePlus, Mic, MoreVertical, Paperclip, Phone, Plus, Search, ShieldAlert, Smile, UserPlus, X,
+  MessageCirclePlus, Mic, MoreVertical, Paperclip, Phone, Plus, Search, Send, ShieldAlert, Smile, UserPlus, X,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -106,7 +106,7 @@ const DEMO_NEW_CONTACTS: WaConversation[] = [
   { id: 'demo-new-builders', name: 'City Builders · Site Team', phone: '+91 80 4123 9090', kind: 'group' },
 ];
 
-function Tick({ status }: { status?: string }) {
+function Tick({ status }: { status?: string | undefined }) {
   if (status === 'demo') return <span className="ml-1 text-[10px] italic text-muted-foreground">demo · not sent</span>;
   if (status === 'read') return <CheckCheck className="size-3.5 text-wa-tick" />;
   if (status === 'delivered') return <CheckCheck className="size-3.5 text-muted-foreground" />;
