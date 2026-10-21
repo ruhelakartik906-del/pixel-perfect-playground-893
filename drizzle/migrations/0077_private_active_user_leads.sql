@@ -1,0 +1,63 @@
+ALTER TABLE public.crm_stages ADD COLUMN owner_id uuid REFERENCES public.profiles(id);
+ALTER TABLE public.leads ADD COLUMN private_owner_id uuid REFERENCES public.profiles(id);
+CREATE TABLE public.personal_lead_status (owner_id uuid NOT NULL REFERENCES public.profiles(id),stage_id uuid NOT NULL REFERENCES public.crm_stages(id) ON DELETE CASCADE,label text NOT NULL,color text NOT NULL CHECK(color ~ '^#[0-9a-fA-F]{6}$'),position integer NOT NULL,hidden boolean NOT NULL DEFAULT false,is_default boolean NOT NULL DEFAULT false,PRIMARY KEY(owner_id,stage_id));
+GRANT SELECT ON public.personal_lead_status TO authenticated;
+GRANT ALL ON public.personal_lead_status TO service_role;
+ALTER TABLE public.personal_lead_status ENABLE ROW LEVEL SECURITY;
+CREATE OR REPLACE FUNCTION public.lead_workspace_active() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT auth.uid() IS NOT NULL AND EXISTS(SELECT 1 FROM public.profiles WHERE id=auth.uid() AND account_status='active') $$;
+REVOKE ALL ON FUNCTION public.lead_workspace_active() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lead_workspace_active() TO authenticated,service_role;
+CREATE POLICY personal_status_read ON public.personal_lead_status FOR SELECT TO authenticated USING(owner_id=auth.uid() AND public.lead_workspace_active());
+CREATE POLICY personal_stage_boundary ON public.crm_stages AS RESTRICTIVE FOR ALL TO authenticated USING(owner_id IS NULL OR (owner_id=auth.uid() AND public.lead_workspace_active())) WITH CHECK(owner_id IS NULL);
+CREATE OR REPLACE FUNCTION public.lead_company_allowed(_company uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT public.lead_workspace_active() AND (_company IS NULL OR coalesce(public.user_crm_company(_company),false)) $$;
+CREATE OR REPLACE FUNCTION public.lead_record_allowed(_company uuid,_creator uuid,_assignee uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT public.lead_workspace_active() AND _assignee=auth.uid() AND ((_company IS NULL AND _creator=auth.uid()) OR (_company IS NOT NULL AND public.user_crm_company(_company))) $$;
+REVOKE ALL ON FUNCTION public.lead_record_allowed(uuid,uuid,uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lead_record_allowed(uuid,uuid,uuid) TO authenticated,service_role;
+ALTER POLICY "Active CRM lead access" ON public.leads USING(public.routing_admin() OR public.lead_record_allowed(company_id,created_by,assigned_to)) WITH CHECK(public.routing_admin() OR public.lead_record_allowed(company_id,created_by,assigned_to));
+ALTER POLICY lead_account_assignment_boundary ON public.leads USING(public.routing_admin() OR public.lead_record_allowed(company_id,created_by,assigned_to)) WITH CHECK(public.routing_admin() OR public.lead_record_allowed(company_id,created_by,assigned_to));
+CREATE POLICY private_lead_boundary ON public.leads AS RESTRICTIVE FOR ALL TO authenticated USING(private_owner_id IS NULL OR (private_owner_id=auth.uid() AND public.lead_workspace_active())) WITH CHECK(private_owner_id IS NULL OR (private_owner_id=auth.uid() AND public.lead_workspace_active()));
+CREATE POLICY personal_lead_read ON public.leads FOR SELECT TO authenticated USING(company_id IS NULL AND public.lead_record_allowed(company_id,created_by,assigned_to));
+ALTER POLICY "Active CRM activity access" ON public.lead_activities USING(EXISTS(SELECT 1 FROM public.leads l WHERE l.id=lead_id)) WITH CHECK(EXISTS(SELECT 1 FROM public.leads l WHERE l.id=lead_id));
+CREATE POLICY personal_activity_read ON public.lead_activities FOR SELECT TO authenticated USING(EXISTS(SELECT 1 FROM public.leads l WHERE l.id=lead_id AND l.company_id IS NULL AND public.lead_record_allowed(l.company_id,l.created_by,l.assigned_to)));
+CREATE OR REPLACE FUNCTION public.lead_personal_stages() RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ BEGIN
+IF NOT public.lead_workspace_active() THEN RAISE EXCEPTION 'Active Leads access required'; END IF;
+RETURN coalesce((SELECT jsonb_agg(to_jsonb(s)||jsonb_build_object('board_label',coalesce(c.label,s.board_label,s.name),'color',coalesce(c.color,s.color),'position',coalesce(c.position,s.position),'is_default',coalesce(c.is_default,false) OR (s.board_initial AND NOT EXISTS(SELECT 1 FROM public.personal_lead_status d JOIN public.crm_stages ds ON ds.id=d.stage_id WHERE d.owner_id=auth.uid() AND ds.pipeline_id=s.pipeline_id AND d.is_default AND NOT d.hidden))) ORDER BY s.pipeline_id,coalesce(c.position,s.position),s.id) FROM public.crm_stages s LEFT JOIN public.personal_lead_status c ON c.stage_id=s.id AND c.owner_id=auth.uid() WHERE s.kind='lead' AND s.company_id IS NULL AND (s.owner_id IS NULL OR s.owner_id=auth.uid()) AND NOT coalesce(c.hidden,false)),'[]'::jsonb);
+END $$;
+REVOKE ALL ON FUNCTION public.lead_personal_stages() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lead_personal_stages() TO authenticated,service_role;
+DO $migration$ DECLARE definition text; BEGIN
+-- Reuse the existing locked company status routine for private owner overlays.
+SELECT pg_get_functiondef('public.lead_company_status_action(text,jsonb)'::regprocedure) INTO definition;
+definition:=replace(definition,'lead_company_status_action','lead_personal_status_action');
+definition:=replace(definition,'cid uuid:=(_payload->>''company_id'')::uuid','cid uuid:=auth.uid()');
+definition:=replace(definition,'public.lead_company_allowed(cid)','public.lead_workspace_active()');
+definition:=replace(definition,'company-lead-status-','personal-lead-status-');
+definition:=replace(definition,'public.lead_company_stages(cid)','public.lead_personal_stages()');
+definition:=replace(definition,'public.company_lead_status','public.personal_lead_status');
+definition:=replace(definition,'company_id','owner_id');
+definition:=replace(definition,'(owner_id IS NULL OR owner_id=cid)','(owner_id IS NULL OR owner_id=cid) AND company_id IS NULL');
+definition:=replace(definition,'public.leads WHERE owner_id=cid','public.leads WHERE company_id IS NULL AND created_by=cid');
+definition:=replace(definition,'public.deals WHERE owner_id=cid','public.deals WHERE company_id IS NULL AND created_by=cid');
+EXECUTE definition;
+SELECT pg_get_functiondef('public.lead_company_stages(uuid)'::regprocedure) INTO definition;
+EXECUTE replace(definition,'s.kind=''lead'' AND','s.kind=''lead'' AND s.owner_id IS NULL AND');
+SELECT pg_get_functiondef('public.user_board_lead_create(jsonb)'::regprocedure) INTO definition;
+definition:=replace(definition,'(company_id IS NULL OR company_id=cid)','((cid IS NULL AND company_id IS NULL AND (owner_id IS NULL OR owner_id=auth.uid())) OR (cid IS NOT NULL AND owner_id IS NULL AND (company_id IS NULL OR company_id=cid)))');
+definition:=replace(definition,'INSERT INTO public.leads(company_id,pipeline_id','INSERT INTO public.leads(private_owner_id,company_id,pipeline_id');
+definition:=replace(definition,'VALUES(cid,s.pipeline_id','VALUES(CASE WHEN cid IS NULL THEN auth.uid() END,cid,s.pipeline_id');
+EXECUTE definition;
+SELECT pg_get_functiondef('public.user_board_lead_delete(uuid,timestamptz)'::regprocedure) INTO definition;
+EXECUTE replace(definition,'l.assigned_to IS DISTINCT FROM auth.uid() OR NOT coalesce(public.lead_company_allowed(l.company_id),false)','NOT coalesce(public.lead_record_allowed(l.company_id,l.created_by,l.assigned_to),false)');
+SELECT pg_get_functiondef('public.lead_board_move(uuid,timestamptz,uuid,text)'::regprocedure) INTO definition;
+EXECUTE replace(definition,'(l.assigned_to=auth.uid() AND public.user_workspace_allowed() AND public.user_crm_company(l.company_id))','public.lead_record_allowed(l.company_id,l.created_by,l.assigned_to)');
+SELECT pg_get_functiondef('public.user_lead_action(uuid,timestamptz,text,jsonb)'::regprocedure) INTO definition;
+EXECUTE replace(definition,'l.assigned_to IS DISTINCT FROM auth.uid() OR NOT public.user_crm_company(l.company_id)','NOT coalesce(public.lead_record_allowed(l.company_id,l.created_by,l.assigned_to),false)');
+END $migration$;
+REVOKE ALL ON FUNCTION public.lead_personal_status_action(text,jsonb) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lead_personal_status_action(text,jsonb) TO authenticated,service_role;
+CREATE OR REPLACE FUNCTION public.lead_company_stage_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN
+IF TG_OP='INSERT' OR NEW.stage_id IS DISTINCT FROM OLD.stage_id OR NEW.company_id IS DISTINCT FROM OLD.company_id THEN
+PERFORM 1 FROM public.crm_stages WHERE id=NEW.stage_id FOR SHARE;
+IF EXISTS(SELECT 1 FROM public.crm_stages WHERE id=NEW.stage_id AND company_id IS NOT NULL AND company_id IS DISTINCT FROM NEW.company_id) OR EXISTS(SELECT 1 FROM public.company_lead_status WHERE company_id=NEW.company_id AND stage_id=NEW.stage_id AND hidden) THEN RAISE EXCEPTION 'Status unavailable in this company'; END IF;
+IF EXISTS(SELECT 1 FROM public.crm_stages WHERE id=NEW.stage_id AND owner_id IS NOT NULL AND (NEW.company_id IS NOT NULL OR owner_id IS DISTINCT FROM NEW.created_by OR owner_id IS DISTINCT FROM NEW.assigned_to)) OR EXISTS(SELECT 1 FROM public.personal_lead_status WHERE owner_id=NEW.created_by AND NEW.company_id IS NULL AND stage_id=NEW.stage_id AND hidden) THEN RAISE EXCEPTION 'Status unavailable in this private workspace'; END IF;
+END IF; RETURN NEW; END $$;
