@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UserWorkspace } from '@/components/workspace/UserWorkspace';
 import { whatsAppQuery } from '@/lib/messaging-query';
-import { loadWhatsAppHistory } from '@/lib/messaging.functions';
-import { WhatsAppWebChat, type WaConversation, type WaChatMessage } from '@/components/messaging/WhatsAppWebChat';
+import { loadWhatsAppHistory, getWhatsAppConnectionStatus, addWhatsAppContact } from '@/lib/messaging.functions';
+import { WhatsAppWebChat, type WaConversation, type WaChatMessage, type WaContactForm } from '@/components/messaging/WhatsAppWebChat';
 
 export function WhatsAppChats() {
+  const qc = useQueryClient();
   const { data: d, isPending, error } = useQuery(whatsAppQuery);
-  const [setup, setSetup] = useState(false);
+  const connection = useQuery({ queryKey: ['wa-connection-status'], queryFn: () => getWhatsAppConnectionStatus(), staleTime: 30000 });
   const [selected, setSelected] = useState('');
   const history = useQuery({ queryKey: ['wa-authorized-history', selected], queryFn: () => loadWhatsAppHistory({ data: { id: selected } }), enabled: !!selected });
 
@@ -20,20 +19,35 @@ export function WhatsAppChats() {
     return { id: c.id, name: c.contact_name || c.wa_phone, phone: c.wa_phone, at: c.last_message_at, unread: c.unread_count, kind: 'contact', leadTo: lead ? '/my-leads' : undefined, leadLabel: lead?.customer_name };
   });
   const messages: WaChatMessage[] = (history.data ?? []).map((m) => ({ id: m.id, direction: m.direction === 'outbound' ? 'outbound' : 'inbound', body: m.body, at: m.created_at, status: m.status }));
+  const connected = connection.data?.connected === true;
+
+  const checkConnection = async () => {
+    const r = await connection.refetch();
+    return r.data?.connected === true;
+  };
+
+  const addContact = async (input: WaContactForm) => {
+    const id = await addWhatsAppContact({ data: input });
+    await qc.invalidateQueries({ queryKey: whatsAppQuery.queryKey });
+    if (typeof id === 'string') setSelected(id);
+  };
 
   return (
     <UserWorkspace>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">WhatsApp Chats</h1>
-          <p className="mt-1 text-sm text-warning">Not Connected · demo preview below</p>
+          <p className={connected ? 'mt-1 text-sm text-wa-green-deep' : 'mt-1 text-sm text-warning'}>
+            {connected ? `Connected · ${connection.data?.phone ?? 'business number'}` : 'Not Connected · contacts and previews only'}
+          </p>
         </div>
-        <Button variant="outline" onClick={() => setSetup(true)}><ShieldCheck />Connect WhatsApp Business</Button>
+        <Button asChild variant="outline"><Link to="/whatsapp/templates">WhatsApp Templates</Link></Button>
       </div>
       <WhatsAppWebChat
         me={{ name: 'Me', role: 'User' }}
         conversations={conversations}
-        connected={false}
+        connected={connected}
+        connectedPhone={connection.data?.phone}
         loading={isPending}
         error={error ? error.message : null}
         selectedId={selected}
@@ -41,35 +55,12 @@ export function WhatsAppChats() {
         messages={messages}
         messagesLoading={history.isPending}
         messagesError={history.error ? 'History could not be loaded' : null}
-        emptyNote={!d?.permissions['whatsapp.view'] ? 'No authorized conversations — chats appear here once a verified business number is assigned to you.' : 'No authorized conversations'}
+        emptyNote={!d?.permissions['whatsapp.view'] ? 'No authorized conversations — chats appear here once a verified business number is assigned to you.' : 'No chats yet. Add a client number to start.'}
         className="h-[calc(100vh-16rem)] min-h-[540px]"
+        onCheckConnection={checkConnection}
+        checkingConnection={connection.isFetching}
+        onAddContact={addContact}
       />
-      <Dialog open={setup} onOpenChange={setSetup}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Official WhatsApp Business Setup</DialogTitle></DialogHeader>
-          <p className="text-sm font-semibold text-warning">Not Connected · Setup required</p>
-          <div className="space-y-2 text-sm">
-            <h3 className="font-semibold">Missing in this app</h3>
-            <ul className="list-disc space-y-1 pl-5">
-              <li>A verified WhatsApp Business connection and assigned business number</li>
-              <li>A configured sending service and signed incoming-message receiver</li>
-              <li>Verified delivery-status tracking and Meta template approval sync</li>
-            </ul>
-          </div>
-          <div className="space-y-2 text-sm">
-            <h3 className="font-semibold">Administrator setup requirements</h3>
-            <ul className="list-disc space-y-1 pl-5">
-              <li>Connect an official WhatsApp Business account in Lovable Connectors; complete Meta business, email and phone verification</li>
-              <li>Use a registered business phone number with authorized messaging and template-management permissions</li>
-              <li>Configure and deploy the signed receiver, then select this project under the connection’s Incoming messages setting</li>
-              <li>Assign company access and check customer consent before enabling sending</li>
-              <li>Free-form replies require a customer message within 24 hours; otherwise use a Meta-approved template</li>
-            </ul>
-          </div>
-          <p className="text-sm text-muted-foreground">This button shows requirements only; it does not connect your number. Personal WhatsApp OTP or QR login is not supported. Local template drafts are not Meta-approved messages.</p>
-          <Button asChild variant="outline"><Link to="/whatsapp/templates">WhatsApp Templates</Link></Button>
-        </DialogContent>
-      </Dialog>
     </UserWorkspace>
   );
 }
