@@ -5,7 +5,7 @@ import { human } from './config';
 import { initials } from '@/lib/admin-head';
 import { DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { ChevronLeft, ChevronRight, MoreVertical } from 'lucide-react';
-export function HrmAttendance({people,extra,month,setMonth,onOpen,onRoster}:{people:HrRow[];extra:Record<string,HrRow[]>;month:string;setMonth:(m:string)=>void;onOpen:(row:HrRow)=>void;onRoster?:(row:HrRow)=>void}){
+export function HrmAttendance({people,extra,month,setMonth,onOpen,onRoster}:{people:HrRow[];extra:Record<string,HrRow[]>;month:string;setMonth:(m:string)=>void;onOpen:(row:HrRow)=>void;onRoster?:((row:HrRow)=>void)|undefined}){
  const year=Number(month.slice(0,4)),m=Number(month.slice(5));const count=new Date(year,m,0).getDate();
  const move=(delta:number)=>{const date=new Date(year,m-1+delta,1);setMonth(`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`);};
  const tone=(s:string)=>s==='present'?'green':s==='absent'?'red':s==='leave'?'orange':s==='half_day'?'blue':'gray';

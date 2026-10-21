@@ -19,7 +19,7 @@ export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireS
  for(const [key,table] of Object.entries(extraTables))extra[key]=await readRows(table);
  let attendancePeople:HrRow[]|undefined;
  if(data.module==='attendance'&&perms.data===true){
- const workspace=await context.supabase.rpc('crm_attendance_workspace',{_month:data.month});
+ const workspace=await context.supabase.rpc('crm_attendance_workspace',data.month?{_month:data.month}:{});
  if(workspace.error)throw new Error(workspace.error.message);
  const unified=workspace.data as unknown as AttendanceWorkspace;
  attendancePeople=unified.people;extra['attendance']=unified.attendance;extra['holidays']=unified.holidays;extra['leaves']=unified.leaves;
