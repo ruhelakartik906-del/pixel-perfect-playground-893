@@ -108,7 +108,8 @@ export const createRoutingLead = createServerFn({ method: "POST" }).middleware([
   if (!data.assign_user) return { id: inserted.data.id as string, assigned: false };
   const routed = await context.supabase.rpc("route_lead", { _lead: inserted.data.id, _manual_user: data.assign_user });
   if (routed.error) throw new Error(`Lead saved but assignment failed: ${routed.error.message}`);
-  if (routed.data?.status !== "assigned") throw new Error(`Lead saved but not assigned: ${routed.data?.reason || "user is not eligible for this company"}`);
+  const routedData = routed.data as { status?: string; reason?: string } | null;
+  if (routedData?.status !== "assigned") throw new Error(`Lead saved but not assigned: ${routedData?.reason || "user is not eligible for this company"}`);
   return { id: inserted.data.id as string, assigned: true };
 });
 
