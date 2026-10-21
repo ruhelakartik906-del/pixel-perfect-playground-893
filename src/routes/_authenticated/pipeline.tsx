@@ -3,4 +3,4 @@ import { WorkspaceAccessError } from '@/components/workspace/WorkspaceAccessErro
 import { MyLeads } from '@/components/workspace/MyLeads';
 import { checkUserAccess,userCrmQuery } from '@/lib/user-crm-query';
 import { userHead } from '@/lib/user-crm';
-export const Route=createFileRoute('/_authenticated/pipeline')({errorComponent:WorkspaceAccessError,head:()=>userHead('Pipeline','Manage assigned leads through saved pipeline stages in Routiva CRM.'),loader:async({context})=>checkUserAccess(await context.queryClient.ensureQueryData(userCrmQuery)),component:MyLeads});
+export const Route=createFileRoute('/_authenticated/pipeline')({errorComponent:WorkspaceAccessError,head:()=>userHead('Leads Board','Manage your assigned company leads through saved stages in Routiva CRM.'),loader:async({context})=>checkUserAccess(await context.queryClient.ensureQueryData(userCrmQuery)),component:MyLeads});
