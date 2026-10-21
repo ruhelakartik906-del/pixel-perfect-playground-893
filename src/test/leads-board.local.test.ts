@@ -7,7 +7,8 @@ describe.skipIf(!enabled)('Actual lead RPCs in disposable local database',()=>{
  const p='11111111-1111-4111-8111-111111111111',lead='22222222-2222-4222-8222-222222222222',user='33333333-3333-4333-8333-333333333333';
  let initial:string,closed:string,contacted:string;
  beforeAll(async()=>{
-  await sql.unsafe(`CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth;
+  await sql.unsafe(`DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS auth CASCADE; CREATE SCHEMA public; CREATE SCHEMA auth;
+  DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF; IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role; END IF; END $$;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$;
   CREATE FUNCTION public.routing_admin() RETURNS boolean LANGUAGE sql AS $$ SELECT current_setting('qa.admin',true)='true' AND current_setting('qa.active',true)='true' $$;
   CREATE FUNCTION public.user_crm_company(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT current_setting('qa.company',true)='true' AND current_setting('qa.active',true)='true' $$;
@@ -27,7 +28,7 @@ describe.skipIf(!enabled)('Actual lead RPCs in disposable local database',()=>{
  });
  afterAll(async()=>{await sql.end();});
  async function version(){return String((await sql`SELECT updated_at::text AS stamp FROM leads WHERE id=${lead}`)[0]?.['stamp']);}
- async function move(stage:string,outcome:string|null){return sql`SELECT lead_board_move(${lead},${await version()}::timestamptz,${stage}::uuid,${outcome})`;}
+ async function move(stage:string,outcome:string|null){return sql`SELECT lead_board_move(${lead},(SELECT updated_at FROM leads WHERE id=${lead}),${stage}::uuid,${outcome})`;}
  it('creates the six requested default labels without replacing legacy names',async()=>{const rows=await sql`SELECT name,board_label FROM crm_stages ORDER BY position`;expect(rows.map(r=>r['board_label'])).toEqual(['All Leads','Contacted','Interested','Follow-up','Negotiation','Deal Closed']);expect(rows[0]?.['name']).toBe('New');expect(rows[2]?.['name']).toBe('Qualified');});
  it('saves Won with Deal Closed in one update',async()=>{await move(closed,'won');expect((await sql`SELECT stage_id,status FROM leads`)[0]).toMatchObject({stage_id:closed,status:'won'});});
  it('saves Lost in the same closed stage',async()=>{await move(closed,'lost');expect((await sql`SELECT stage_id,status FROM leads`)[0]).toMatchObject({stage_id:closed,status:'lost'});});
