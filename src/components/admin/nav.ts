@@ -3,7 +3,7 @@ import {
   Settings, ShoppingCart, UserCog, Users, type LucideIcon,
 } from "lucide-react";
 
-export type NavLeaf = { label: string; path: string };
+export type NavLeaf = { label: string; path: string; children?: NavLeaf[] };
 export type NavGroup = { label: string; icon: LucideIcon; badge?: string | undefined; items: NavLeaf[] };
 
 const g = (label: string, icon: LucideIcon, base: string, items: string[], badge?: string): NavGroup => ({
@@ -15,7 +15,10 @@ const g = (label: string, icon: LucideIcon, base: string, items: string[], badge
 export const adminNav: NavGroup[] = [
   { label: "Dashboard", icon: LayoutDashboard, items: [{ label: "Dashboard Overview", path: "dashboard" }] },
   g("Ad Lead Routing", RouteIcon, "routing", ["Ad Routing Setup", "Lead Assignment History", "Unassigned Leads"], "NEW"),
-  g("CRM", Users, "crm", ["Leads", "Pipeline", "Deals", "Contacts", "Companies", "Tasks", "Follow-ups", "Automation", "Reports", "Analytics", "Custom Forms", "CRM System Setup"]),
+  { ...g("CRM", Users, "crm", ["Leads", "Pipeline", "Deals", "Contacts", "Companies", "Tasks", "Follow-ups", "Automation", "Reports", "Analytics", "Custom Forms", "CRM System Setup"]), items: [
+    {label:"Leads",path:"crm/leads",children:[{label:"Board",path:"crm/leads"},{label:"Lead Status",path:"crm/lead-status"}]},
+    ...g("CRM",Users,"crm",["Pipeline", "Deals", "Contacts", "Companies", "Tasks", "Follow-ups", "Automation", "Reports", "Analytics", "Custom Forms", "CRM System Setup"]).items,
+  ] },
   { ...g("Sales", ShoppingCart, "sales", ["Products & Services", "Customers", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]), items: [
     { label: "Products & Services", path: "sales/products" },
     ...g("Sales", ShoppingCart, "sales", ["Customers", "Proposals", "Invoices", "Credit Notes", "Revenue", "Reports", "Analytics"]).items,
@@ -36,6 +39,6 @@ export const adminNav: NavGroup[] = [
 adminNav[1]?.items.unshift({ label: "Routing Overview", path: "routing" });
 
 export function titleForPath(splat: string) {
-  for (const grp of adminNav) for (const it of grp.items) if (it.path === splat) return it.label;
+  for (const grp of adminNav) for (const it of grp.items) { for (const child of it.children ?? []) if (child.path === splat) return child.label; if (it.path === splat) return it.label; }
   return "Admin";
 }

@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { leadColumnCatalog } from "@/lib/crm-config";
+import { LeadsBoard } from "@/components/pipeline/LeadsBoard";
+import { readAllPages } from "@/lib/backend-read";
 import { LeadImportDialog } from "@/components/admin/LeadImportDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/crm/leads")({
@@ -30,8 +32,8 @@ type Tab = "today" | "yesterday" | "week" | "month" | "all";
 
 async function load() {
   const r = await Promise.all([
-    db.from("leads").select("*").order("created_at", { ascending: false }).limit(2000),
-    db.from("crm_stages").select("id,name,color,is_active,pipeline_id").eq("kind", "lead").order("position"),
+    readAllPages((o,e)=>db.from("leads").select("*").order("id").range(o,e)),
+    db.from("crm_stages").select("*").eq("kind", "lead").order("position"),
     db.from("crm_options").select("id,name,is_active").eq("category", "source").order("position"),
     db.from("crm_pipelines").select("id,is_default"),
     db.from("crm_list_views").select("columns").eq("module", "leads").maybeSingle(),
@@ -42,7 +44,7 @@ async function load() {
   if (err) throw err;
   const people = (r[5].data as { id: string; full_name: string; email: string; account_status: string }[]);
   return {
-    leads: r[0].data as Lead[], stages: r[1].data as (Named & { pipeline_id: string })[], sources: r[2].data as Named[],
+    leads: r[0] as Lead[], stages: r[1].data as import("@/lib/leads-board").BoardStage[], sources: r[2].data as Named[],
     defaultPipeline: (r[3].data as { id: string; is_default: boolean }[]).find((p) => p.is_default)?.id ?? null,
     columns: (r[4].data?.columns as string[] | undefined) ?? leadColumnCatalog.map((c) => c.id),
     people: people.map((p) => ({ id: p.id, name: p.full_name || p.email, active: p.account_status === "active" })),
@@ -62,7 +64,7 @@ function inTab(d: string, tab: Tab) {
 
 const blank = { customer_name: "", phone: "", email: "", business_name: "", business_category: "", requirements: "", interest_level: "", stage_id: "", source_id: "", assigned_to: "", company_id: "" };
 
-function LeadsPage() {
+export function LeadsPage() {
   const qc = useQueryClient();
   const { data, isLoading, error } = useQuery({ queryKey: QK, queryFn: load });
   const [tab, setTab] = useState<Tab>("all");
@@ -116,33 +118,7 @@ function LeadsPage() {
   const label = tabs.find((t) => t.id === tab)!.label;
   return (
     <div className="space-y-5">
-      <Breadcrumb label={`All Leads (${data?.leads.length ?? 0})`} />
-      <PageHeader title={`${label === "All" ? "All" : label + "'s"} Leads (${filtered.length})`} subtitle="Manage all leads in the system">
-        <SearchInput placeholder="Search leads..." value={q} onChange={setQ} className="w-72" />
-        <ToolbarButton onClick={() => setImporting(true)}><Upload className="size-4" />Import</ToolbarButton>
-        <ToolbarButton onClick={exportCsv}><Download className="size-4" />Export</ToolbarButton>
-        <label className="inline-flex h-10 items-center gap-2 rounded-md border bg-card px-3 text-[15px] font-semibold">
-          <Zap className="size-4 text-admin-orange" />Quick Mode<Switch checked={quick} onCheckedChange={setQuick} />
-        </label>
-        <ToolbarButton primary onClick={() => setForm({ ...blank, stage_id: data?.stages.find((s) => s.is_active)?.id ?? "" })}><Plus className="size-4" />Create Lead</ToolbarButton>
-      </PageHeader>
-      <Card className="p-5">
-        <div className="mb-5"><TabBar tabs={tabs} value={tab} onChange={setTab} /></div>
-        {isLoading ? <p className="py-20 text-center text-muted-foreground">Loading leads…</p>
-          : error ? <EmptyState title="Could not load leads" hint={(error as Error).message} />
-          : <>
-            <DataTable columns={["No.", ...cols.map((c) => c.label)]} minWidth={Math.max(900, cols.length * 160)}>
-              {filtered.map((l, i) => (
-                <tr key={l.id} onClick={() => setOpen(l)} className="cursor-pointer hover:bg-muted/40">
-                  <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
-                  {cols.map((c) => <td key={c.id} className="whitespace-nowrap px-4 py-3">{cell(l, c.id)}</td>)}
-                </tr>
-              ))}
-            </DataTable>
-            {filtered.length === 0 && <EmptyState title="No leads" hint="Leads appear here when created manually or received from connected ad forms." />}
-          </>}
-      </Card>
-
+      {isLoading ? <p className="py-20 text-center text-muted-foreground">Loading leads…</p> : error ? <EmptyState title="Could not load leads" hint={(error as Error).message}/> : data && <LeadsBoard admin leads={data.leads} stages={data.stages} sources={data.sources} companies={data.companies} people={data.people} onOpen={id=>setOpen(data.leads.find(l=>l.id===id)||null)} onAdd={stage=>setForm({...blank,stage_id:stage?.board_closed?'':stage?.id||data.stages.find(s=>s.board_initial)?.id||''})} onDelete={async ids=>{const result=await db.from('leads').delete().in('id',ids);if(result.error)throw new Error(result.error.message);toast.success('Leads deleted');}} actions={<ToolbarButton onClick={()=>setImporting(true)}><Upload className="size-4"/>Import</ToolbarButton>}/>}
       <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader><DialogTitle>Create Lead</DialogTitle></DialogHeader>
@@ -154,7 +130,7 @@ function LeadsPage() {
                   <input maxLength={200} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="mt-1 h-10 w-full rounded-md border px-3 font-normal" />
                 </label>
               ))}
-              {([["stage_id", "Stage", data.stages.filter((s) => s.is_active)], ["source_id", "Source", data.sources.filter((s) => s.is_active)],
+              {([["stage_id", "Stage", data.stages.filter((s) => s.is_active && !s.board_closed && s.pipeline_id === data.defaultPipeline)], ["source_id", "Source", data.sources.filter((s) => s.is_active)],
                 ["assigned_to", "Assignee", data.people.filter((p) => p.active)], ["company_id", "Company", data.companies]] as const).map(([k, lbl, list]) => (
                 <label key={k} className="text-sm font-semibold">{lbl}
                   <select value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="mt-1 h-10 w-full rounded-md border bg-card px-3 font-normal">
@@ -173,7 +149,7 @@ function LeadsPage() {
       </Dialog>
 
       {data && <LeadImportDialog open={importing} onClose={() => setImporting(false)} sources={data.sources} companies={data.companies} stageId={data.stages.find((s) => s.is_active)?.id ?? null} pipelineId={data.defaultPipeline} existing={data.leads.map((l: Lead) => ({ phone: l.phone ?? "", email: l.email ?? "" }))} />}
-      <LeadDrawer lead={open} onClose={() => setOpen(null)} data={data} />
+      <LeadDrawer lead={data?.leads.find(l=>l.id===open?.id)||open} onClose={() => setOpen(null)} data={data} />
     </div>
   );
 }
@@ -204,7 +180,7 @@ function LeadDrawer({ lead, onClose, data }: { lead: Lead | null; onClose: () =>
             <div className="grid grid-cols-2 gap-3">
               <label className="font-semibold">Stage
                 <select value={lead.stage_id ?? ""} onChange={(e) => update({ stage_id: e.target.value || null })} className="mt-1 h-10 w-full rounded-md border bg-card px-2 font-normal">
-                  <option value="">—</option>{data.stages.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  <option value="">—</option>{data.stages.filter(s=>s.pipeline_id===lead.pipeline_id&&s.is_active&&!s.board_closed).map((s) => <option key={s.id} value={s.id}>{s.board_label || s.name}</option>)}
                 </select>
               </label>
               <label className="font-semibold">Assignee
