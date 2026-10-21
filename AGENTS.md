@@ -18,7 +18,7 @@
 - Sales uses separate catalog/customers, `can_manage_sales`, private images and stable full pagination in six-connection batches — why: scoped access and complete totals.
 - Financial writes use the `sales_financial_action` database RPC through an authenticated server function; issued invoices are immutable snapshots and payment/credit actions lock the invoice — why: balances and audit records must be atomic under concurrent actions.
 - Permission roles (`access_roles` + `user_access_roles`) are separate from the system `user_roles` enum; the permission catalog lives in `src/lib/permissions.ts` — why: custom roles must never grant system privileges.
-- Invitations stay pending until verified password setup and locked acceptance; privileged writes require `routing_admin()` — why: no pre-acceptance access.
+- Invitations use canonical public auth returns and stay pending until verified password setup/locked acceptance; writes require `routing_admin()` — why: no editor redirects or pre-acceptance access.
 - Non-WhatsApp legacy Admin policies use active-admin checks and restrictive CRM assignment/account boundaries — why: permissive policies must not reopen blocked/unrelated access.
 - Mail/WhatsApp pages store data locally only; nothing reaches Sent/Inbox or WhatsApp without a delivery integration — why: no faked sending.
 - WhatsApp workflows/broadcasts are stored only; delivery counts and processing/completed states are writable only by the server (DB trigger), and integration status `connected` can't be set from the browser (RLS) — why: no simulated sending or fake connection badges.

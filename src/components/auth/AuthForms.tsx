@@ -16,6 +16,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { loginDestination } from "@/lib/auth-destination";
 import { resolveAuthAccess, acceptEmployeeInvitation } from "@/lib/auth-access.functions";
 import { SessionNotice, useExistingAccount } from "@/components/auth/SessionNotice";
+import { PUBLIC_APP_URL } from "@/lib/admin-invitation";
 
 // Keeps SSR and the first client render identical so hydration never mismatches on query state.
 function useHydrated() {
@@ -199,7 +200,7 @@ export function RegisterForm() {
       email: result.data.email,
       password: result.data.password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: PUBLIC_APP_URL,
         data: {
           full_name: [result.data.firstName, result.data.lastName].filter(Boolean).join(" "),
           first_name: result.data.firstName,
@@ -274,7 +275,7 @@ export function ForgotPasswordForm() {
     }
     setErrors({});
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(result.data.email, { redirectTo: `${window.location.origin}/reset-password` });
+    const { error } = await supabase.auth.resetPasswordForEmail(result.data.email, { redirectTo: `${PUBLIC_APP_URL}/reset-password` });
     setLoading(false);
     if (error) {
       toast.error("We couldn't send a reset link. Please try again.");

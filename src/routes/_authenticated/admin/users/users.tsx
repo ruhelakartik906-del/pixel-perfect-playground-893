@@ -12,6 +12,7 @@ import { adminHead, initials } from "@/lib/admin-head";
 import { SYSTEM_ROLES, type SystemRole } from "@/lib/permissions";
 import { inviteUser, setUserAccountStatus } from "@/lib/admin-users.functions";
 import { cn } from "@/lib/utils";
+import { INVITATION_REDIRECT_URL } from "@/lib/admin-invitation";
 
 export const Route = createFileRoute("/_authenticated/admin/users/users")({
   head: () => adminHead("Users", "Manage all users, roles, companies and account status."),
@@ -78,7 +79,7 @@ function UsersPage() {
     setBusy(true);
     try {
       if (!form.id) {
-        await invite({ data: { email: form.email.trim(), full_name: form.full_name, phone: form.phone, role: form.role, access_role_id: form.access_role_id || null, company_id: form.company_id || null, redirect_to: `${window.location.origin}/login` } });
+        await invite({ data: { email: form.email.trim(), full_name: form.full_name, phone: form.phone, role: form.role, access_role_id: form.access_role_id || null, company_id: form.company_id || null, redirect_to: INVITATION_REDIRECT_URL } });
         toast.success("Invitation sent — the user sets their own password from the email");
       } else {
         const id = form.id;
