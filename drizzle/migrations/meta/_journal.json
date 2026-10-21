@@ -533,6 +533,13 @@
       "when": 1792575226996,
       "tag": "0075_lock_global_status_management",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1792575532553,
+      "tag": "0076_company_status_default_fallback",
+      "breakpoints": true
     }
   ]
 }
