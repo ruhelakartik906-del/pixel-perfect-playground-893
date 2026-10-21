@@ -12,6 +12,7 @@ describe.skipIf(!enabled)('Actual lead RPCs in disposable local database',()=>{
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$;
   CREATE FUNCTION public.routing_admin() RETURNS boolean LANGUAGE sql AS $$ SELECT current_setting('qa.admin',true)='true' AND current_setting('qa.active',true)='true' $$;
   CREATE FUNCTION public.user_crm_company(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT current_setting('qa.company',true)='true' AND current_setting('qa.active',true)='true' $$;
+  CREATE FUNCTION public.user_workspace_allowed() RETURNS boolean LANGUAGE sql AS $$ SELECT current_setting('qa.active',true)='true' $$;
   CREATE TABLE crm_pipelines(id uuid PRIMARY KEY,name text);
   CREATE TABLE crm_stages(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),pipeline_id uuid,kind text,name text,color text,position integer,is_active boolean DEFAULT true);
   CREATE TABLE leads(id uuid PRIMARY KEY,pipeline_id uuid,stage_id uuid,assigned_to uuid,company_id uuid,status text DEFAULT 'open',updated_at timestamptz DEFAULT now());
@@ -21,6 +22,7 @@ describe.skipIf(!enabled)('Actual lead RPCs in disposable local database',()=>{
   INSERT INTO crm_stages(pipeline_id,kind,name,color,position) VALUES('${p}','lead','New','#2684FF',0),('${p}','lead','Contacted','#F59E0B',1),('${p}','lead','Qualified','#22C55E',2);`);
   await sql.unsafe(readFileSync('drizzle/migrations/0070_canonical_leads_board.sql','utf8'));
   await sql.unsafe(readFileSync('drizzle/migrations/0071_lead_stage_reference_guard.sql','utf8'));
+  await sql.unsafe(readFileSync('drizzle/migrations/0072_lead_board_fail_closed_access.sql','utf8'));
   const stages=await sql`SELECT id,name FROM crm_stages`;
   initial=String(stages.find(s=>s['name']==='New')?.['id']);closed=String(stages.find(s=>s['name']==='Deal Closed')?.['id']);contacted=String(stages.find(s=>s['name']==='Contacted')?.['id']);
   await sql`INSERT INTO leads(id,pipeline_id,stage_id,assigned_to,company_id) VALUES(${lead},${p},${initial},${user},${p})`;
@@ -35,6 +37,7 @@ describe.skipIf(!enabled)('Actual lead RPCs in disposable local database',()=>{
  it('reopening clears the closed outcome',async()=>{await move(contacted,null);expect((await sql`SELECT stage_id,status FROM leads`)[0]).toMatchObject({stage_id:contacted,status:'open'});});
  it('requires explicit closed outcome and rejects stale updates',async()=>{await expect(move(closed,null)).rejects.toThrow('Choose Won or Lost');await expect(sql`SELECT lead_board_move(${lead},'2000-01-01'::timestamptz,${contacted}::uuid,NULL)`).rejects.toThrow('Refresh');});
  it('denies another user’s lead',async()=>{await sql`SELECT set_config('qa.uid',${p},false)`;await expect(move(contacted,null)).rejects.toThrow('access denied');await sql`SELECT set_config('qa.uid',${user},false)`;});
+ it('denies an unauthenticated caller even with nullable assignment',async()=>{await sql`SELECT set_config('qa.uid','',false)`;await expect(move(contacted,null)).rejects.toThrow('access denied');await sql`SELECT set_config('qa.uid',${user},false)`;});
  it('denies wrong-company and inactive callers',async()=>{await sql`SELECT set_config('qa.company','false',false)`;await expect(move(contacted,null)).rejects.toThrow('access denied');await sql`SELECT set_config('qa.company','true',false),set_config('qa.active','false',false)`;await expect(move(contacted,null)).rejects.toThrow('access denied');await sql`SELECT set_config('qa.active','true',false)`;});
  it('denies Employee status management',async()=>{await expect(sql`SELECT lead_status_action('create',${sql.json({pipeline_id:p,name:'QA',color:'#123456'})})`).rejects.toThrow('Only authorized Admins');});
  it('protects initial and closed stages and referenced stages',async()=>{await expect(sql`DELETE FROM crm_stages WHERE id=${initial}`).rejects.toThrow('cannot be deleted');await expect(sql`DELETE FROM crm_stages WHERE id=${closed}`).rejects.toThrow('cannot be deleted');await expect(sql`DELETE FROM crm_stages WHERE id=${contacted}`).rejects.toThrow('in use');await expect(sql`UPDATE crm_stages SET position=1 WHERE id=${initial}`).rejects.toThrow('first');});
