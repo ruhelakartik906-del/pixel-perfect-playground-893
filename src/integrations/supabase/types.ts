@@ -2704,6 +2704,7 @@ export type Database = {
         Row: {
           assigned_to: string | null
           automation_stage_revision: number
+          board_moved_at: string | null
           business_category: string
           business_name: string
           company_id: string | null
@@ -2742,6 +2743,7 @@ export type Database = {
         Insert: {
           assigned_to?: string | null
           automation_stage_revision?: number
+          board_moved_at?: string | null
           business_category?: string
           business_name?: string
           company_id?: string | null
@@ -2780,6 +2782,7 @@ export type Database = {
         Update: {
           assigned_to?: string | null
           automation_stage_revision?: number
+          board_moved_at?: string | null
           business_category?: string
           business_name?: string
           company_id?: string | null
@@ -4710,6 +4713,15 @@ export type Database = {
       is_company_member: {
         Args: { _company: string; _user: string }
         Returns: boolean
+      }
+      lead_assigned_board_move: {
+        Args: {
+          _id: string
+          _outcome?: string
+          _stage: string
+          _updated_at: string
+        }
+        Returns: string
       }
       lead_board_move: {
         Args: {
