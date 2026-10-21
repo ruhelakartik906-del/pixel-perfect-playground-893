@@ -8,7 +8,6 @@ import { Breadcrumb, Card, DataTable, EmptyState, PageHeader, SearchInput, Statu
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { leadColumnCatalog } from "@/lib/crm-config";
-import { LeadsBoard } from "@/components/pipeline/LeadsBoard";
 import { AddLeadDialog } from "@/components/pipeline/AddLeadDialog";
 import type { BoardStage } from "@/lib/leads-board";
 import { readAllPages } from "@/lib/backend-read";
@@ -85,10 +84,10 @@ export function LeadsPage() {
 
   const cell = (l: Lead, id: string) => {
     switch (id) {
-      case "stage": { const s = data!.stages.find((x) => x.id === l.stage_id); return s ? <span className="rounded px-2 py-1 text-xs font-semibold" style={{ background: `${s.color}22`, color: s.color }}>{s.name}</span> : "—"; }
-      case "source": return name(data!.sources, l.source_id);
-      case "assignee": return l.assigned_to ? name(data!.people, l.assigned_to) : <StatusBadge tone="orange">Unassigned</StatusBadge>;
-      case "company": return name(data!.companies, l.company_id);
+      case "stage": { const s = data?.stages.find((x) => x.id === l.stage_id); return s ? <span className="rounded px-2 py-1 text-xs font-semibold" style={{ background: `${s.color}22`, color: s.color }}>{s.name}</span> : "—"; }
+      case "source": return name(data?.sources, l.source_id);
+      case "assignee": return l.assigned_to ? name(data?.people, l.assigned_to) : <StatusBadge tone="orange">Unassigned</StatusBadge>;
+      case "company": return name(data?.companies, l.company_id);
       case "campaign": return l.meta_campaign_name || l.meta_ad_name || "—";
       case "created_at": return new Date(l.created_at).toLocaleString();
       case "status": return <StatusBadge tone={l.status === "open" ? "blue" : l.status === "won" ? "green" : "gray"}>{l.status}</StatusBadge>;
@@ -99,15 +98,20 @@ export function LeadsPage() {
   const exportCsv = () => {
     if (!filtered.length) { toast.info("No leads to export"); return; }
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const text = (l: Lead, id: string) => { const v = cell(l, id); return typeof v === "string" ? v : id === "stage" ? name(data!.stages, l.stage_id) : id === "assignee" ? name(data!.people, l.assigned_to) : l[id]; };
+    const text = (l: Lead, id: string) => { const v = cell(l, id); return typeof v === "string" ? v : id === "stage" ? name(data?.stages, l.stage_id) : id === "assignee" ? name(data?.people, l.assigned_to) : l[id]; };
     const csv = [cols.map((c) => esc(c.label)).join(","), ...filtered.map((l) => cols.map((c) => esc(text(l, c.id))).join(","))].join("\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "leads.csv"; a.click();
   };
 
-  const label = tabs.find((t) => t.id === tab)!.label;
+  const label = tabs.find((t) => t.id === tab)?.label || 'All';
   return (
     <div className="space-y-5">
-      {isLoading ? <p className="py-20 text-center text-muted-foreground">Loading leads…</p> : error ? <EmptyState title="Could not load leads" hint={(error as Error).message}/> : data && <LeadsBoard admin leads={data.leads} stages={data.stages} sources={data.sources} companies={data.companies} people={data.people} onOpen={id=>setOpen(data.leads.find(l=>l.id===id)||null)} onAdd={stage=>setAddStage(stage||data.stages.find(s=>s.board_initial&&s.pipeline_id===data.defaultPipeline)||data.stages.find(s=>s.is_active)||null)} onDelete={async ids=>{const result=await db.from('leads').delete().in('id',ids);if(result.error)throw new Error(result.error.message);toast.success('Leads deleted');}} actions={<ToolbarButton onClick={()=>setImporting(true)}><Upload className="size-4"/>Import</ToolbarButton>}/>}
+      <Breadcrumb label="Leads" />
+      <PageHeader title="Leads" description="" />
+      <div className="flex flex-wrap items-center gap-3"><SearchInput value={q} onChange={setQ} placeholder="Search leads"/><div className="ml-auto flex gap-2"><ToolbarButton onClick={exportCsv}><Download className="size-4"/>Export</ToolbarButton><ToolbarButton onClick={()=>setImporting(true)}><Upload className="size-4"/>Import</ToolbarButton><ToolbarButton primary onClick={()=>setAddStage(data?.stages.find(s=>s.board_initial&&s.pipeline_id===data.defaultPipeline)||data?.stages.find(s=>s.is_active)||null)}><Plus className="size-4"/>Add Lead</ToolbarButton></div></div>
+      <TabBar tabs={tabs} active={tab} onChange={v=>setTab(v as Tab)}/>
+      {isLoading?<p className="py-20 text-center text-muted-foreground">Loading leads…</p>:error?<EmptyState title="Could not load leads" hint={(error as Error).message}/>:<div className="overflow-x-auto rounded-md border bg-card"><table className="w-full min-w-[900px] text-left text-sm"><thead className="border-b bg-muted"><tr><th className="p-3">Name</th>{cols.map(c=><th className="p-3" key={c.id}>{c.label}</th>)}</tr></thead><tbody>{filtered.map(l=><tr key={l.id} className="cursor-pointer border-b hover:bg-muted" onClick={()=>setOpen(l)}><td className="p-3 font-semibold">{l.customer_name}</td>{cols.map(c=><td key={c.id} className="p-3">{cell(l,c.id)}</td>)}</tr>)}</tbody></table>{!filtered.length&&<EmptyState title="No leads"/>}</div>}
+
       {addStage && data && <AddLeadDialog stage={addStage} stages={data.stages} sources={data.sources} companies={data.companies} close={()=>setAddStage(null)}/> }
 
       {data && <LeadImportDialog open={importing} onClose={() => setImporting(false)} sources={data.sources} companies={data.companies} stageId={data.stages.find((s) => s.is_active)?.id ?? null} pipelineId={data.defaultPipeline} existing={data.leads.map((l: Lead) => ({ phone: l.phone ?? "", email: l.email ?? "" }))} />}
@@ -119,13 +123,13 @@ export function LeadsPage() {
 function LeadDrawer({ lead, onClose, data }: { lead: Lead | null; onClose: () => void; data: Awaited<ReturnType<typeof load>> | undefined }) {
   const qc = useQueryClient();
   const acts = useQuery({ queryKey: ["lead-acts", lead?.id], enabled: !!lead, queryFn: async () => {
-    const { data, error } = await db.from("lead_activities").select("*").eq("lead_id", lead!.id).order("created_at", { ascending: false });
+    const { data, error } = await db.from("lead_activities").select("*").eq("lead_id", lead?.id).order("created_at", { ascending: false });
     if (error) throw error; return data as { id: string; type: string; detail: string; created_at: string }[];
   } });
   const update = async (patch: Record<string, unknown>) => {
-    const { error } = await db.from("leads").update(patch).eq("id", lead!.id);
+    const { error } = await db.from("leads").update(patch).eq("id", lead?.id);
     if (error) { toast.error(error.message); return; }
-    toast.success("Lead updated"); qc.invalidateQueries({ queryKey: QK }); qc.invalidateQueries({ queryKey: ["lead-acts", lead!.id] });
+    toast.success("Lead updated"); qc.invalidateQueries({ queryKey: QK }); qc.invalidateQueries({ queryKey: ["lead-acts", lead?.id] });
   };
   const answers = Object.entries((lead?.form_answers ?? {}) as Record<string, unknown>);
   return (
