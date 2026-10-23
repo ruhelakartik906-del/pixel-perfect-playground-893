@@ -34,6 +34,7 @@
 - Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only; company groups keep membership gates — why: discovery must not grant private-record access.
 
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
+- Shared work/commercial reads use short browser-query freshness with existing mutation invalidation; commercial prerequisite reads run in batches of at most six — why: reduce duplicate navigation requests without shared server caches or skipped authorization.
 - Automation uses canonical work and unique events; retry fault tests use unchanged SQL in disposable localhost DBs — why: safe scope/deduplication without production faults.
 
 - Attendance projects existing HR/personal summaries (HR wins per account/date), never copies check-ins; independent Super-Admin-only roster exclusion preserves HR identity.
