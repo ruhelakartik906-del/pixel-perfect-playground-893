@@ -7,9 +7,17 @@ import { credentialChangeSchema } from './settings-validation';
 import { validateSupportFile } from './support-model';
 import type { Json } from '@/integrations/supabase/types';
 export const loadCommercial=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
- const db=context.supabase;const keys=['proposal.view','proposal.create','proposal.edit','proposal.delete','invoice.view','invoice.create','invoice.edit'];const permissions=Object.fromEntries(await Promise.all(keys.map(async k=>{const r=await db.rpc('user_commercial_allowed',{_permission:k});if(r.error)throw new Error('Permissions unavailable');return [k,r.data===true];})));const personalCheck=await db.rpc('user_personal_commercial');const personal=personalCheck.data===true;for(const k of keys)if(personal)permissions[k]=true;
+ const db=context.supabase;const keys=['proposal.view','proposal.create','proposal.edit','proposal.delete','invoice.view','invoice.create','invoice.edit'];
+ const checkPermission=async(k:string)=>{const r=await db.rpc('user_commercial_allowed',{_permission:k});if(r.error)throw new Error('Permissions unavailable');return [k,r.data===true] as const;};
+ // At most six independent outbound reads; do not serialize unrelated prerequisites.
+ const firstPermissions=await Promise.all(keys.slice(0,6).map(checkPermission));
+ const [lastPermission,personalCheck,memberships,admin]=await Promise.all([
+  checkPermission('invoice.edit'),db.rpc('user_personal_commercial'),
+  db.from('company_members').select('company_id').eq('user_id',context.userId),db.rpc('can_manage_sales'),
+ ]);
+ const permissions=Object.fromEntries([...firstPermissions,lastPermission]);const personal=personalCheck.data===true;for(const k of keys)if(personal)permissions[k]=true;
  async function all<T>(fn:(o:number)=>PromiseLike<{data:T[]|null;error:unknown}>){const rows:T[]=[];for(let o=0;;o+=1000){const r=await fn(o);if(r.error)throw new Error('Commercial records could not be loaded');rows.push(...r.data??[]);if((r.data?.length??0)<1000)return rows;}}
- const memberships=await db.from('company_members').select('company_id').eq('user_id',context.userId);const admin=await db.rpc('can_manage_sales');const ids=(memberships.data??[]).map(m=>m.company_id);
+ const ids=(memberships.data??[]).map(m=>m.company_id);
  const [companies,leads,deals,customers,products,proposals,invoices,payments,credits,audit,events,settings]=await Promise.all([
  admin.data?db.from('companies').select('*').eq('is_active',true):ids.length?db.from('companies').select('*').in('id',ids).eq('is_active',true):Promise.resolve({data:[],error:null}),
  all(o=>{let q=db.from('leads').select('id,company_id,customer_name,business_name,phone,email,region');if(!admin.data)q=q.eq('assigned_to',context.userId);return q.order('id').range(o,o+999);}),
