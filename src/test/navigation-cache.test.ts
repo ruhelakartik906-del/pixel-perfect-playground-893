@@ -12,7 +12,7 @@ describe('Shared navigation cache', () => {
       const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
       let version = 0;
       const fetch = vi.fn(async () => ({ version: ++version }));
-      const options = { queryKey: query.queryKey, staleTime: query.staleTime, queryFn: fetch };
+      const options = { queryKey: [...query.queryKey], staleTime: typeof query.staleTime === 'number' ? query.staleTime : 0, queryFn: fetch };
       await client.ensureQueryData(options);
       const observer = new QueryObserver(client, options);
       const unsubscribe = observer.subscribe(() => {});
@@ -28,8 +28,8 @@ describe('Shared navigation cache', () => {
     it(`${name} never shares cached rows between separate clients`, async () => {
       const first = new QueryClient();
       const second = new QueryClient();
-      first.setQueryData(query.queryKey, { owner: 'first' });
-      expect(second.getQueryData(query.queryKey)).toBeUndefined();
+      first.setQueryData([...query.queryKey], { owner: 'first' });
+      expect(second.getQueryData([...query.queryKey])).toBeUndefined();
       first.clear(); second.clear();
     });
   }
