@@ -37,4 +37,5 @@
 - Shared work/commercial reads use short browser-query freshness with existing mutation invalidation; commercial prerequisite reads run in batches of at most six — why: reduce duplicate navigation requests without shared server caches or skipped authorization.
 - Automation uses canonical work and unique events; retry fault tests use unchanged SQL in disposable localhost DBs — why: safe scope/deduplication without production faults.
 
-- Attendance projects existing HR/personal summaries (HR wins per account/date), never copies check-ins; independent Super-Admin-only roster exclusion preserves HR identity.
+- Attendance projects original HR/personal summaries (HR wins per date); Admin-only roster exclusion preserves HR identity.
+- Sold CRM uses an active-Admin-only audited registry/RPC; independent provisioning/enforcement stay Setup Required without connectors — why: never grant customer access to this database or fake remote suspension.

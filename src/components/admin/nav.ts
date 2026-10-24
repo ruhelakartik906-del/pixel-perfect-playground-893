@@ -27,6 +27,8 @@ export const adminNav: NavGroup[] = [
   g("Communication", MessageSquare, "communication", ["Mail", "Chat"]),
   g("WhatsApp", Phone, "whatsapp", ["WhatsApp Chat", "Message Templates", "Workflows", "Broadcast", "Message Log"]),
   { label: "Integrations", icon: Cable, badge: "NEW", items: [{ label: "Integrations", path: "integrations" }] },
+  { label: "Sold CRM Admins", icon: Briefcase, items: [{ label: "Sold CRM Admins", path: "sold-crm-admins" }] },
+  { label: "Create CRM Admin", icon: UserCog, items: [{ label: "Create CRM Admin", path: "create-crm-admin" }] },
   g("HRM", Briefcase, "hrm", ["Employees", "Attendance", "Holidays", "Leave Management", "Meetings", "Announcements"]),
   { label: "Settings", icon: Settings, items: [
     { label: "Admin Account & Security", path: "settings/admin-account-security" },

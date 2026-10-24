@@ -14,11 +14,11 @@ export function installationStatus(row: Installation, now = new Date()) {
 }
 export const statusLabels: Record<string, string> = { active: 'Active', suspended: 'Suspended', expired: 'Expired', setup_required: 'Setup Required' };
 export function addLicenseYears(value: string, years: 1 | 2) {
-  const date = new Date(value);
+  const date = new Date(new Date(value).getTime() + 19800000);
   const month = date.getUTCMonth();
   date.setUTCFullYear(date.getUTCFullYear() + years);
   if (date.getUTCMonth() !== month) date.setUTCDate(0);
-  return date.toISOString();
+  return new Date(date.getTime() - 19800000).toISOString();
 }
 export function renewalExpiry(expiry: string, years: 1 | 2, now = new Date()) {
   return addLicenseYears(new Date(expiry) > now ? expiry : now.toISOString(), years);
