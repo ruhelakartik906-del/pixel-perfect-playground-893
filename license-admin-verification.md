@@ -21,7 +21,7 @@
 - `CRM_LICENSE_LOCAL_QA=1 bunx vitest run src/test/crm-installations.local.test.ts src/test/crm-installations.test.ts`: **41 passed, 0 failed**. Includes real disposable PostgreSQL authorization/RLS, duplicate protection, blocked/pending Admin denial, audit tampering denial, unknown/expired license denial, and simultaneous renewal on two connections (one commit, one stale rejection, one new audit).
 - Initial concurrency test failed because its JavaScript conversion truncated microseconds; corrected the test to use the exact persisted expiry rather than weakening the lock/check.
 - Harness build: **build OK**, latest recorded check after application fixes at 06:37:50 UTC. No manual build/typecheck run.
-- `bun run lint`: **failed**, 12,215 errors and 33 warnings across the pre-existing codebase, mostly formatting; no broad unrelated cleanup performed.
+- `bun run lint`: **failed**, 12,215 errors and 33 warnings at that time, mostly formatting. That was a whole-repository total, not a proven pre-change baseline; touched license files contributed to it. See follow-up below.
 - Changed-file ESLint with only the formatting rule disabled: **passed**. This is not a claim that the full lint script passed.
 
 ## Browser and persisted state
@@ -39,3 +39,13 @@ Owner must identify the intended independent customer CRM provider and test inst
 Creation/renewal of registry records is verified; remote account provisioning, activation, suspension, reset/revocation and actual customer-operation enforcement are **not implemented/verified** and remain fail-closed. The current `crm_installation_license_state` helper is service-only and does not itself protect a remote CRM. Unknown/expired/setup states were checked locally, not on a production customer installation. Do not enable flags manually as a substitute for integration.
 
 No publish, Git push, auto-push configuration change or DNS change was performed. No further migration approval is currently pending. Production readiness is not claimed.
+
+## Focused follow-up review — 06:43 UTC
+- Reviewed all **127** skips: **96 local environment-gated checks + 31 authorized hosted-QA checks**. Full per-file inventory and missing coverage are in `skipped-tests-review.md`. No external test was enabled.
+- Lint measured before this follow-up: the six touched license files had **253 formatting errors**, no other errors/warnings. Saved earlier lint output already showed 220 errors in those same files; later license edits added 33 net formatting findings (3 model, 3 unit-test, 27 local-test). Net counts are not a line-level attribution baseline.
+- Formatted only those six files with the project's existing Prettier configuration. **Full-rule ESLint for all six: 0 errors, 0 warnings**, without disabling any rule. No behavior, page design, auth or schema changed.
+- Current full `bun run lint --format json`: **11,995 errors, 33 warnings** remain elsewhere (11,833 formatting; 156 explicit-any; 3 unused-expressions; 2 prefer-const; 1 control-regex; 23 refresh warnings; 10 hook-dependency warnings). These are outside the formatted license files and were not broadly fixed. The decrease from the earlier 12,215 total is 220; compare with current pre-format counts separately rather than calling every historical error pre-existing.
+- Relevant post-format run: `bunx vitest run src/test/crm-installations.test.ts`: **19 passed, 0 failed**. Previously passed DB/browser writes and full suite were deliberately not repeated for formatting-only edits.
+- Harness validation after source formatting: **build OK at 06:42:34 UTC**; no manual build/typecheck run.
+- Live read-only privilege/RLS inspection reconfirmed migration 0092 is effective and registry/audit counts remain zero. Connector list remains empty. No customer data or test fixture was created in this review.
+- Provider-specific contract remains absent, not guessed. Owner checklist, safe lifecycle tests and exact verification limits are in `license-integration-checklist.md`.
