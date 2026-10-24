@@ -30,9 +30,9 @@ describe.skipIf(process.env['CRM_LICENSE_LOCAL_QA']!=='1')('Independent CRM regi
     const peer=postgres({host:'127.0.0.1',port:55441,username:'qa',database:'postgres',ssl:false,max:1});
     try {
       await peer`SELECT set_config('qa.uid',${admin},false)`;
-      const before=(await sql`SELECT * FROM crm_installations WHERE id=${id}`)[0];
+      const before=(await sql`SELECT *,expires_at::text AS exact_expiry FROM crm_installations WHERE id=${id}`)[0];
       const auditBefore=await sql`SELECT * FROM crm_installation_audit WHERE installation_id=${id}`;
-      const p={id,validity_years:1,expected_expiry:new Date(before?.['expires_at']).toISOString()};
+      const p={id,validity_years:1,expected_expiry:before?.['exact_expiry']};
       const results=await Promise.allSettled([sql`SELECT crm_installation_action('extend',${sql.json(p)})`,peer`SELECT crm_installation_action('extend',${peer.json(p)})`]);
       expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);
       const failure=results.find(r=>r.status==='rejected');
