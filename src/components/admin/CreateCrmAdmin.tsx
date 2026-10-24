@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useServerFn } from '@tanstack/react-start';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,20 +16,24 @@ export function CreateCrmAdmin() {
   const [error,setError] = useState('');
   const [saved,setSaved] = useState(false);
   const [installationId,setInstallationId] = useState('');
+  const submitting = useRef(false);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setError('');
+    event.preventDefault();
+    if (submitting.current) return;
+    setError(''); setSaved(false);
     const form = event.currentTarget;
     const fields = Object.fromEntries(new FormData(form));
     const parsed = installationSchema.safeParse({ ...fields, validity_years: years });
     if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? 'Check the installation details'); return; }
-    setBusy(true);
+    submitting.current = true; setBusy(true);
     try {
       const result = await create({ data: parsed.data });
       if (result && typeof result === 'object' && !Array.isArray(result)) setInstallationId(String(result['installation_id'] ?? ''));
-      setSaved(true); form.reset();
-      await qc.invalidateQueries({queryKey:['crm-installations']});
+      setSaved(true); form.reset(); setYears(1);
+      // A refresh failure must not turn a committed creation into a failed save.
+      void qc.invalidateQueries({queryKey:['crm-installations']}).catch(() => {});
     } catch (e) { setError(e instanceof Error ? e.message : 'Installation could not be saved'); }
-    finally { setBusy(false); }
+    finally { submitting.current = false; setBusy(false); }
   }
   return <div className="space-y-5">
     <Breadcrumb label="Create CRM Admin" />

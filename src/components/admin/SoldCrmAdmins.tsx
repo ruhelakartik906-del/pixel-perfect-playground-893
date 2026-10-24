@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useServerFn } from '@tanstack/react-start';
 import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
@@ -20,19 +20,22 @@ export function SoldCrmAdmins() {
   const [sort,setSort] = useState('asc'); const [page,setPage] = useState(0);
   const [selected,setSelected] = useState<Installation | null>(null); const [action,setAction] = useState<Action>('details');
   const [years,setYears] = useState<1 | 2>(1); const [busy,setBusy] = useState(false); const [error,setError] = useState(''); const [message,setMessage] = useState('');
+  const submitting = useRef(false);
   const audit = useQuery({ queryKey:['crm-installation-audit',selected?.id], queryFn:()=>installationAudit({data:{id:selected?.id ?? ''}}), enabled:!!selected && action==='details' });
   const list = filterInstallations(rows,search,status,soon).sort((a,b)=>(new Date(a.expires_at).getTime()-new Date(b.expires_at).getTime())*(sort==='asc'?1:-1));
   const pages = Math.max(1,Math.ceil(list.length/20)); const current = Math.min(page,pages-1);
   const counts = {active:0,suspended:0,expired:0};
   for (const row of rows) { const s=installationStatus(row); if(s==='active'||s==='suspended'||s==='expired') counts[s]++; }
-  function open(row:Installation, next:Action) {setSelected(row);setAction(next);setYears(1);setError('');}
+  function open(row:Installation, next:Action) {setSelected(row);setAction(next);setYears(1);setError('');setMessage('');}
   async function confirm() {
-    if(!selected) return; setBusy(true);setError('');
+    if(!selected || action !== 'extend' || submitting.current) return;
+    submitting.current = true; setBusy(true);setError('');
     try {
-      await change({data:{action:action==='details'?'reset':action,id:selected.id,validity_years:years,expected_expiry:selected.expires_at}});
-      await qc.invalidateQueries({queryKey:['crm-installations']}); await qc.invalidateQueries({queryKey:['crm-installation-audit']});
+      await change({data:{action:'extend',id:selected.id,validity_years:years,expected_expiry:selected.expires_at}});
+      void qc.invalidateQueries({queryKey:['crm-installations']}).catch(() => {});
+      void qc.invalidateQueries({queryKey:['crm-installation-audit']}).catch(() => {});
       setSelected(null);setMessage('Validity updated. Installation access remains Setup Required.');
-    } catch(e) {setError(e instanceof Error?e.message:'Action could not be completed');} finally {setBusy(false);}
+    } catch(e) {setError(e instanceof Error?e.message:'Action could not be completed');} finally {submitting.current=false;setBusy(false);}
   }
   return <div className="space-y-5">
     <Breadcrumb label="Sold CRM Admins" />
