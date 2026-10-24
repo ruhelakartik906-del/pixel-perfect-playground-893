@@ -9,6 +9,11 @@ export const installationSchema = z.object({
 });
 export type Installation = import('@/integrations/supabase/types').Database['public']['Tables']['crm_installations']['Row'];
 export type Audit = import('@/integrations/supabase/types').Database['public']['Tables']['crm_installation_audit']['Row'];
+export const installationChangeSchema = z.object({
+  action: z.enum(['extend','activate','suspend','reset']), id: z.string().uuid(),
+  validity_years: z.union([z.literal(1),z.literal(2)]).optional(),
+  expected_expiry: z.string().datetime({offset:true}).optional(),
+});
 export function installationStatus(row: Installation, now = new Date()) {
   return new Date(row.expires_at) <= now ? 'expired' : row.license_status;
 }

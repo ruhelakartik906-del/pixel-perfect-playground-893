@@ -645,6 +645,13 @@
       "when": 1792822671094,
       "tag": "0091_fix_license_action_timestamp",
       "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1792823619219,
+      "tag": "0092_restrict_license_registry_grants",
+      "breakpoints": true
     }
   ]
 }
