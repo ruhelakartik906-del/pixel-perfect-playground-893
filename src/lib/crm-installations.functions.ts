@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { installationSchema } from './crm-installations';
+import { installationSchema, installationChangeSchema } from './crm-installations';
 import { readAllPages } from './backend-read';
 
 type Context = { supabase: import('@supabase/supabase-js').SupabaseClient<import('@/integrations/supabase/types').Database>; userId: string };
@@ -27,7 +27,7 @@ export const installationAudit = createServerFn({ method: 'GET' }).middleware([r
   if (result.error) throw new Error('Audit history could not be loaded');
   return result.data;
 });
-export const changeCrmInstallation = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => z.object({ action: z.enum(['extend','activate','suspend','reset']), id: z.string().uuid(), validity_years: z.union([z.literal(1),z.literal(2)]).optional(), expected_expiry: z.string().datetime().optional() }).parse(input)).handler(async ({ context, data }) => {
+export const changeCrmInstallation = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => installationChangeSchema.parse(input)).handler(async ({ context, data }) => {
   await authorize(context);
   if (data.action !== 'extend') throw new Error('Setup Required: customer provisioning and license enforcement are not configured. No access was changed.');
   const result = await context.supabase.rpc('crm_installation_action', { _action: data.action, _payload: data });

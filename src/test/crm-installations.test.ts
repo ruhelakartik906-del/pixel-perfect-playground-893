@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { addLicenseYears, filterInstallations, installationSchema, installationStatus, renewalExpiry, type Installation } from '@/lib/crm-installations';
+import { addLicenseYears, filterInstallations, installationChangeSchema, installationSchema, installationStatus, renewalExpiry, type Installation } from '@/lib/crm-installations';
 const row = (extra: Partial<Installation> = {}): Installation => ({ id:'1', installation_id:'RCRM-ONE',client_name:'Asha',company_name:'Acme',admin_email:'asha@example.test',admin_phone:'',crm_url:'https://acme.example.test',validity_years:1,starts_at:'2026-10-24T06:00:00Z',expires_at:'2027-10-24T06:00:00Z',license_status:'setup_required',configuration_verified:false,enforcement_verified:false,admin_provisioned:false,created_by:'admin',created_at:'2026-10-24T06:00:00Z',updated_at:'2026-10-24T06:00:00Z',...extra});
 describe('Sold CRM license rules',()=>{
+  it('renewal accepts the persisted offset and preserves exact microseconds',()=>{
+    const expected_expiry='2027-10-24T06:36:52.645402+00:00';
+    expect(installationChangeSchema.parse({action:'extend',id:'11111111-1111-4111-8111-111111111111',validity_years:1,expected_expiry}).expected_expiry).toBe(expected_expiry);
+  });
   it('1 year validity uses a calendar year',()=>expect(addLicenseYears('2026-10-24T06:00:00Z',1)).toBe('2027-10-24T06:00:00.000Z'));
   it('2 year validity uses two calendar years',()=>expect(addLicenseYears('2026-10-24T06:00:00Z',2)).toBe('2028-10-24T06:00:00.000Z'));
   it('leap-day expiry is clamped in Kolkata time',()=>expect(addLicenseYears('2024-02-28T20:00:00Z',1)).toBe('2025-02-27T20:00:00.000Z'));
