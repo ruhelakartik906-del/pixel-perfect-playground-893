@@ -794,6 +794,104 @@ export type Database = {
           },
         ]
       }
+      crm_installation_audit: {
+        Row: {
+          action: string
+          actor_id: string
+          after_values: Json
+          before_values: Json | null
+          created_at: string
+          id: string
+          installation_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          after_values: Json
+          before_values?: Json | null
+          created_at?: string
+          id?: string
+          installation_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          after_values?: Json
+          before_values?: Json | null
+          created_at?: string
+          id?: string
+          installation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_installation_audit_installation_id_fkey"
+            columns: ["installation_id"]
+            isOneToOne: false
+            referencedRelation: "crm_installations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_installations: {
+        Row: {
+          admin_email: string
+          admin_phone: string
+          admin_provisioned: boolean
+          client_name: string
+          company_name: string
+          configuration_verified: boolean
+          created_at: string
+          created_by: string
+          crm_url: string
+          enforcement_verified: boolean
+          expires_at: string
+          id: string
+          installation_id: string
+          license_status: string
+          starts_at: string
+          updated_at: string
+          validity_years: number
+        }
+        Insert: {
+          admin_email: string
+          admin_phone?: string
+          admin_provisioned?: boolean
+          client_name: string
+          company_name: string
+          configuration_verified?: boolean
+          created_at?: string
+          created_by: string
+          crm_url: string
+          enforcement_verified?: boolean
+          expires_at: string
+          id?: string
+          installation_id?: string
+          license_status?: string
+          starts_at?: string
+          updated_at?: string
+          validity_years?: number
+        }
+        Update: {
+          admin_email?: string
+          admin_phone?: string
+          admin_provisioned?: boolean
+          client_name?: string
+          company_name?: string
+          configuration_verified?: boolean
+          created_at?: string
+          created_by?: string
+          crm_url?: string
+          enforcement_verified?: boolean
+          expires_at?: string
+          id?: string
+          installation_id?: string
+          license_status?: string
+          starts_at?: string
+          updated_at?: string
+          validity_years?: number
+        }
+        Relationships: []
+      }
       crm_list_views: {
         Row: {
           columns: Json
@@ -4679,6 +4777,15 @@ export type Database = {
         Returns: Json
       }
       crm_attendance_workspace: { Args: { _month?: string }; Returns: Json }
+      crm_installation_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: Json
+      }
+      crm_installation_license_state: { Args: { _id: string }; Returns: Json }
+      crm_license_add_years: {
+        Args: { _start: string; _years: number }
+        Returns: string
+      }
       crm_work_action: {
         Args: { _action: string; _payload: Json }
         Returns: string

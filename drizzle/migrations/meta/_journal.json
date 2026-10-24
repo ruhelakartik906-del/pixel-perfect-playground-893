@@ -624,6 +624,13 @@
       "when": 1792596938484,
       "tag": "0088_unified_crm_attendance_roster",
       "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1792822427995,
+      "tag": "0089_sold_crm_installation_registry",
+      "breakpoints": true
     }
   ]
 }
