@@ -10,6 +10,7 @@ describe.skipIf(process.env['CRM_LICENSE_LOCAL_QA']!=='1')('Independent CRM regi
     await sql.unsafe(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$; CREATE TABLE public.profiles(id uuid,account_status text); CREATE TABLE public.user_roles(user_id uuid,role text); CREATE FUNCTION public.routing_admin() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM profiles p JOIN user_roles r ON r.user_id=p.id WHERE p.id=auth.uid() AND p.account_status='active' AND r.role='super_admin') $$; INSERT INTO profiles VALUES('${admin}','active'),('${client}','active'); INSERT INTO user_roles VALUES('${admin}','super_admin'),('${client}','client'); GRANT USAGE ON SCHEMA public,auth TO authenticated,anon;`);
     await sql.unsafe(readFileSync('drizzle/migrations/0089_sold_crm_installation_registry.sql','utf8'));
     await sql.unsafe(readFileSync('drizzle/migrations/0090_validate_independent_crm_url.sql','utf8'));
+    await sql.unsafe(readFileSync('drizzle/migrations/0091_fix_license_action_timestamp.sql','utf8'));
     await sql`SELECT set_config('qa.uid',${admin},false)`;
   });
   afterAll(async()=>{await sql.end();});
