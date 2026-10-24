@@ -4,7 +4,7 @@ export const installationSchema = z.object({
   client_name: z.string().trim().min(1).max(120), company_name: z.string().trim().min(1).max(160),
   admin_email: z.string().trim().email().max(255).transform(v => v.toLowerCase()),
   admin_phone: z.string().trim().max(30).refine(v => !v || /^\+?[0-9 ()-]{7,30}$/.test(v), 'Enter a valid phone number').default(''),
-  crm_url: z.string().trim().url().max(500).transform(v => v.replace(/\/+$/, '').toLowerCase()).refine(v => /^https:\/\/[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(:443)?$/.test(v), 'Use an HTTPS installation address without a path'),
+  crm_url: z.string().trim().url().max(500).transform(v => v.replace(/\/+$/, '').toLowerCase()).refine(v => /^https:\/\/([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}(:443)?$/.test(v), 'Use a valid HTTPS installation address without a path'),
   validity_years: z.union([z.literal(1), z.literal(2)]),
 });
 export type Installation = import('@/integrations/supabase/types').Database['public']['Tables']['crm_installations']['Row'];

@@ -12,5 +12,5 @@ describe('Sold CRM license rules',()=>{
   it.each(['Asha','Acme','asha@example.test','RCRM-ONE'])('search matches %s',search=>expect(filterInstallations([row()],search,'all',false)).toHaveLength(1));
   it('status filters exclude unrelated records',()=>expect(filterInstallations([row()], '', 'active', false)).toHaveLength(0));
   it('email is required because phone authentication is unavailable',()=>expect(installationSchema.safeParse({...row(),admin_email:'',admin_phone:'+919999999999'}).success).toBe(false));
-  it.each(['http://crm.example.test','https://crm.example.test/path','https://user:secret@crm.example.test'])('rejects unsafe customer URL %s',crm_url=>expect(installationSchema.safeParse({...row(),crm_url}).success).toBe(false));
+  it.each(['http://crm.example.test','https://crm.example.test/path','https://user:secret@crm.example.test','https://a..example.test','https://a-.example.test'])('rejects unsafe customer URL %s',crm_url=>expect(installationSchema.safeParse({...row(),crm_url}).success).toBe(false));
 });
