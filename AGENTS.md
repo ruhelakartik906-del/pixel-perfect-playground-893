@@ -9,32 +9,27 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Public chrome stays outside workspaces; compact AuthCard is Login/Register-only — why: shared chrome and isolated spacing.
-- Make management uses Admin-gated functions, hashed credentials, source mappings and redacted logs; intake uses the existing public route and locked canonical Leads/routing RPCs — why: isolation, safe rotation and atomic quotas.
-- CRM pages use `src/routes/_authenticated/`; public marketing/auth stay top-level — why: gate workspaces, not crawlable pages.
-- Master Admin uses protected admin routes, shared nav/UI, a role guard and fallback splat — why: authorized access and working links.
-- First Super Admin provisioning uses only private secrets via `provision-admin.functions.ts` and stops once one exists; logins share authenticated `auth-access.functions.ts` with stored roles/status — why: public signup cannot grant privileges, and blocked/pending checks precede role redirects.
-- Leads use scoped RPCs, canonical reads, ad-private owners and atomic Board stage/outcome/first-move saves — why: preserve company privacy, quotas and detail guards.
-- Sales uses separate catalog/customers, `can_manage_sales`, private images and stable full pagination in six-connection batches — why: scoped access and complete totals.
-- Financial writes use the `sales_financial_action` database RPC through an authenticated server function; issued invoices are immutable snapshots and payment/credit actions lock the invoice — why: balances and audit records must be atomic under concurrent actions.
-- Permission roles (`access_roles` + `user_access_roles`) are separate from the system `user_roles` enum; the permission catalog lives in `src/lib/permissions.ts` — why: custom roles must never grant system privileges.
-- Invitations use public acceptance and stay pending until locked password acceptance; Admin-only Auth invite/recovery resends preserve identity/company/roles — why: no editor access or duplicate users.
-- Non-WhatsApp legacy Admin policies use active-admin checks and restrictive CRM assignment/account boundaries — why: permissive policies must not reopen blocked/unrelated access.
-- Mail/WhatsApp pages store data locally only; nothing reaches Sent/Inbox or WhatsApp without a delivery integration — why: no faked sending.
-- WhatsApp workflows/broadcasts are stored only; delivery counts and processing/completed states are writable only by the server (DB trigger), and integration status `connected` can't be set from the browser (RLS) — why: no simulated sending or fake connection badges.
-- HRM employees link existing profiles; `hr_set_access` audits approval/rejection — why: one identity and atomic access.
-- HRM management uses shared validated forms with scoped database policies; attendance, leave and payroll mutate only through transactional audited RPCs — why: identity, balances and financial history cannot depend on browser controls.
-- Bulk attendance uses one atomic RPC; leave-derived attendance carries a source request ID cleared by manual correction — why: failed bulk saves roll back and reversing leave never removes unrelated manual records.
-- Calendar derives meetings, holidays and approved leave from their original records; private HR files (documents, announcement attachments) use authorized server uploads/downloads following record visibility — why: avoid duplicate events and public or cross-company files.
-- Employee HR self-service lives outside the super-admin layout at `/my-hr`; custom HR administrators use permission-scoped HR access — why: keep the admin shell without granting unrelated administration.
-- Support uses owner-scoped reads, locked RPCs, private-note RLS and authorized files — why: secure ownership and conversation history.
-- Admin settings use authenticated active-Super-Admin functions; own credentials use Auth with current-password reauthentication, and business preferences extend the existing singleton sales settings via a dedicated authorized RPC — why: reuse identity and seller snapshots without changing financial history or other modules.
-- Admin/user work uses locked company/personal RPCs and original creators — why: no duplicate records or fictitious companies.
-- Five work pages share spreadsheet controls, private page-specific drafts/customization and locked cell writes — why: preserve ownership/history without incomplete tasks.
-- Chat shares Admin records/files via participant RPCs/RLS; chat_people exposes public identities only; company groups keep membership gates — why: discovery must not grant private-record access.
-
+- Public chrome stays outside workspaces; AuthCard is Login/Register-only — why: isolate spacing.
+- Make uses Admin-gated functions, hashed credentials, source mappings/redacted logs; intake uses the existing public route and locked Leads/routing RPCs — why: safe rotation, isolation and atomic quotas.
+- CRM lives under `src/routes/_authenticated/`; marketing/auth stay public. Admin uses shared nav/UI, role guard and fallback splat — why: protected workspaces and working links.
+- First Admin provisioning uses only private secrets and stops once one exists; logins use stored roles/status via authenticated auth-access functions — why: public signup cannot grant privileges; pending/blocked checks precede redirects.
+- Leads use scoped RPCs, canonical reads, ad-private owners and atomic Board stage/outcome/first-move saves — why: preserve privacy, quotas and detail guards.
+- Sales uses separate catalog/customers, can_manage_sales, private images and stable pagination in six-connection batches — why: scoped access and complete totals.
+- Financial writes use authenticated sales_financial_action; issued invoices are immutable and payment/credit actions lock invoices — why: atomic balances/audit under concurrency.
+- access_roles/user_access_roles stay separate from system user_roles; catalog is src/lib/permissions.ts — why: custom permissions cannot grant system privileges.
+- Invitations use public acceptance, remain pending until locked password acceptance; Admin Auth resends preserve identity/company/roles — why: no editor access or duplicates.
+- Legacy Admin policies require active Admin and restrictive CRM assignment/account boundaries — why: permissive policies cannot reopen blocked/unrelated access.
+- Mail/WhatsApp are stored-only without delivery; WhatsApp counts and processing/completed states are server-only via trigger, connected status cannot be set by browser RLS — why: no fake sending/connections.
+- HRM employees link profiles; hr_set_access audits decisions. Shared validated forms/scoped policies and transactional attendance/leave/payroll RPCs preserve identity, balances and history.
+- Bulk attendance is atomic; leave attendance carries source request ID cleared by manual correction — why: rollback failures and preserve unrelated manual records on reversal.
+- Calendar derives original meetings/holidays/approved leave; private HR documents/attachments use authorized uploads/downloads matching record visibility — why: no duplicate events or public/cross-company files.
+- /my-hr stays outside Admin; custom HR administrators use scoped permissions — why: no unrelated privileges.
+- Support uses owner reads, locked RPCs, private-note RLS and authorized files — why: secure ownership/history.
+- Settings require active Super Admin; own credentials use Auth/current-password reauthentication, business defaults extend singleton sales settings via authorized RPC — why: preserve identity, seller snapshots and financial history.
+- Work uses locked company/personal RPCs and original creators; five pages share spreadsheets, private per-page drafts/customization and locked cells — why: no duplicates, fictitious companies or lost ownership/history.
+- Chat uses participant RPCs/RLS/files; chat_people exposes public identities only and company groups require membership — why: discovery cannot grant private access.
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
-- Shared work/commercial reads use short browser-query freshness with existing mutation invalidation; commercial prerequisite reads run in batches of at most six — why: reduce duplicate navigation requests without shared server caches or skipped authorization.
-- Automation uses canonical work and unique events; retry fault tests use unchanged SQL in disposable localhost DBs — why: safe scope/deduplication without production faults.
-
-- Attendance projects existing HR/personal summaries (HR wins per account/date), never copies check-ins; independent Super-Admin-only roster exclusion preserves HR identity.
+- Work/commercial reads use short browser freshness plus mutation invalidation; prerequisite batches max six — why: fewer duplicate requests without shared server caches/skipped authorization.
+- Automation uses canonical work/unique events; retry tests run unchanged SQL in disposable local DBs — why: dedupe and no production faults.
+- Attendance projects original HR/personal summaries (HR wins per account/date); Admin-only roster exclusion preserves HR identity.
+- Sold CRM uses active-Admin audited registry/RPCs; independent provisioning/enforcement stays Setup Required without connectors — why: never grant customers this database or fake suspension.

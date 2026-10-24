@@ -624,6 +624,27 @@
       "when": 1792596938484,
       "tag": "0088_unified_crm_attendance_roster",
       "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1792822427995,
+      "tag": "0089_sold_crm_installation_registry",
+      "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1792822625750,
+      "tag": "0090_validate_independent_crm_url",
+      "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1792822671094,
+      "tag": "0091_fix_license_action_timestamp",
+      "breakpoints": true
     }
   ]
 }
