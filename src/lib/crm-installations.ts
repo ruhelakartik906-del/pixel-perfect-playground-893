@@ -26,25 +26,46 @@ export const installationSchema = z.object({
       "Use a valid HTTPS installation address without a path",
     ),
   validity_years: z.union([z.literal(1), z.literal(2)]),
+  notes: z.string().trim().max(2000).default(""),
 });
-export type Installation =
-  import("@/integrations/supabase/types").Database["public"]["Tables"]["crm_installations"]["Row"];
+export type Installation = Omit<
+  import("@/integrations/supabase/types").Database["public"]["Tables"]["crm_installations"]["Row"],
+  "credential_hash"
+>;
+/** Columns readable by Super Admins; the credential hash is never selected. */
+export const installationColumns =
+  "id,installation_id,client_name,company_name,admin_email,admin_phone,crm_url,validity_years,starts_at,expires_at,license_status,configuration_verified,enforcement_verified,admin_provisioned,created_by,created_at,updated_at,activated_at,valid_until,last_verified_at,last_renewed_at,notes,credential_rotated_at";
 export type Audit =
   import("@/integrations/supabase/types").Database["public"]["Tables"]["crm_installation_audit"]["Row"];
 export const installationChangeSchema = z.object({
-  action: z.enum(["extend", "activate", "suspend", "reset"]),
+  action: z.enum(["activate", "suspend", "resume", "renew", "rotate"]),
   id: z.string().uuid(),
   validity_years: z.union([z.literal(1), z.literal(2)]).optional(),
-  expected_expiry: z.string().datetime({ offset: true }).optional(),
+  expected_updated_at: z.string().datetime({ offset: true }),
 });
-export function installationStatus(row: Installation, now = new Date()) {
-  return new Date(row.expires_at) <= now ? "expired" : row.license_status;
+export type LicenseAction = z.infer<typeof installationChangeSchema>["action"];
+type StatusRow = Pick<Installation, "license_status" | "valid_until">;
+export function installationStatus(row: StatusRow, now = new Date()) {
+  if (row.valid_until && new Date(row.valid_until) <= now) return "expired";
+  return row.license_status === "setup_required" ? "pending" : row.license_status;
+}
+/** Which actions are allowed for a license in its current state (mirrors the database rules). */
+export function allowedActions(row: StatusRow, now = new Date()): LicenseAction[] {
+  const s = installationStatus(row, now);
+  if (s === "pending") return ["activate", "rotate"];
+  if (s === "active") return ["suspend", "renew", "rotate"];
+  if (s === "suspended") return ["resume", "renew", "rotate"];
+  return ["renew", "rotate"];
+}
+export function remainingDays(row: StatusRow, now = new Date()) {
+  if (!row.valid_until) return null;
+  return Math.max(0, Math.ceil((new Date(row.valid_until).getTime() - now.getTime()) / 86400000));
 }
 export const statusLabels: Record<string, string> = {
+  pending: "Pending",
   active: "Active",
   suspended: "Suspended",
   expired: "Expired",
-  setup_required: "Setup Required",
 };
 export function addLicenseYears(value: string, years: 1 | 2) {
   const date = new Date(new Date(value).getTime() + 19800000);
@@ -53,8 +74,8 @@ export function addLicenseYears(value: string, years: 1 | 2) {
   if (date.getUTCMonth() !== month) date.setUTCDate(0);
   return new Date(date.getTime() - 19800000).toISOString();
 }
-export function renewalExpiry(expiry: string, years: 1 | 2, now = new Date()) {
-  return addLicenseYears(new Date(expiry) > now ? expiry : now.toISOString(), years);
+export function renewalExpiry(expiry: string | null, years: 1 | 2, now = new Date()) {
+  return addLicenseYears(expiry && new Date(expiry) > now ? expiry : now.toISOString(), years);
 }
 export function filterInstallations(
   rows: Installation[],
@@ -73,12 +94,13 @@ export function filterInstallations(
           .includes(search.toLowerCase())) &&
       (status === "all" || installationStatus(row, now) === status) &&
       (!soon ||
-        (new Date(row.expires_at).getTime() > now.getTime() &&
-          new Date(row.expires_at).getTime() <= end)),
+        (!!row.valid_until &&
+          new Date(row.valid_until).getTime() > now.getTime() &&
+          new Date(row.valid_until).getTime() <= end)),
   );
 }
-export const licenseDate = (value: string) =>
-  new Date(value).toLocaleDateString("en-IN", {
+export const licenseDate = (value: string | null) =>
+  !value ? "—" : new Date(value).toLocaleDateString("en-IN", {
     timeZone: "Asia/Kolkata",
     day: "2-digit",
     month: "short",

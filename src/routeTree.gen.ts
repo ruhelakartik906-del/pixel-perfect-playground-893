@@ -112,6 +112,8 @@ import { Route as AuthenticatedAdminWhatsappMessageLogRouteImport } from './rout
 import { Route as AuthenticatedAdminWhatsappMessageTemplatesRouteImport } from './routes/_authenticated/admin/whatsapp/message-templates'
 import { Route as AuthenticatedAdminWhatsappWhatsappChatRouteImport } from './routes/_authenticated/admin/whatsapp/whatsapp-chat'
 import { Route as AuthenticatedAdminWhatsappWorkflowsRouteImport } from './routes/_authenticated/admin/whatsapp/workflows'
+import { Route as ApiPublicLicenseStatusRouteImport } from './routes/api/public/license/status'
+import { Route as ApiPublicLicenseVerifyRouteImport } from './routes/api/public/license/verify'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -694,6 +696,16 @@ const AuthenticatedAdminWhatsappWorkflowsRoute =
     path: '/whatsapp/workflows',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const ApiPublicLicenseStatusRoute = ApiPublicLicenseStatusRouteImport.update({
+  id: '/api/public/license/status',
+  path: '/api/public/license/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicLicenseVerifyRoute = ApiPublicLicenseVerifyRouteImport.update({
+  id: '/api/public/license/verify',
+  path: '/api/public/license/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -797,6 +809,8 @@ export interface FileRoutesByFullPath {
   '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
+  '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
+  '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesByTo {
@@ -900,6 +914,8 @@ export interface FileRoutesByTo {
   '/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
+  '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
+  '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRoutesById {
@@ -1006,6 +1022,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/whatsapp/message-templates': typeof AuthenticatedAdminWhatsappMessageTemplatesRoute
   '/_authenticated/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/_authenticated/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
+  '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
+  '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
 export interface FileRouteTypes {
@@ -1112,6 +1130,8 @@ export interface FileRouteTypes {
     | '/admin/whatsapp/message-templates'
     | '/admin/whatsapp/whatsapp-chat'
     | '/admin/whatsapp/workflows'
+    | '/api/public/license/status'
+    | '/api/public/license/verify'
     | '/admin/routing/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1215,6 +1235,8 @@ export interface FileRouteTypes {
     | '/admin/whatsapp/message-templates'
     | '/admin/whatsapp/whatsapp-chat'
     | '/admin/whatsapp/workflows'
+    | '/api/public/license/status'
+    | '/api/public/license/verify'
     | '/admin/routing'
   id:
     | '__root__'
@@ -1320,6 +1342,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/whatsapp/message-templates'
     | '/_authenticated/admin/whatsapp/whatsapp-chat'
     | '/_authenticated/admin/whatsapp/workflows'
+    | '/api/public/license/status'
+    | '/api/public/license/verify'
     | '/_authenticated/admin/routing/'
   fileRoutesById: FileRoutesById
 }
@@ -1342,6 +1366,8 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ApiPublicMakeLeadsRoute: typeof ApiPublicMakeLeadsRoute
+  ApiPublicLicenseStatusRoute: typeof ApiPublicLicenseStatusRoute
+  ApiPublicLicenseVerifyRoute: typeof ApiPublicLicenseVerifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2067,6 +2093,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWhatsappWorkflowsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/api/public/license/status': {
+      id: '/api/public/license/status'
+      path: '/api/public/license/status'
+      fullPath: '/api/public/license/status'
+      preLoaderRoute: typeof ApiPublicLicenseStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/license/verify': {
+      id: '/api/public/license/verify'
+      path: '/api/public/license/verify'
+      fullPath: '/api/public/license/verify'
+      preLoaderRoute: typeof ApiPublicLicenseVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2307,6 +2347,8 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   AdminLoginRoute: AdminLoginRoute,
   ApiPublicMakeLeadsRoute: ApiPublicMakeLeadsRoute,
+  ApiPublicLicenseStatusRoute: ApiPublicLicenseStatusRoute,
+  ApiPublicLicenseVerifyRoute: ApiPublicLicenseVerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -25,7 +25,18 @@ const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === "serverFn",
 });
 
+// Customer installations (LICENSE_MODE=customer) block server functions while the
+// central license is inactive. The Master CRM (default) is never blocked.
+const licenseServerFnMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const base = process.env["TSS_SERVER_FN_BASE"] ?? "/_serverFn";
+  if (!new URL(request.url).pathname.startsWith(base)) return next();
+  const { enforceLicenseForServerFn } = await import("./lib/license-gate.server");
+  const blocked = await enforceLicenseForServerFn(request);
+  if (blocked) return blocked;
+  return next();
+});
+
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [errorMiddleware, csrfMiddleware, licenseServerFnMiddleware],
 }));

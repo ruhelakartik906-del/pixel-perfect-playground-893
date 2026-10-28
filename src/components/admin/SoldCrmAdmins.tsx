@@ -40,15 +40,34 @@ import {
 import { installationsQuery } from "@/lib/crm-installations-query";
 import { changeCrmInstallation, installationAudit } from "@/lib/crm-installations.functions";
 import {
+  allowedActions,
   filterInstallations,
+  remainingDays,
   installationStatus,
   licenseDate,
   renewalExpiry,
   statusLabels,
   type Installation,
+  type LicenseAction,
 } from "@/lib/crm-installations";
 
-type Action = "details" | "activate" | "suspend" | "extend" | "reset";
+type Action = "details" | LicenseAction;
+const actionTitles: Record<LicenseAction, string> = {
+  activate: "Activate License",
+  suspend: "Suspend License",
+  resume: "Resume License",
+  renew: "Renew License",
+  rotate: "Rotate Installation Credential",
+};
+const auditLabels: Record<string, string> = {
+  create: "Installation registered",
+  activate: "License activated",
+  suspend: "License suspended",
+  resume: "License resumed",
+  renew: "License renewed",
+  extend: "Validity extended",
+  rotate: "Credential rotated",
+};
 export function SoldCrmAdmins() {
   const { data: rows } = useSuspenseQuery(installationsQuery);
   const qc = useQueryClient();
@@ -64,6 +83,7 @@ export function SoldCrmAdmins() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [credential, setCredential] = useState("");
   const submitting = useRef(false);
   const audit = useQuery({
     queryKey: ["crm-installation-audit", selected?.id],
@@ -72,15 +92,16 @@ export function SoldCrmAdmins() {
   });
   const list = filterInstallations(rows, search, status, soon).sort(
     (a, b) =>
-      (new Date(a.expires_at).getTime() - new Date(b.expires_at).getTime()) *
+      (new Date(a.valid_until ?? "9999-12-31").getTime() -
+        new Date(b.valid_until ?? "9999-12-31").getTime()) *
       (sort === "asc" ? 1 : -1),
   );
   const pages = Math.max(1, Math.ceil(list.length / 20));
   const current = Math.min(page, pages - 1);
-  const counts = { active: 0, suspended: 0, expired: 0 };
+  const counts = { active: 0, suspended: 0, expired: 0, pending: 0 };
   for (const row of rows) {
     const s = installationStatus(row);
-    if (s === "active" || s === "suspended" || s === "expired") counts[s]++;
+    if (s in counts) counts[s as keyof typeof counts]++;
   }
   function open(row: Installation, next: Action) {
     setSelected(row);
@@ -88,25 +109,30 @@ export function SoldCrmAdmins() {
     setYears(1);
     setError("");
     setMessage("");
+    setCredential("");
   }
   async function confirm() {
-    if (!selected || action !== "extend" || submitting.current) return;
+    if (!selected || action === "details" || submitting.current) return;
     submitting.current = true;
     setBusy(true);
     setError("");
     try {
-      await change({
+      const result = await change({
         data: {
-          action: "extend",
+          action,
           id: selected.id,
-          validity_years: years,
-          expected_expiry: selected.expires_at,
+          validity_years: action === "renew" ? years : undefined,
+          expected_updated_at: selected.updated_at,
         },
       });
       void qc.invalidateQueries({ queryKey: ["crm-installations"] }).catch(() => {});
       void qc.invalidateQueries({ queryKey: ["crm-installation-audit"] }).catch(() => {});
-      setSelected(null);
-      setMessage("Validity updated. Installation access remains Setup Required.");
+      if (result.credential) {
+        setCredential(result.credential);
+      } else {
+        setSelected(null);
+      }
+      setMessage(`${actionTitles[action]} saved for ${selected.installation_id}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Action could not be completed");
     } finally {
@@ -163,6 +189,10 @@ export function SoldCrmAdmins() {
           tone="red"
         />
       </div>
+      <p className="text-sm text-muted-foreground">
+        Pending (not yet activated): <b>{counts.pending}</b> · Customer installations re-check
+        their license at least every 60 seconds and before every change.
+      </p>
       {message && (
         <p role="status" className="text-sm text-admin-blue">
           {message}
@@ -232,13 +262,15 @@ export function SoldCrmAdmins() {
               "Admin Phone",
               "CRM Installation ID",
               "CRM URL",
-              "Start Date",
+              "Activated",
               "Expiry Date",
+              "Remaining",
               "Validity",
+              "Last Verified",
               "Status",
               "Actions",
             ]}
-            minWidth={1600}
+            minWidth={1800}
           >
             {list.slice(current * 20, current * 20 + 20).map((row) => (
               <tr key={row.id}>
@@ -263,10 +295,18 @@ export function SoldCrmAdmins() {
                     {row.crm_url}
                   </a>
                 </td>
-                <td className="whitespace-nowrap px-4 py-3">{licenseDate(row.starts_at)}</td>
-                <td className="whitespace-nowrap px-4 py-3">{licenseDate(row.expires_at)}</td>
+                <td className="whitespace-nowrap px-4 py-3">{licenseDate(row.activated_at)}</td>
+                <td className="whitespace-nowrap px-4 py-3">{licenseDate(row.valid_until)}</td>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {remainingDays(row) === null ? "—" : `${remainingDays(row)} days`}
+                </td>
                 <td className="whitespace-nowrap px-4 py-3">
                   {row.validity_years} Year{row.validity_years === 2 ? "s" : ""}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {row.last_verified_at
+                    ? new Date(row.last_verified_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+                    : "Never"}
                 </td>
                 <td className="whitespace-nowrap px-4 py-3">
                   <StatusBadge
@@ -275,7 +315,9 @@ export function SoldCrmAdmins() {
                         ? "red"
                         : installationStatus(row) === "active"
                           ? "blue"
-                          : "gray"
+                          : installationStatus(row) === "suspended"
+                            ? "orange"
+                            : "gray"
                     }
                   >
                     {statusLabels[installationStatus(row)]}
@@ -296,18 +338,11 @@ export function SoldCrmAdmins() {
                       <DropdownMenuItem onClick={() => open(row, "details")}>
                         View Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => open(row, "activate")}>
-                        Activate CRM
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => open(row, "suspend")}>
-                        Suspend CRM
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => open(row, "extend")}>
-                        Extend Validity
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => open(row, "reset")}>
-                        Reset Admin Access
-                      </DropdownMenuItem>
+                      {allowedActions(row).map((next) => (
+                        <DropdownMenuItem key={next} onClick={() => open(row, next)}>
+                          {next === "renew" ? "Renew License" : actionTitles[next]}
+                        </DropdownMenuItem>
+                      ))}
                       <DropdownMenuItem asChild>
                         <a href={row.crm_url} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="size-4" />
@@ -358,12 +393,7 @@ export function SoldCrmAdmins() {
             <DialogTitle>
               {action === "details"
                 ? "Installation Details"
-                : {
-                    activate: "Activate CRM",
-                    suspend: "Suspend CRM",
-                    extend: "Extend Validity",
-                    reset: "Reset Admin Access",
-                  }[action]}
+                : actionTitles[action]}
             </DialogTitle>
             <DialogDescription>
               {selected?.client_name} · {selected?.company_name}
@@ -378,21 +408,22 @@ export function SoldCrmAdmins() {
                     ["Admin Email", selected.admin_email],
                     ["Admin Phone", selected.admin_phone || "—"],
                     ["CRM URL", selected.crm_url],
-                    ["Start Date", licenseDate(selected.starts_at)],
-                    ["Expiry Date", licenseDate(selected.expires_at)],
+                    ["Contact Name", selected.client_name],
+                    ["Activation Date", licenseDate(selected.activated_at)],
+                    ["Expiry Date", licenseDate(selected.valid_until)],
+                    ["Remaining", remainingDays(selected) === null ? "Not activated" : `${remainingDays(selected)} days`],
+                    ["License Duration", `${selected.validity_years} Year${selected.validity_years === 2 ? "s" : ""}`],
                     ["Status", statusLabels[installationStatus(selected)]],
+                    ["Registered", licenseDate(selected.created_at)],
+                    ["Last Renewal", licenseDate(selected.last_renewed_at)],
                     [
-                      "Installation Verification",
-                      selected.configuration_verified ? "Verified" : "Not verified",
+                      "Last Successful Verification",
+                      selected.last_verified_at
+                        ? new Date(selected.last_verified_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+                        : "Never",
                     ],
-                    [
-                      "Admin Provisioning",
-                      selected.admin_provisioned ? "Verified" : "Setup Required",
-                    ],
-                    [
-                      "License Enforcement",
-                      selected.enforcement_verified ? "Verified" : "Not configured",
-                    ],
+                    ["Credential Last Issued", licenseDate(selected.credential_rotated_at)],
+                    ["Internal Notes", selected.notes || "—"],
                   ].map(([k, v]) => (
                     <div key={k}>
                       <dt className="text-muted-foreground">{k}</dt>
@@ -409,7 +440,7 @@ export function SoldCrmAdmins() {
                   audit.data?.map((entry) => (
                     <div key={entry.id} className="border-b pb-2">
                       <p className="font-medium">
-                        {entry.action === "create" ? "Installation recorded" : "Validity extended"}{" "}
+                        {auditLabels[entry.action] ?? entry.action}{" "}
                         · {licenseDate(entry.created_at)}
                       </p>
                       <p className="break-all text-xs text-muted-foreground">
@@ -424,10 +455,12 @@ export function SoldCrmAdmins() {
               </div>
             ) : (
               <div className="space-y-4 text-sm">
-                {action === "extend" ? (
+                {credential ? (
+                  <CredentialNotice installationId={selected.installation_id} credential={credential} />
+                ) : action === "renew" ? (
                   <>
                     <label className="grid gap-1.5 font-medium">
-                      Extend by
+                      Renew for
                       <select
                         className="inp"
                         value={years}
@@ -438,22 +471,26 @@ export function SoldCrmAdmins() {
                       </select>
                     </label>
                     <p>
-                      Current expiry: <b>{licenseDate(selected.expires_at)}</b>
+                      Current expiry: <b>{licenseDate(selected.valid_until)}</b>
                     </p>
                     <p>
-                      Proposed expiry:{" "}
-                      <b>{licenseDate(renewalExpiry(selected.expires_at, years))}</b>
+                      New expiry: <b>{licenseDate(renewalExpiry(selected.valid_until, years))}</b>
                     </p>
                     <p className="text-muted-foreground">
-                      A valid license extends from its current expiry; an expired license renews
-                      from today. Saving validity does not activate access.
+                      Remaining valid time is kept; an expired license renews from today. Renewal
+                      does not change a suspension.
                     </p>
                   </>
                 ) : (
                   <p className="rounded-md bg-muted p-3">
-                    Setup Required. The independent customer installation and secure
-                    provisioning/license enforcement connection are not configured. No Admin
-                    invitation can be sent and actual access cannot be activated or suspended.
+                    {action === "activate" &&
+                      `Starts the ${selected.validity_years}-year term now. The customer CRM gets access on its next license check.`}
+                    {action === "suspend" &&
+                      "The customer CRM will be blocked within 60 seconds. The expiry date is not changed."}
+                    {action === "resume" &&
+                      "Restores access with the existing expiry date."}
+                    {action === "rotate" &&
+                      "The current credential stops working immediately. The customer CRM stays blocked until the new credential is configured."}
                   </p>
                 )}
                 {error && (
@@ -463,11 +500,15 @@ export function SoldCrmAdmins() {
                 )}
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" disabled={busy} onClick={() => setSelected(null)}>
-                    Cancel
+                    {credential ? "Done" : "Cancel"}
                   </Button>
-                  {action === "extend" && (
-                    <Button disabled={busy} onClick={confirm}>
-                      {busy ? "Saving…" : "Confirm Extension"}
+                  {!credential && (
+                    <Button
+                      disabled={busy}
+                      variant={action === "suspend" || action === "rotate" ? "destructive" : "default"}
+                      onClick={confirm}
+                    >
+                      {busy ? "Saving…" : `Confirm ${actionTitles[action as LicenseAction]}`}
                     </Button>
                   )}
                 </div>
@@ -475,6 +516,24 @@ export function SoldCrmAdmins() {
             ))}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+export function CredentialNotice({ installationId, credential }: { installationId: string; credential: string }) {
+  return (
+    <div role="status" className="space-y-2 rounded-md border border-admin-blue/30 bg-admin-blue/10 p-3">
+      <p className="font-semibold">Copy this credential now — it is shown only once.</p>
+      <p>
+        Installation ID: <code className="break-all">{installationId}</code>
+      </p>
+      <p>
+        Credential: <code className="break-all">{credential}</code>
+      </p>
+      <p className="text-muted-foreground">
+        Add both to the customer CRM as private server settings (LICENSE_INSTALLATION_ID,
+        LICENSE_CREDENTIAL). Never paste them into browser code or chat.
+      </p>
     </div>
   );
 }

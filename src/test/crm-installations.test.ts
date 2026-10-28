@@ -19,26 +19,32 @@ const row = (extra: Partial<Installation> = {}): Installation => ({
   validity_years: 1,
   starts_at: "2026-10-24T06:00:00Z",
   expires_at: "2027-10-24T06:00:00Z",
-  license_status: "setup_required",
+  license_status: "pending",
   configuration_verified: false,
   enforcement_verified: false,
   admin_provisioned: false,
   created_by: "admin",
   created_at: "2026-10-24T06:00:00Z",
   updated_at: "2026-10-24T06:00:00Z",
+  activated_at: null,
+  valid_until: null,
+  last_verified_at: null,
+  last_renewed_at: null,
+  notes: "",
+  credential_rotated_at: null,
   ...extra,
-});
+}) as Installation;
 describe("Sold CRM license rules", () => {
   it("renewal accepts the persisted offset and preserves exact microseconds", () => {
-    const expected_expiry = "2027-10-24T06:36:52.645402+00:00";
+    const expected_updated_at = "2027-10-24T06:36:52.645402+00:00";
     expect(
       installationChangeSchema.parse({
-        action: "extend",
+        action: "renew",
         id: "11111111-1111-4111-8111-111111111111",
         validity_years: 1,
-        expected_expiry,
-      }).expected_expiry,
-    ).toBe(expected_expiry);
+        expected_updated_at,
+      }).expected_updated_at,
+    ).toBe(expected_updated_at);
   });
   it("1 year validity uses a calendar year", () =>
     expect(addLicenseYears("2026-10-24T06:00:00Z", 1)).toBe("2027-10-24T06:00:00.000Z"));
@@ -56,15 +62,15 @@ describe("Sold CRM license rules", () => {
     ));
   it("expiry blocks active display at the exact expiry", () =>
     expect(
-      installationStatus(row({ license_status: "active" }), new Date("2027-10-24T06:00:00Z")),
+      installationStatus(row({ license_status: "active", valid_until: "2027-10-24T06:00:00Z" }), new Date("2027-10-24T06:00:00Z")),
     ).toBe("expired"));
   it("expiring soon includes only the next 30 days", () =>
     expect(
       filterInstallations(
         [
-          row({ id: "within", expires_at: "2026-11-23T06:00:00Z" }),
-          row({ id: "outside", expires_at: "2026-11-23T06:00:01Z" }),
-          row({ id: "past", expires_at: "2026-10-24T06:00:00Z" }),
+          row({ id: "within", valid_until: "2026-11-23T06:00:00Z" }),
+          row({ id: "outside", valid_until: "2026-11-23T06:00:01Z" }),
+          row({ id: "past", valid_until: "2026-10-24T06:00:00Z" }),
         ],
         "",
         "all",

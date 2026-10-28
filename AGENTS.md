@@ -32,4 +32,4 @@
 - Work/commercial reads use short browser freshness plus mutation invalidation; prerequisite batches max six — why: fewer duplicate requests without shared server caches/skipped authorization.
 - Automation uses canonical work/unique events; retry tests run unchanged SQL in disposable local DBs — why: dedupe and no production faults.
 - Attendance projects original HR/personal summaries (HR wins per account/date); Admin-only roster exclusion preserves HR identity.
-- Sold CRM uses active-Admin audited registry/RPCs and exact offset-expiry validation; independent provisioning/enforcement stays Setup Required without connectors — why: preserve concurrency, isolation and truthful access.
+- Licensing: Master manages via audited Super Admin RPC (hashed credentials, optimistic updated_at); customers verify via /api/public/license/verify and LICENSE_MODE=customer blocks server functions fail-closed (60s cache) — why: central authority, no self-activation.
