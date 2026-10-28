@@ -79,11 +79,8 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("License RLS gate (
   it("license gate policies exist on every browser-accessed table", async () => {
     const rows = await sql`
       SELECT tablename FROM pg_policies
-      WHERE schemaname = 'public' AND policyname = 'license_gate' AND 'RESTRICTIVE' = ANY (policy_roles_check(polpermissive))
-    `.catch(() => sql`
-      SELECT tablename FROM pg_policies
       WHERE schemaname = 'public' AND policyname = 'license_gate' AND polpermissive = false
-    `);
+    `;
     const tables = rows.map((r) => r["tablename"]).sort();
     expect(tables).toEqual(
       ["companies", "contact_submissions", "crm_pipelines", "crm_stages", "products_services", "profiles", "sales_customers"].sort(),
