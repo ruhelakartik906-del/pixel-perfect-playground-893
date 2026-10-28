@@ -83,8 +83,10 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("License RLS gate (
 
   it("license gate policies exist on every browser-accessed table", async () => {
     const rows = await sql`
-      SELECT tablename FROM pg_policies
-      WHERE schemaname = 'public' AND policyname = 'license_gate' AND polpermissive = false
+      SELECT c.relname AS tablename FROM pg_policy p
+      JOIN pg_class c ON c.oid = p.polrelid
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND p.polname = 'license_gate' AND p.polpermissive = false
     `;
     const tables = rows.map((r) => r["tablename"]).sort();
     expect(tables).toEqual(
