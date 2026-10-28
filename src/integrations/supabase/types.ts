@@ -834,6 +834,7 @@ export type Database = {
       }
       crm_installations: {
         Row: {
+          activated_at: string | null
           admin_email: string
           admin_phone: string
           admin_provisioned: boolean
@@ -842,17 +843,24 @@ export type Database = {
           configuration_verified: boolean
           created_at: string
           created_by: string
+          credential_hash: string | null
+          credential_rotated_at: string | null
           crm_url: string
           enforcement_verified: boolean
           expires_at: string
           id: string
           installation_id: string
+          last_renewed_at: string | null
+          last_verified_at: string | null
           license_status: string
+          notes: string
           starts_at: string
           updated_at: string
+          valid_until: string | null
           validity_years: number
         }
         Insert: {
+          activated_at?: string | null
           admin_email: string
           admin_phone?: string
           admin_provisioned?: boolean
@@ -861,17 +869,24 @@ export type Database = {
           configuration_verified?: boolean
           created_at?: string
           created_by: string
+          credential_hash?: string | null
+          credential_rotated_at?: string | null
           crm_url: string
           enforcement_verified?: boolean
           expires_at: string
           id?: string
           installation_id?: string
+          last_renewed_at?: string | null
+          last_verified_at?: string | null
           license_status?: string
+          notes?: string
           starts_at?: string
           updated_at?: string
+          valid_until?: string | null
           validity_years?: number
         }
         Update: {
+          activated_at?: string | null
           admin_email?: string
           admin_phone?: string
           admin_provisioned?: boolean
@@ -880,15 +895,42 @@ export type Database = {
           configuration_verified?: boolean
           created_at?: string
           created_by?: string
+          credential_hash?: string | null
+          credential_rotated_at?: string | null
           crm_url?: string
           enforcement_verified?: boolean
           expires_at?: string
           id?: string
           installation_id?: string
+          last_renewed_at?: string | null
+          last_verified_at?: string | null
           license_status?: string
+          notes?: string
           starts_at?: string
           updated_at?: string
+          valid_until?: string | null
           validity_years?: number
+        }
+        Relationships: []
+      }
+      crm_license_verify_failures: {
+        Row: {
+          created_at: string
+          id: string
+          installation_ref: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          installation_ref: string
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          installation_ref?: string
+          reason?: string
         }
         Relationships: []
       }
@@ -4785,6 +4827,10 @@ export type Database = {
       crm_license_add_years: {
         Args: { _start: string; _years: number }
         Returns: string
+      }
+      crm_license_verify: {
+        Args: { _hash: string; _installation: string }
+        Returns: Json
       }
       crm_work_action: {
         Args: { _action: string; _payload: Json }
