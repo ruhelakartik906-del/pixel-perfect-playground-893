@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Breadcrumb, PageHeader } from "./ui";
 import { createCrmInstallation } from "@/lib/crm-installations.functions";
 import { installationSchema } from "@/lib/crm-installations";
+import { CredentialNotice } from "./SoldCrmAdmins";
 
 export function CreateCrmAdmin() {
   const create = useServerFn(createCrmInstallation);
@@ -16,6 +17,7 @@ export function CreateCrmAdmin() {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [installationId, setInstallationId] = useState("");
+  const [credential, setCredential] = useState("");
   const submitting = useRef(false);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,8 +35,10 @@ export function CreateCrmAdmin() {
     setBusy(true);
     try {
       const result = await create({ data: parsed.data });
-      if (result && typeof result === "object" && !Array.isArray(result))
-        setInstallationId(String(result["installation_id"] ?? ""));
+      const row = result.installation;
+      if (row && typeof row === "object" && !Array.isArray(row))
+        setInstallationId(String(row["installation_id"] ?? ""));
+      setCredential(result.credential);
       setSaved(true);
       form.reset();
       setYears(1);
@@ -60,11 +64,11 @@ export function CreateCrmAdmin() {
       </PageHeader>
       {saved && (
         <div role="status" className="rounded-md border border-admin-blue/30 bg-admin-blue/10 p-4">
-          <p className="font-semibold">Installation record saved · Setup Required</p>
-          <p className="break-all text-sm">{installationId}</p>
+          <p className="mb-2 font-semibold">Installation registered · License Pending</p>
+          <CredentialNotice installationId={installationId} credential={credential} />
           <p className="mt-2 text-sm">
-            No Admin account was created. A separate customer installation, secure provisioning
-            connection and enforced license check must be configured before access can be activated.
+            No customer login was created — customer Admins are set up inside their own CRM. Activate
+            the license from Sold CRM Admins once the customer CRM is configured.
           </p>
         </div>
       )}
@@ -95,11 +99,11 @@ export function CreateCrmAdmin() {
             />
             <label className="grid gap-1.5 text-sm font-medium">
               Installation Status
-              <input className="inp" value="Setup Required" readOnly />
+              <input className="inp" value="Pending (validity starts on activation)" readOnly />
             </label>
             <label className="grid gap-1.5 text-sm font-medium">
-              Installation Verification
-              <input className="inp" value="Not verified" readOnly />
+              Internal Notes
+              <textarea className="inp min-h-10" name="notes" maxLength={2000} />
             </label>
           </div>
         </section>
@@ -119,8 +123,7 @@ export function CreateCrmAdmin() {
             ))}
           </div>
           <p className="text-sm text-muted-foreground">
-            Start and expiry dates are calculated when the installation is saved. Expired renewals
-            start on the renewal date.
+            The term starts when the license is activated and uses calendar years (Kolkata time).
           </p>
         </section>
         <section className="space-y-2 border-t pt-5">
@@ -129,8 +132,8 @@ export function CreateCrmAdmin() {
             Admin Account Creation
           </h2>
           <p className="text-sm text-muted-foreground">
-            Email invitation requires the independent customer installation to be configured. Phone
-            sign-in is not configured. Passwords are never collected here.
+            Customer Admin accounts live in the customer's own CRM backend. Passwords are never
+            collected or stored here.
           </p>
         </section>
         {error && (
