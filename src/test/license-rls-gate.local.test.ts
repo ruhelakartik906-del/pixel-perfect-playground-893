@@ -11,7 +11,11 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("License RLS gate (
   // Direct Data API read as the authenticated role, like supabase-js from the browser.
   const directRead = async (table = "profiles") =>
     sql.unsafe(`SET ROLE authenticated; SELECT count(*) AS c FROM public.${table}; RESET ROLE;`);
-  const count = (rows: unknown) => Number((rows as never as { c: string }[])[1]?.[0]?.["c"] ?? (rows as never as { c: string }[])[0]?.["c"]);
+  const count = (rows: unknown) => {
+    const results = rows as { c: string }[][];
+    const select = results.find((r) => Array.isArray(r) && r[0] && "c" in r[0]);
+    return Number(select?.[0]?.["c"] ?? 0);
+  };
 
   // Tables gated by 0096 (every remaining customer-data table with an authenticated/anon access path).
   const gated0096 = [
