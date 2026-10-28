@@ -17,14 +17,11 @@ export async function currentLicense(fresh = false): Promise<LicenseDecision> {
   return decision;
 }
 
-// Names of server functions still reachable while a customer license is blocked.
-const OPEN_FUNCTIONS = ["getLicenseStatus", "authAccess", "signOut"];
-
+// Every server function is blocked when inactive; mutations (POST) always re-verify.
+// Sign-in/out use the auth service directly and the /license-status page uses a server route.
 export async function enforceLicenseForServerFn(request: Request) {
   const config = readLicenseConfig(process.env);
   if (config.mode === "master") return null;
-  const url = new URL(request.url);
-  if (OPEN_FUNCTIONS.some((name) => url.pathname.includes(name))) return null;
   const decision = await currentLicense(request.method !== "GET");
   if (decision.allowed) return null;
   return new Response(
