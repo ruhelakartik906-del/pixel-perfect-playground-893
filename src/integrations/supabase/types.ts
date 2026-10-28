@@ -3046,6 +3046,27 @@ export type Database = {
           },
         ]
       }
+      license_state: {
+        Row: {
+          id: boolean
+          mode: string
+          updated_at: string
+          verified_until: string | null
+        }
+        Insert: {
+          id?: boolean
+          mode: string
+          updated_at?: string
+          verified_until?: string | null
+        }
+        Update: {
+          id?: boolean
+          mode?: string
+          updated_at?: string
+          verified_until?: string | null
+        }
+        Relationships: []
+      }
       mail_messages: {
         Row: {
           body: string
@@ -4973,6 +4994,7 @@ export type Database = {
       }
       lead_status_allowed: { Args: { _action: string }; Returns: boolean }
       lead_workspace_active: { Args: never; Returns: boolean }
+      license_active: { Args: never; Returns: boolean }
       make_authenticated_intake: {
         Args: {
           _dry_run: boolean
