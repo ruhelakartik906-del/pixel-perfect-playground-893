@@ -659,6 +659,13 @@
       "when": 1793182690902,
       "tag": "0093_client_license_lifecycle",
       "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1793182725696,
+      "tag": "0094_license_rate_limit_invalid_only",
+      "breakpoints": true
     }
   ]
 }
