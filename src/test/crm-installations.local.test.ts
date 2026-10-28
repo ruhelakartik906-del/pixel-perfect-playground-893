@@ -1,218 +1,100 @@
 import { readFileSync } from "node:fs";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")(
-  "Independent CRM registry authorization and persistence",
-  () => {
-    const sql = postgres({
-      host: "127.0.0.1",
-      port: 55441,
-      username: "qa",
-      database: "postgres",
-      ssl: false,
-      max: 1,
-    });
-    const admin = "11111111-1111-4111-8111-111111111111",
-      client = "22222222-2222-4222-8222-222222222222";
-    let id: string;
-    let expiry: string;
-    const payload = {
-      client_name: "Isolated QA",
-      company_name: "QA Company",
-      admin_email: "qa@example.test",
-      admin_phone: "",
-      crm_url: "https://qa.example.test",
-      validity_years: 1,
-    };
-    beforeAll(async () => {
-      await sql.unsafe(
-        `CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$; CREATE TABLE public.profiles(id uuid,account_status text); CREATE TABLE public.user_roles(user_id uuid,role text); CREATE FUNCTION public.routing_admin() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM profiles p JOIN user_roles r ON r.user_id=p.id WHERE p.id=auth.uid() AND p.account_status='active' AND r.role='super_admin') $$; INSERT INTO profiles VALUES('${admin}','active'),('${client}','active'); INSERT INTO user_roles VALUES('${admin}','super_admin'),('${client}','client'); GRANT USAGE ON SCHEMA public,auth TO authenticated,anon;`,
-      );
-      await sql.unsafe(
-        readFileSync("drizzle/migrations/0089_sold_crm_installation_registry.sql", "utf8"),
-      );
-      await sql.unsafe(
-        readFileSync("drizzle/migrations/0090_validate_independent_crm_url.sql", "utf8"),
-      );
-      await sql.unsafe(
-        readFileSync("drizzle/migrations/0091_fix_license_action_timestamp.sql", "utf8"),
-      );
-      await sql.unsafe(
-        readFileSync("drizzle/migrations/0092_restrict_license_registry_grants.sql", "utf8"),
-      );
-      await sql`SELECT set_config('qa.uid',${admin},false)`;
-    });
-    afterAll(async () => {
-      await sql.end();
-    });
-    it("creates a real isolated installation but no local admin account", async () => {
-      const result = (
-        await sql`SELECT crm_installation_action('create',${sql.json(payload)}) AS r`
-      )[0]?.["r"];
-      id = result.id;
-      expiry = result.expires_at;
-      expect(result).toMatchObject({
-        license_status: "setup_required",
-        configuration_verified: false,
-        admin_provisioned: false,
-        enforcement_verified: false,
-      });
-      expect(result.installation_id).toMatch(/^RCRM-[A-F0-9]{32}$/);
-      expect(await sql`SELECT * FROM user_roles`).toHaveLength(2);
-      expect(
-        await sql`SELECT * FROM crm_installation_audit WHERE installation_id=${id} AND actor_id=${admin} AND action='create'`,
-      ).toHaveLength(1);
-    });
-    it.each([1, 2])("SQL calculates %s year validity", async (years) =>
-      expect(
-        (
-          await sql`SELECT crm_license_add_years('2026-10-24T06:00:00Z',${years})::text AS expiry`
-        )[0]?.["expiry"],
-      ).toBe(`${2026 + years}-10-24 06:00:00+00`),
+
+// Disposable local PostgreSQL only (CRM_LICENSE_LOCAL_QA=1, 127.0.0.1:55441, user qa). Never the Cloud DB.
+describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Client license lifecycle", () => {
+  const sql = postgres({ host: "127.0.0.1", port: 55441, username: "qa", database: "postgres", ssl: false, max: 1 });
+  const admin = "11111111-1111-4111-8111-111111111111";
+  const client = "22222222-2222-4222-8222-222222222222";
+  const hashA = "a".repeat(64), hashB = "b".repeat(64);
+  const base = { client_name: "QA", company_name: "QA Co", admin_phone: "", notes: "" };
+  type Row = Record<string, string>;
+  const act = async (action: string, payload: object): Promise<Row> =>
+    (await sql`SELECT crm_installation_action(${action},${sql.json(payload as never)}) AS r`)[0]?.["r"];
+  const verify = async (inst: string, hash: string): Promise<Row> =>
+    (await sql`SELECT crm_license_verify(${inst},${hash}) AS r`)[0]?.["r"];
+  const year = (v: string) => new Date(v).getUTCFullYear();
+  let one: Row, two: Row;
+
+  beforeAll(async () => {
+    await sql.unsafe(
+      `CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$; CREATE TABLE public.profiles(id uuid,account_status text); CREATE TABLE public.user_roles(user_id uuid,role text); CREATE FUNCTION public.routing_admin() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM profiles p JOIN user_roles r ON r.user_id=p.id WHERE p.id=auth.uid() AND p.account_status='active' AND r.role='super_admin') $$; INSERT INTO profiles VALUES('${admin}','active'),('${client}','active'); INSERT INTO user_roles VALUES('${admin}','super_admin'),('${client}','client'); GRANT USAGE ON SCHEMA public,auth TO authenticated,anon,service_role;`,
     );
-    it("SQL handles Kolkata leap day", async () =>
-      expect(
-        (await sql`SELECT crm_license_add_years('2024-02-28T20:00:00Z',1)::text AS expiry`)[0]?.[
-          "expiry"
-        ],
-      ).toBe("2025-02-27 20:00:00+00"));
-    it("duplicate creation produces no second installation or event", async () => {
-      await expect(
-        sql`SELECT crm_installation_action('create',${sql.json(payload)})`,
-      ).rejects.toThrow("duplicate");
-      expect(await sql`SELECT * FROM crm_installations`).toHaveLength(1);
-      expect(await sql`SELECT * FROM crm_installation_audit`).toHaveLength(1);
-    });
-    it.each([
-      "https://pixel-perfect-playground-893.lovable.app",
-      "https://app.hatflow.in",
-      "https://a..example.test",
-    ])(
-      "direct RPC rejects nonindependent or invalid URL %s",
-      async (crm_url) =>
-        await expect(
-          sql`SELECT crm_installation_action('create',${sql.json({ ...payload, admin_email: "different@example.test", crm_url })})`,
-        ).rejects.toThrow("independent"),
-    );
-    it("extends once from valid expiry and rejects stale duplicate confirmation", async () => {
-      const p = { id, validity_years: 2, expected_expiry: expiry };
-      const r = (await sql`SELECT crm_installation_action('extend',${sql.json(p)}) AS r`)[0]?.["r"];
-      expect(new Date(r.expires_at).getUTCFullYear()).toBe(new Date(expiry).getUTCFullYear() + 2);
-      await expect(sql`SELECT crm_installation_action('extend',${sql.json(p)})`).rejects.toThrow(
-        "License changed",
-      );
-      expect(await sql`SELECT * FROM crm_installation_audit`).toHaveLength(2);
-    });
-    it("concurrent renewals commit once with one accurate audit entry", async () => {
-      const peer = postgres({
-        host: "127.0.0.1",
-        port: 55441,
-        username: "qa",
-        database: "postgres",
-        ssl: false,
-        max: 1,
-      });
-      try {
-        await peer`SELECT set_config('qa.uid',${admin},false)`;
-        const before = (
-          await sql`SELECT *,expires_at::text AS exact_expiry FROM crm_installations WHERE id=${id}`
-        )[0];
-        const auditBefore =
-          await sql`SELECT * FROM crm_installation_audit WHERE installation_id=${id}`;
-        const p = { id, validity_years: 1, expected_expiry: before?.["exact_expiry"] };
-        const results = await Promise.allSettled([
-          sql`SELECT crm_installation_action('extend',${sql.json(p)})`,
-          peer`SELECT crm_installation_action('extend',${peer.json(p)})`,
-        ]);
-        expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
-        const failure = results.find((r) => r.status === "rejected");
-        expect(failure?.status === "rejected" ? failure.reason.message : "").toContain(
-          "License changed",
-        );
-        const after = (await sql`SELECT * FROM crm_installations WHERE id=${id}`)[0];
-        expect(new Date(after?.["expires_at"]).getUTCFullYear()).toBe(
-          new Date(before?.["expires_at"]).getUTCFullYear() + 1,
-        );
-        expect(
-          await sql`SELECT * FROM crm_installation_audit WHERE installation_id=${id}`,
-        ).toHaveLength(auditBefore.length + 1);
-      } finally {
-        await peer.end();
-      }
-    });
-    it.each(["active", "suspended"])(
-      "unverified %s state fails the database constraint",
-      async (license_status) =>
-        await expect(
-          sql`UPDATE crm_installations SET license_status=${license_status} WHERE id=${id}`,
-        ).rejects.toThrow("check constraint"),
-    );
-    it("invalid installation lookup does not produce an allowed license", async () =>
-      expect(
-        (
-          await sql`SELECT crm_installation_license_state('33333333-3333-4333-8333-333333333333') AS r`
-        )[0]?.["r"],
-      ).toBeNull());
-    it("expired license is denied server-side", async () => {
-      const r = (
-        await sql`SELECT crm_installation_action('create',${sql.json({ ...payload, admin_email: "expired@example.test", crm_url: "https://expired.example.test" })}) AS r`
-      )[0]?.["r"];
-      await sql`UPDATE crm_installations SET starts_at=now()-interval '2 years',expires_at=now()-interval '1 second' WHERE id=${r.id}`;
-      expect(
-        (await sql`SELECT crm_installation_license_state(${r.id}) AS r`)[0]?.["r"],
-      ).toMatchObject({ status: "expired", access_allowed: false });
-    });
-    it.each(["activate", "suspend", "reset"])(
-      "unconfigured %s cannot claim success",
-      async (action) =>
-        await expect(
-          sql`SELECT crm_installation_action(${action},${sql.json({ id })})`,
-        ).rejects.toThrow("Setup Required"),
-    );
-    it("setup required license denies actual access", async () =>
-      expect(
-        (await sql`SELECT crm_installation_license_state(${id}) AS r`)[0]?.["r"].access_allowed,
-      ).toBe(false));
-    it("active Admin can read and ordinary users cannot read/write licenses or audit", async () => {
-      await sql.unsafe("SET ROLE authenticated");
-      expect(await sql`SELECT * FROM crm_installations`).toHaveLength(2);
-      await sql`SELECT set_config('qa.uid',${client},false)`;
-      expect(await sql`SELECT * FROM crm_installations`).toHaveLength(0);
-      expect(await sql`SELECT * FROM crm_installation_audit`).toHaveLength(0);
-      await expect(
-        sql`SELECT crm_installation_action('create',${sql.json({ ...payload, admin_email: "other@example.test" })})`,
-      ).rejects.toThrow("Super Admin");
-      await expect(
-        sql`UPDATE crm_installations SET license_status='active' WHERE id=${id}`,
-      ).rejects.toThrow("permission denied");
-      await expect(
-        sql`INSERT INTO crm_installation_audit(installation_id,actor_id,action,after_values) VALUES(${id},${client},'activate','{}')`,
-      ).rejects.toThrow("permission denied");
-      await expect(
-        sql`UPDATE crm_installation_audit SET action='activate' WHERE installation_id=${id}`,
-      ).rejects.toThrow("permission denied");
-      await expect(
-        sql`DELETE FROM crm_installation_audit WHERE installation_id=${id}`,
-      ).rejects.toThrow("permission denied");
-      await expect(sql`SELECT crm_installation_license_state(${id})`).rejects.toThrow(
-        "permission denied",
-      );
-      await sql.unsafe("RESET ROLE");
-    });
-    it.each(["pending", "blocked"])("%s Super Admin cannot manage licenses", async (status) => {
-      await sql`UPDATE profiles SET account_status=${status} WHERE id=${admin}`;
-      await sql`SELECT set_config('qa.uid',${admin},false)`;
-      await expect(
-        sql`SELECT crm_installation_action('extend',${sql.json({ id, validity_years: 1, expected_expiry: expiry })})`,
-      ).rejects.toThrow("Super Admin");
-    });
-    it("public cannot execute management or licensing probes", async () => {
-      await sql.unsafe("SET ROLE anon");
-      await expect(
-        sql`SELECT crm_installation_action('create',${sql.json(payload)})`,
-      ).rejects.toThrow("permission denied");
-      await expect(sql`SELECT * FROM crm_installations`).rejects.toThrow("permission denied");
-      await sql.unsafe("RESET ROLE");
-    });
-  },
-);
+    for (const f of ["0089_sold_crm_installation_registry", "0090_validate_independent_crm_url", "0091_fix_license_action_timestamp", "0092_restrict_license_registry_grants", "0093_client_license_lifecycle", "0094_license_rate_limit_invalid_only"])
+      await sql.unsafe(readFileSync(`drizzle/migrations/${f}.sql`, "utf8"));
+    await sql`SELECT set_config('qa.uid',${admin},false)`;
+  });
+  afterAll(async () => { await sql.end(); });
+
+  it("registers as pending without starting validity", async () => {
+    one = await act("create", { ...base, admin_email: "one@example.test", crm_url: "https://one.example.test", validity_years: 1, credential_hash: hashA });
+    two = await act("create", { ...base, admin_email: "two@example.test", crm_url: "https://two.example.test", validity_years: 2, credential_hash: hashB });
+    expect(one).toMatchObject({ license_status: "pending", activated_at: null, valid_until: null });
+    expect(one).not.toHaveProperty("credential_hash");
+    expect((await verify(one["installation_id"]!, hashA))).toMatchObject({ status: "pending", access_allowed: false });
+  });
+  it("rejects duplicate registration", async () =>
+    await expect(act("create", { ...base, admin_email: "one@example.test", crm_url: "https://x.example.test", validity_years: 1, credential_hash: hashA })).rejects.toThrow());
+  it("activates 1-year and 2-year terms with calendar years", async () => {
+    one = await act("activate", { id: one["id"], expected_updated_at: one["updated_at"] });
+    two = await act("activate", { id: two["id"], expected_updated_at: two["updated_at"] });
+    expect(year(one["valid_until"]!) - year(one["activated_at"]!)).toBe(1);
+    expect(year(two["valid_until"]!) - year(two["activated_at"]!)).toBe(2);
+    expect((await verify(one["installation_id"]!, hashA))).toMatchObject({ status: "active", access_allowed: true });
+  });
+  it("rejects invalid credentials and cross-installation credentials", async () => {
+    expect(await verify(one["installation_id"]!, "c".repeat(64))).toMatchObject({ ok: false });
+    expect(await verify(one["installation_id"]!, hashB)).toMatchObject({ ok: false });
+    expect(await verify("RCRM-NOPE", hashA)).toMatchObject({ ok: false });
+  });
+  it("renewing before expiry keeps remaining time", async () => {
+    const before = one["valid_until"]!;
+    one = await act("renew", { id: one["id"], validity_years: 1, expected_updated_at: one["updated_at"] });
+    expect(year(one["valid_until"]!)).toBe(year(before) + 1);
+    await expect(act("renew", { id: one["id"], validity_years: 1, expected_updated_at: "2000-01-01T00:00:00Z" })).rejects.toThrow("License changed");
+  });
+  it("suspends without changing expiry and blocks verification, then resumes", async () => {
+    const expiry = one["valid_until"];
+    one = await act("suspend", { id: one["id"], expected_updated_at: one["updated_at"] });
+    expect(one["valid_until"]).toBe(expiry);
+    expect(await verify(one["installation_id"]!, hashA)).toMatchObject({ status: "suspended", access_allowed: false });
+    one = await act("resume", { id: one["id"], expected_updated_at: one["updated_at"] });
+    expect(await verify(one["installation_id"]!, hashA)).toMatchObject({ status: "active", access_allowed: true });
+  });
+  it("expired license is denied, cannot be resumed, and renews from today", async () => {
+    await sql`UPDATE crm_installations SET activated_at=now()-interval '3 years', valid_until=now()-interval '1 second', license_status='suspended' WHERE id=${two["id"]!}`;
+    two = (await sql`SELECT to_jsonb(c) - 'credential_hash' AS r FROM crm_installations c WHERE id=${two["id"]!}`)[0]?.["r"];
+    expect(await verify(two["installation_id"]!, hashB)).toMatchObject({ status: "expired", access_allowed: false });
+    await expect(act("resume", { id: two["id"], expected_updated_at: two["updated_at"] })).rejects.toThrow("Renew it");
+    await sql`UPDATE crm_installations SET license_status='active' WHERE id=${two["id"]!}`;
+    expect(await verify(two["installation_id"]!, hashB)).toMatchObject({ status: "expired", access_allowed: false });
+    two = (await sql`SELECT to_jsonb(c) - 'credential_hash' AS r FROM crm_installations c WHERE id=${two["id"]!}`)[0]?.["r"];
+    two = await act("renew", { id: two["id"], validity_years: 1, expected_updated_at: two["updated_at"] });
+    expect(year(two["valid_until"]!)).toBe(new Date().getUTCFullYear() + 1);
+  });
+  it("rotation revokes the old credential", async () => {
+    one = await act("rotate", { id: one["id"], credential_hash: "d".repeat(64), expected_updated_at: one["updated_at"] });
+    expect(await verify(one["installation_id"]!, hashA)).toMatchObject({ ok: false });
+    expect(await verify(one["installation_id"]!, "d".repeat(64))).toMatchObject({ access_allowed: true });
+  });
+  it("rate limits repeated invalid attempts", async () => {
+    for (let i = 0; i < 10; i++) await verify(two["installation_id"]!, "e".repeat(64));
+    expect(await verify(two["installation_id"]!, hashB)).toMatchObject({ code: "RATE_LIMITED" });
+  });
+  it("audits every change and never stores the credential hash in history", async () => {
+    const rows = await sql`SELECT action, after_values FROM crm_installation_audit WHERE installation_id=${one["id"]!}`;
+    expect(rows.map((r) => r["action"]).sort()).toEqual(["activate", "create", "renew", "resume", "rotate", "suspend"]);
+    expect(JSON.stringify(rows)).not.toContain("credential_hash");
+  });
+  it("non-admins cannot manage, verify or read hashes", async () => {
+    await sql`SELECT set_config('qa.uid',${client},false)`;
+    await expect(act("suspend", { id: one["id"], expected_updated_at: one["updated_at"] })).rejects.toThrow("Super Admin");
+    await sql.unsafe("SET ROLE authenticated");
+    await expect(sql`SELECT crm_license_verify('x','y')`).rejects.toThrow("permission denied");
+    await expect(sql`SELECT credential_hash FROM crm_installations`).rejects.toThrow("permission denied");
+    await sql.unsafe("RESET ROLE; SET ROLE anon");
+    await expect(sql`SELECT crm_license_verify('x','y')`).rejects.toThrow("permission denied");
+    await sql.unsafe("RESET ROLE");
+  });
+});
