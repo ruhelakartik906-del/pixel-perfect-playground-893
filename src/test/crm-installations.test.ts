@@ -33,7 +33,7 @@ const row = (extra: Partial<Installation> = {}): Installation => ({
   notes: "",
   credential_rotated_at: null,
   ...extra,
-});
+}) as Installation;
 describe("Sold CRM license rules", () => {
   it("renewal accepts the persisted offset and preserves exact microseconds", () => {
     const expected_updated_at = "2027-10-24T06:36:52.645402+00:00";

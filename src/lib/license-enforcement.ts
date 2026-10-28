@@ -10,9 +10,9 @@ export const LICENSE_CACHE_MS = 60_000;
 
 export type LicenseConfig = {
   mode: "master" | "customer";
-  installationId?: string;
-  credential?: string;
-  masterUrl?: string;
+  installationId?: string | undefined;
+  credential?: string | undefined;
+  masterUrl?: string | undefined;
 };
 export type LicenseDecision = { allowed: boolean; status: string; checkedAt: number; validUntil?: string | null };
 
