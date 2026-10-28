@@ -118,10 +118,9 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("License RLS gate (
   it("blocks direct writes when the license is stale", async () => {
     await sql`UPDATE public.license_state SET mode = 'customer', verified_until = '1970-01-01T00:00:00Z'`;
     await sql.unsafe(`GRANT INSERT ON public.leads TO authenticated; CREATE POLICY allow_insert ON public.leads FOR INSERT TO authenticated WITH CHECK (true);`);
-    const rows = await sql.unsafe(
-      `SET ROLE authenticated; INSERT INTO public.leads VALUES('${user}') ON CONFLICT DO NOTHING RETURNING id; RESET ROLE;`,
-    );
-    expect((rows as unknown as unknown[]).length === 0 || (rows as never as unknown[][])[1]?.length === 0).toBe(true);
+    await expect(
+      sql.unsafe(`SET ROLE authenticated; INSERT INTO public.leads VALUES('${user}') RETURNING id; RESET ROLE;`),
+    ).rejects.toThrow(/license_gate/);
   });
 
   it("authenticated and anon roles cannot read or write the license state", async () => {
