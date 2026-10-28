@@ -673,6 +673,13 @@
       "when": 1793184720385,
       "tag": "0095_license_rls_gate",
       "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1793185729293,
+      "tag": "0096_license_rls_gate_all_crm_tables",
+      "breakpoints": true
     }
   ]
 }
