@@ -16,9 +16,12 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("License RLS gate (
 
   beforeAll(async () => {
     await sql.unsafe(
-      `CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
-       CREATE SCHEMA auth;
-       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$;
+      `DO $$ BEGIN CREATE ROLE anon; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+       DO $$ BEGIN CREATE ROLE authenticated; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+       DO $$ BEGIN CREATE ROLE service_role; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+       CREATE SCHEMA IF NOT EXISTS auth;
+       CREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('qa.uid',true),'')::uuid $$;
+       DROP TABLE IF EXISTS public.profiles, public.companies, public.crm_stages, public.crm_pipelines, public.products_services, public.sales_customers, public.contact_submissions CASCADE;
        CREATE TABLE public.profiles(id uuid, account_status text);
        CREATE TABLE public.companies(id uuid);
        CREATE TABLE public.crm_stages(id uuid);
