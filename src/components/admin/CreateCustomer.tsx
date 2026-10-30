@@ -24,7 +24,7 @@ export function CreateCustomer() {
   const navigate = useNavigate();
   const create = useServerFn(createCustomer);
   const [form, setForm] = useState<Form>({ company_name: "", full_name: "", email: "", phone: "", password: "" });
-  const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof Form, string | undefined>>>({});
   const [loading, setLoading] = useState(false);
 
   const set = (key: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) =>

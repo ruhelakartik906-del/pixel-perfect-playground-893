@@ -71,7 +71,7 @@ export function AllUsers() {
     return c;
   }, [rows]);
 
-  async function setStatus(row: CustomerRow, next: "active" | "suspended") {
+  async function applyStatus(row: CustomerRow, next: "active" | "suspended") {
     setBusy(true);
     try {
       await changeStatus({ data: { company_id: row.id, status: next } });
@@ -177,11 +177,11 @@ export function AllUsers() {
                       Manage Permissions
                     </DropdownMenuItem>
                     {r.status === "suspended" ? (
-                      <DropdownMenuItem disabled={busy} onClick={() => setStatus(r, "active")}>
+                      <DropdownMenuItem disabled={busy} onClick={() => applyStatus(r, "active")}>
                         <PlayCircle className="size-4" /> Activate
                       </DropdownMenuItem>
                     ) : (
-                      <DropdownMenuItem disabled={busy} onClick={() => setStatus(r, "suspended")}>
+                      <DropdownMenuItem disabled={busy} onClick={() => applyStatus(r, "suspended")}>
                         <PauseCircle className="size-4" /> Suspend
                       </DropdownMenuItem>
                     )}
