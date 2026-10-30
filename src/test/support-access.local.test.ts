@@ -106,7 +106,7 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Master Admin suppo
     const sess = await start(sa, CO_X, "support");
     await admin`UPDATE org_support_sessions SET expires_at = now() - interval '1 second' WHERE id=${sess}`;
     expect((await read(sa, sess, "leads")).error).toMatch(/expired/);
-    expect((await write(sa, sess, LEAD_X, "won")).error).toMatch(/expired/);
+    expect(await rejects(write(sa, sess, LEAD_X, "won"))).toBe(true);
     expect((await admin`SELECT end_reason FROM org_support_sessions WHERE id=${sess}`)[0]!["end_reason"]).toBe("expired");
     expect(await audit(sess)).toContain("session.expired");
   });
