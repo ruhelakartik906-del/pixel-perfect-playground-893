@@ -9,6 +9,10 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    // Preload route code and loader data on hover/focus so sidebar clicks feel instant.
+    defaultPreload: "intent",
+    // TanStack Query owns data freshness (per-query staleTime); the router preload
+    // cache must not serve stale loader results on its own.
     defaultPreloadStaleTime: 0,
   });
 
