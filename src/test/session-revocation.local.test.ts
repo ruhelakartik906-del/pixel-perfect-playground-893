@@ -9,7 +9,7 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Mid-session revoca
   const admin = postgres(db);
   const sessions: postgres.Sql[] = [];
   const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-  const [SA, SA2, CA, EMP, OTHER, CO_X, CO_Y] = [1, 2, 3, 4, 5, 10, 11].map(id);
+  const [SA, SA2, CA, EMP, OTHER, CO_X, CO_Y] = [1, 2, 3, 4, 5, 10, 11].map(id) as [string, string, string, string, string, string, string];
 
   // An "active session": one long-lived connection holding the user's JWT subject, like a cached browser session.
   async function session(uid: string) {
