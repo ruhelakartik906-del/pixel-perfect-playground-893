@@ -64,7 +64,7 @@ export const listOrgEmployees = createServerFn({ method: "GET" })
     const memberIds = (members.data ?? []).map((m) => m.user_id);
     const [profiles, roles, accessRoles, accessAssign, leads] = await Promise.all([
       memberIds.length ? db.from("profiles").select("id,full_name,email,phone,account_status").in("id", memberIds) : { data: [], error: null },
-      memberIds.length ? db.from("user_roles").select("user_id,role").in("id" as never, memberIds) : { data: [], error: null },
+      memberIds.length ? db.from("user_roles").select("user_id,role").in("user_id", memberIds) : { data: [], error: null },
       db.from("access_roles").select("id,name"),
       memberIds.length ? db.from("user_access_roles").select("user_id,role_id").in("user_id", memberIds) : { data: [], error: null },
       memberIds.length ? db.from("leads").select("assigned_to").eq("company_id", data.company_id).in("assigned_to", memberIds) : { data: [], error: null },
