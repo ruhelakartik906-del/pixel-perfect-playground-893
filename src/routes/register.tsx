@@ -1,17 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AuthCard, AuthLink } from "@/components/auth/AuthCard";
-import { RegisterForm } from "@/components/auth/AuthForms";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// Public customer signup is closed: Master Admin creates customer accounts.
+// Keep the URL working for existing marketing links by redirecting to login.
 export const Route = createFileRoute("/register")({
+  beforeLoad: () => {
+    throw redirect({ to: "/login", replace: true });
+  },
   head: () => ({
     meta: [
-      { title: "Get Started — Routiva CRM" },
-      { name: "description", content: "Create your Routiva CRM account for review and approval." },
-      { property: "og:title", content: "Get Started — Routiva CRM" },
-      { property: "og:description", content: "Create your Routiva CRM account for review and approval." },
+      { title: "Login — Routiva CRM" },
+      { name: "description", content: "Sign in to your Routiva CRM workspace." },
+      { property: "og:title", content: "Login — Routiva CRM" },
+      { property: "og:description", content: "Sign in to your Routiva CRM workspace." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
     ],
   }),
-  component: () => <AuthCard compact title="Create your account" desc="Create your personal account. CRM access stays pending until an authorized admin approves it." footer={<>Already have an account? <AuthLink to="/login">Login</AuthLink></>}><RegisterForm /></AuthCard>,
+  component: () => null,
 });
