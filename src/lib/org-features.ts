@@ -81,6 +81,36 @@ export const LIMIT_LABELS: Record<LimitKey, string> = {
 
 export type OrgLimits = Partial<Record<LimitKey, number | null>>;
 
+/** Effective feature map for one user: feature key -> enabled. Missing key = enabled (legacy default). */
+export type OrgFeatureMap = Partial<Record<FeatureKey, boolean>>;
+
+/** A feature is enabled unless explicitly disabled for every organization the user belongs to. */
+export function featureEnabled(features: OrgFeatureMap | null | undefined, key: FeatureKey): boolean {
+  return features?.[key] !== false;
+}
+
+/**
+ * User workspace destinations gated by organization features.
+ * Destinations not listed here (Dashboard, Calendar, My Attendance, Team Chat, My Support, Settings) stay open.
+ */
+export const ROUTE_FEATURES = {
+  "/all-assigned": "leads",
+  "/my-leads": "leads",
+  "/lead-status": "leads",
+  "/pipeline": "pipeline",
+  "/proposals": "quotations",
+  "/invoices": "invoices",
+  "/deals": "deals",
+  "/tasks": "tasks",
+  "/follow-ups": "tasks",
+  "/my-work-table": "tasks",
+  "/my-reports": "reports",
+  "/whatsapp/chats": "whatsapp",
+  "/whatsapp/templates": "whatsapp_templates",
+} as const satisfies Record<string, FeatureKey>;
+
+export type GatedDestination = keyof typeof ROUTE_FEATURES;
+
 export type CustomerRow = {
   id: string;
   name: string;
