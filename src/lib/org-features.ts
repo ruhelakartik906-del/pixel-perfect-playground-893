@@ -13,6 +13,7 @@ export const FEATURE_KEYS = [
   "payments",
   "products",
   "import_export",
+  "employees",
   "analytics",
   "reports",
   "whatsapp",
@@ -40,6 +41,7 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   payments: "Payments",
   products: "Products & Services",
   import_export: "Import / Export",
+  employees: "Employee Management",
   analytics: "Analytics",
   reports: "Advanced Reports",
   whatsapp: "WhatsApp Inbox",
@@ -105,6 +107,7 @@ export const ROUTE_FEATURES = {
   "/follow-ups": "tasks",
   "/my-work-table": "tasks",
   "/my-reports": "reports",
+  "/employees": "employees",
   "/whatsapp/chats": "whatsapp",
   "/whatsapp/templates": "whatsapp_templates",
 } as const satisfies Record<string, FeatureKey>;

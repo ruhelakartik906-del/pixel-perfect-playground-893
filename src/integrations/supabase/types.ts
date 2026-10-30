@@ -3338,6 +3338,44 @@ export type Database = {
           },
         ]
       }
+      org_employee_audit: {
+        Row: {
+          action: string
+          actor_id: string
+          company_id: string
+          created_at: string
+          detail: Json
+          employee_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          company_id: string
+          created_at?: string
+          detail?: Json
+          employee_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          company_id?: string
+          created_at?: string
+          detail?: Json
+          employee_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_employee_audit_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_feature_permissions: {
         Row: {
           company_id: string
@@ -5333,6 +5371,14 @@ export type Database = {
         Returns: undefined
       }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
+      org_customer_admin: {
+        Args: { _company: string; _user: string }
+        Returns: boolean
+      }
+      org_employee_action: {
+        Args: { _action: string; _payload: Json }
+        Returns: string
+      }
       org_feature_allowed: {
         Args: { _company: string; _feature: string }
         Returns: boolean
