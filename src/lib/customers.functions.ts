@@ -278,7 +278,7 @@ export const savePlan = createServerFn({ method: "POST" })
     await authorize(context);
     const result = await context.supabase.rpc("master_save_plan", {
       _actor: context.userId,
-      _plan: data.id ?? null,
+      _plan: data.id ?? "",
       _name: data.name,
       _description: data.description,
       _limits: data.limits,

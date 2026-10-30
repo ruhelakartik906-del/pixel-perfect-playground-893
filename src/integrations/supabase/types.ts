@@ -5305,17 +5305,29 @@ export type Database = {
         Args: { _actor: string; _company: string; _limits: Json }
         Returns: undefined
       }
-      master_save_plan: {
-        Args: {
-          _actor: string
-          _description: string
-          _features: Json
-          _limits: Json
-          _name: string
-          _plan: string
-        }
-        Returns: string
-      }
+      master_save_plan:
+        | {
+            Args: {
+              _actor: string
+              _description: string
+              _features: Json
+              _limits: Json
+              _name: string
+              _plan: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _actor: string
+              _description: string
+              _features: Json
+              _limits: Json
+              _name: string
+              _plan: string
+            }
+            Returns: string
+          }
       master_set_customer_status: {
         Args: { _actor: string; _company: string; _status: string }
         Returns: undefined
