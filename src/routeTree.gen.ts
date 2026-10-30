@@ -46,14 +46,16 @@ import { Route as AuthenticatedTeamChatRouteImport } from './routes/_authenticat
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSplatRouteImport } from './routes/_authenticated/admin/$'
-import { Route as AuthenticatedAdminCreateCrmAdminRouteImport } from './routes/_authenticated/admin/create-crm-admin'
+import { Route as AuthenticatedAdminAllUsersRouteImport } from './routes/_authenticated/admin/all-users'
+import { Route as AuthenticatedAdminCreateCustomerRouteImport } from './routes/_authenticated/admin/create-customer'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
 import { Route as AuthenticatedAdminIntegrationsRouteImport } from './routes/_authenticated/admin/integrations'
-import { Route as AuthenticatedAdminSoldCrmAdminsRouteImport } from './routes/_authenticated/admin/sold-crm-admins'
+import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin/plans'
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin/support'
 import { Route as AuthenticatedWhatsappChatsRouteImport } from './routes/_authenticated/whatsapp.chats'
 import { Route as AuthenticatedWhatsappTemplatesRouteImport } from './routes/_authenticated/whatsapp.templates'
 import { Route as ApiPublicMakeLeadsRouteImport } from './routes/api/public/make-leads'
+import { Route as AuthenticatedAdminAllUsersCompanyIdRouteImport } from './routes/_authenticated/admin/all-users.$companyId'
 import { Route as AuthenticatedAdminCommunicationChatRouteImport } from './routes/_authenticated/admin/communication/chat'
 import { Route as AuthenticatedAdminCommunicationMailRouteImport } from './routes/_authenticated/admin/communication/mail'
 import { Route as AuthenticatedAdminCrmAnalyticsRouteImport } from './routes/_authenticated/admin/crm/analytics'
@@ -301,10 +303,16 @@ const AuthenticatedAdminSplatRoute = AuthenticatedAdminSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
-const AuthenticatedAdminCreateCrmAdminRoute =
-  AuthenticatedAdminCreateCrmAdminRouteImport.update({
-    id: '/create-crm-admin',
-    path: '/create-crm-admin',
+const AuthenticatedAdminAllUsersRoute =
+  AuthenticatedAdminAllUsersRouteImport.update({
+    id: '/all-users',
+    path: '/all-users',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCreateCustomerRoute =
+  AuthenticatedAdminCreateCustomerRouteImport.update({
+    id: '/create-customer',
+    path: '/create-customer',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminDashboardRoute =
@@ -319,12 +327,11 @@ const AuthenticatedAdminIntegrationsRoute =
     path: '/integrations',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminSoldCrmAdminsRoute =
-  AuthenticatedAdminSoldCrmAdminsRouteImport.update({
-    id: '/sold-crm-admins',
-    path: '/sold-crm-admins',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
+const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const AuthenticatedAdminSupportRoute =
   AuthenticatedAdminSupportRouteImport.update({
     id: '/support',
@@ -348,6 +355,12 @@ const ApiPublicMakeLeadsRoute = ApiPublicMakeLeadsRouteImport.update({
   path: '/api/public/make-leads',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminAllUsersCompanyIdRoute =
+  AuthenticatedAdminAllUsersCompanyIdRouteImport.update({
+    id: '/$companyId',
+    path: '/$companyId',
+    getParentRoute: () => AuthenticatedAdminAllUsersRoute,
+  } as any)
 const AuthenticatedAdminCommunicationChatRoute =
   AuthenticatedAdminCommunicationChatRouteImport.update({
     id: '/communication/chat',
@@ -743,15 +756,17 @@ export interface FileRoutesByFullPath {
   '/team-chat': typeof AuthenticatedTeamChatRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
-  '/admin/create-crm-admin': typeof AuthenticatedAdminCreateCrmAdminRoute
+  '/admin/all-users': typeof AuthenticatedAdminAllUsersRouteWithChildren
+  '/admin/create-customer': typeof AuthenticatedAdminCreateCustomerRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
-  '/admin/sold-crm-admins': typeof AuthenticatedAdminSoldCrmAdminsRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
   '/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
   '/api/public/make-leads': typeof ApiPublicMakeLeadsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/all-users/$companyId': typeof AuthenticatedAdminAllUsersCompanyIdRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
@@ -848,15 +863,17 @@ export interface FileRoutesByTo {
   '/team-chat': typeof AuthenticatedTeamChatRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/$': typeof AuthenticatedAdminSplatRoute
-  '/admin/create-crm-admin': typeof AuthenticatedAdminCreateCrmAdminRoute
+  '/admin/all-users': typeof AuthenticatedAdminAllUsersRouteWithChildren
+  '/admin/create-customer': typeof AuthenticatedAdminCreateCustomerRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
-  '/admin/sold-crm-admins': typeof AuthenticatedAdminSoldCrmAdminsRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
   '/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
   '/api/public/make-leads': typeof ApiPublicMakeLeadsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/all-users/$companyId': typeof AuthenticatedAdminAllUsersCompanyIdRoute
   '/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
@@ -956,15 +973,17 @@ export interface FileRoutesById {
   '/_authenticated/team-chat': typeof AuthenticatedTeamChatRoute
   '/admin/login': typeof AdminLoginRoute
   '/_authenticated/admin/$': typeof AuthenticatedAdminSplatRoute
-  '/_authenticated/admin/create-crm-admin': typeof AuthenticatedAdminCreateCrmAdminRoute
+  '/_authenticated/admin/all-users': typeof AuthenticatedAdminAllUsersRouteWithChildren
+  '/_authenticated/admin/create-customer': typeof AuthenticatedAdminCreateCustomerRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
-  '/_authenticated/admin/sold-crm-admins': typeof AuthenticatedAdminSoldCrmAdminsRoute
+  '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/whatsapp/chats': typeof AuthenticatedWhatsappChatsRoute
   '/_authenticated/whatsapp/templates': typeof AuthenticatedWhatsappTemplatesRoute
   '/api/public/make-leads': typeof ApiPublicMakeLeadsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/all-users/$companyId': typeof AuthenticatedAdminAllUsersCompanyIdRoute
   '/_authenticated/admin/communication/chat': typeof AuthenticatedAdminCommunicationChatRoute
   '/_authenticated/admin/communication/mail': typeof AuthenticatedAdminCommunicationMailRoute
   '/_authenticated/admin/crm/analytics': typeof AuthenticatedAdminCrmAnalyticsRoute
@@ -1064,15 +1083,17 @@ export interface FileRouteTypes {
     | '/team-chat'
     | '/admin/login'
     | '/admin/$'
-    | '/admin/create-crm-admin'
+    | '/admin/all-users'
+    | '/admin/create-customer'
     | '/admin/dashboard'
     | '/admin/integrations'
-    | '/admin/sold-crm-admins'
+    | '/admin/plans'
     | '/admin/support'
     | '/whatsapp/chats'
     | '/whatsapp/templates'
     | '/api/public/make-leads'
     | '/admin/'
+    | '/admin/all-users/$companyId'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
     | '/admin/crm/analytics'
@@ -1169,15 +1190,17 @@ export interface FileRouteTypes {
     | '/team-chat'
     | '/admin/login'
     | '/admin/$'
-    | '/admin/create-crm-admin'
+    | '/admin/all-users'
+    | '/admin/create-customer'
     | '/admin/dashboard'
     | '/admin/integrations'
-    | '/admin/sold-crm-admins'
+    | '/admin/plans'
     | '/admin/support'
     | '/whatsapp/chats'
     | '/whatsapp/templates'
     | '/api/public/make-leads'
     | '/admin'
+    | '/admin/all-users/$companyId'
     | '/admin/communication/chat'
     | '/admin/communication/mail'
     | '/admin/crm/analytics'
@@ -1276,15 +1299,17 @@ export interface FileRouteTypes {
     | '/_authenticated/team-chat'
     | '/admin/login'
     | '/_authenticated/admin/$'
-    | '/_authenticated/admin/create-crm-admin'
+    | '/_authenticated/admin/all-users'
+    | '/_authenticated/admin/create-customer'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/integrations'
-    | '/_authenticated/admin/sold-crm-admins'
+    | '/_authenticated/admin/plans'
     | '/_authenticated/admin/support'
     | '/_authenticated/whatsapp/chats'
     | '/_authenticated/whatsapp/templates'
     | '/api/public/make-leads'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/all-users/$companyId'
     | '/_authenticated/admin/communication/chat'
     | '/_authenticated/admin/communication/mail'
     | '/_authenticated/admin/crm/analytics'
@@ -1631,11 +1656,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSplatRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/admin/create-crm-admin': {
-      id: '/_authenticated/admin/create-crm-admin'
-      path: '/create-crm-admin'
-      fullPath: '/admin/create-crm-admin'
-      preLoaderRoute: typeof AuthenticatedAdminCreateCrmAdminRouteImport
+    '/_authenticated/admin/all-users': {
+      id: '/_authenticated/admin/all-users'
+      path: '/all-users'
+      fullPath: '/admin/all-users'
+      preLoaderRoute: typeof AuthenticatedAdminAllUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/create-customer': {
+      id: '/_authenticated/admin/create-customer'
+      path: '/create-customer'
+      fullPath: '/admin/create-customer'
+      preLoaderRoute: typeof AuthenticatedAdminCreateCustomerRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/dashboard': {
@@ -1652,11 +1684,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIntegrationsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/admin/sold-crm-admins': {
-      id: '/_authenticated/admin/sold-crm-admins'
-      path: '/sold-crm-admins'
-      fullPath: '/admin/sold-crm-admins'
-      preLoaderRoute: typeof AuthenticatedAdminSoldCrmAdminsRouteImport
+    '/_authenticated/admin/plans': {
+      id: '/_authenticated/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/support': {
@@ -1686,6 +1718,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/make-leads'
       preLoaderRoute: typeof ApiPublicMakeLeadsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/all-users/$companyId': {
+      id: '/_authenticated/admin/all-users/$companyId'
+      path: '/$companyId'
+      fullPath: '/admin/all-users/$companyId'
+      preLoaderRoute: typeof AuthenticatedAdminAllUsersCompanyIdRouteImport
+      parentRoute: typeof AuthenticatedAdminAllUsersRoute
     }
     '/_authenticated/admin/communication/chat': {
       id: '/_authenticated/admin/communication/chat'
@@ -2110,12 +2149,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminAllUsersRouteChildren {
+  AuthenticatedAdminAllUsersCompanyIdRoute: typeof AuthenticatedAdminAllUsersCompanyIdRoute
+}
+
+const AuthenticatedAdminAllUsersRouteChildren: AuthenticatedAdminAllUsersRouteChildren =
+  {
+    AuthenticatedAdminAllUsersCompanyIdRoute:
+      AuthenticatedAdminAllUsersCompanyIdRoute,
+  }
+
+const AuthenticatedAdminAllUsersRouteWithChildren =
+  AuthenticatedAdminAllUsersRoute._addFileChildren(
+    AuthenticatedAdminAllUsersRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSplatRoute: typeof AuthenticatedAdminSplatRoute
-  AuthenticatedAdminCreateCrmAdminRoute: typeof AuthenticatedAdminCreateCrmAdminRoute
+  AuthenticatedAdminAllUsersRoute: typeof AuthenticatedAdminAllUsersRouteWithChildren
+  AuthenticatedAdminCreateCustomerRoute: typeof AuthenticatedAdminCreateCustomerRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminIntegrationsRoute: typeof AuthenticatedAdminIntegrationsRoute
-  AuthenticatedAdminSoldCrmAdminsRoute: typeof AuthenticatedAdminSoldCrmAdminsRoute
+  AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCommunicationChatRoute: typeof AuthenticatedAdminCommunicationChatRoute
@@ -2181,11 +2236,13 @@ interface AuthenticatedAdminRouteRouteChildren {
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminSplatRoute: AuthenticatedAdminSplatRoute,
-    AuthenticatedAdminCreateCrmAdminRoute:
-      AuthenticatedAdminCreateCrmAdminRoute,
+    AuthenticatedAdminAllUsersRoute:
+      AuthenticatedAdminAllUsersRouteWithChildren,
+    AuthenticatedAdminCreateCustomerRoute:
+      AuthenticatedAdminCreateCustomerRoute,
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
     AuthenticatedAdminIntegrationsRoute: AuthenticatedAdminIntegrationsRoute,
-    AuthenticatedAdminSoldCrmAdminsRoute: AuthenticatedAdminSoldCrmAdminsRoute,
+    AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
     AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminCommunicationChatRoute:

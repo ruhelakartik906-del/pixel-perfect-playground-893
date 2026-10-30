@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AuthCard, AuthLink } from "@/components/auth/AuthCard";
+import { AuthCard } from "@/components/auth/AuthCard";
 import { LoginForm } from "@/components/auth/AuthForms";
 
 export const Route = createFileRoute("/login")({
@@ -13,5 +13,5 @@ export const Route = createFileRoute("/login")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: () => <AuthCard compact title="Welcome back" desc="Login to manage your Meta leads, follow-ups and workspace activity." footer={<>New to Routiva? <AuthLink to="/register">Create an account</AuthLink></>}><LoginForm /></AuthCard>,
+  component: () => <AuthCard compact title="Welcome back" desc="Login to manage your Meta leads, follow-ups and workspace activity." footer={<>Access is provided by your organization administrator.</>}><LoginForm /></AuthCard>,
 });

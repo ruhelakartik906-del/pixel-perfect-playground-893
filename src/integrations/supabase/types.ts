@@ -3338,6 +3338,180 @@ export type Database = {
           },
         ]
       }
+      org_feature_permissions: {
+        Row: {
+          company_id: string
+          enabled: boolean
+          feature_key: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          enabled?: boolean
+          feature_key: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          enabled?: boolean
+          feature_key?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_feature_permissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_subscriptions: {
+        Row: {
+          company_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          plan_id: string | null
+          starts_at: string
+          status: string
+          term_months: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id?: string | null
+          starts_at?: string
+          status?: string
+          term_months?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id?: string | null
+          starts_at?: string
+          status?: string
+          term_months?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_support_sessions: {
+        Row: {
+          company_id: string
+          ended_at: string | null
+          id: string
+          master_user_id: string
+          mode: string
+          revoked: boolean
+          started_at: string
+        }
+        Insert: {
+          company_id: string
+          ended_at?: string | null
+          id?: string
+          master_user_id: string
+          mode: string
+          revoked?: boolean
+          started_at?: string
+        }
+        Update: {
+          company_id?: string
+          ended_at?: string | null
+          id?: string
+          master_user_id?: string
+          mode?: string
+          revoked?: boolean
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_support_sessions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_usage_limits: {
+        Row: {
+          company_id: string
+          id: string
+          max_api_requests: number | null
+          max_chatbots: number | null
+          max_drip_campaigns: number | null
+          max_employees: number | null
+          max_leads: number | null
+          max_storage_mb: number | null
+          max_whatsapp_numbers: number | null
+          max_workflows: number | null
+          monthly_whatsapp_messages: number | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          max_api_requests?: number | null
+          max_chatbots?: number | null
+          max_drip_campaigns?: number | null
+          max_employees?: number | null
+          max_leads?: number | null
+          max_storage_mb?: number | null
+          max_whatsapp_numbers?: number | null
+          max_workflows?: number | null
+          monthly_whatsapp_messages?: number | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          max_api_requests?: number | null
+          max_chatbots?: number | null
+          max_drip_campaigns?: number | null
+          max_employees?: number | null
+          max_leads?: number | null
+          max_storage_mb?: number | null
+          max_whatsapp_numbers?: number | null
+          max_workflows?: number | null
+          monthly_whatsapp_messages?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_usage_limits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -3568,6 +3742,65 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_features: {
+        Row: {
+          enabled: boolean
+          feature_key: string
+          id: string
+          plan_id: string
+        }
+        Insert: {
+          enabled?: boolean
+          feature_key: string
+          id?: string
+          plan_id: string
+        }
+        Update: {
+          enabled?: boolean
+          feature_key?: string
+          id?: string
+          plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          limits: Json
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          limits?: Json
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          limits?: Json
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       products_services: {
         Row: {
@@ -5044,7 +5277,70 @@ export type Database = {
           user_id: string
         }[]
       }
+      master_archive_customer: {
+        Args: { _actor: string; _company: string }
+        Returns: undefined
+      }
+      master_assert_admin: { Args: { _actor: string }; Returns: undefined }
+      master_assign_plan: {
+        Args: { _actor: string; _company: string; _plan: string }
+        Returns: undefined
+      }
+      master_create_customer: {
+        Args: {
+          _actor: string
+          _company: string
+          _email: string
+          _name: string
+          _phone: string
+          _user: string
+        }
+        Returns: string
+      }
+      master_save_customer_features: {
+        Args: { _actor: string; _company: string; _features: Json }
+        Returns: undefined
+      }
+      master_save_customer_limits: {
+        Args: { _actor: string; _company: string; _limits: Json }
+        Returns: undefined
+      }
+      master_save_plan:
+        | {
+            Args: {
+              _actor: string
+              _description: string
+              _features: Json
+              _limits: Json
+              _name: string
+              _plan: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _actor: string
+              _description: string
+              _features: Json
+              _limits: Json
+              _name: string
+              _plan: string
+            }
+            Returns: string
+          }
+      master_set_customer_status: {
+        Args: { _actor: string; _company: string; _status: string }
+        Returns: undefined
+      }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
+      org_feature_allowed: {
+        Args: { _company: string; _feature: string }
+        Returns: boolean
+      }
+      org_limit_available: {
+        Args: { _company: string; _limit: string }
+        Returns: boolean
+      }
       personal_attendance_action: { Args: { _action: string }; Returns: string }
       route_lead: {
         Args: { _lead: string; _manual_user?: string }

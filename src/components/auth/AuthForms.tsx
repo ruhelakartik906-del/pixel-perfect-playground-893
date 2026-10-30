@@ -107,6 +107,12 @@ export function LoginForm() {
     }
     try {
       const access = await resolveAccess();
+      if (access.destination === '/admin/dashboard') {
+        await supabase.auth.signOut();
+        setLoading(null);
+        toast.error("Master Admin accounts must sign in through the Admin login.");
+        return;
+      }
       await navigate({ to: loginDestination(access.destination, safeRedirect()), replace: true });
     } catch {
       setLoading(null);
@@ -125,6 +131,11 @@ export function LoginForm() {
     if (!result.redirected) {
       try {
         const access = await resolveAccess();
+        if (access.destination === '/admin/dashboard') {
+          await supabase.auth.signOut();
+          toast.error("Master Admin accounts must sign in through the Admin login.");
+          return;
+        }
         await navigate({ to: loginDestination(access.destination, safeRedirect()), replace: true });
       } catch { toast.error("Your account access could not be verified. Please try again."); }
       finally { setLoading(null); }
