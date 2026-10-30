@@ -22,9 +22,8 @@
 - Mail/WhatsApp are stored-only without delivery; WhatsApp counts and processing/completed states are server-only via trigger, connected status cannot be set by browser RLS — why: no fake sending/connections.
 - HRM employees link profiles; hr_set_access audits decisions. Shared validated forms/scoped policies and transactional attendance/leave/payroll RPCs preserve identity, balances and history. Calendar derives original meetings/holidays/approved leave; private HR documents use authorized access matching record visibility — why: no duplicate events or cross-company files.
 - /my-hr stays outside Admin; custom HR administrators use scoped permissions — why: no unrelated privileges.
-- Support uses owner reads, locked RPCs, private-note RLS and authorized files — why: secure ownership/history.
 - Settings require active Super Admin; own credentials use Auth/current-password reauthentication, business defaults extend singleton sales settings via authorized RPC — why: preserve identity, seller snapshots and financial history.
-- Chat uses participant RPCs/RLS/files; chat_people exposes public identities only and company groups require membership — why: discovery cannot grant private access.
+- Chat and Support use participant/owner RPCs, RLS and authorized files; chat_people exposes public identities only; company groups require membership — why: discovery cannot grant private access.
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
 - Work uses locked company/personal RPCs and original creators; five pages share spreadsheets, private drafts and locked cells; work/commercial reads use short browser freshness plus mutation invalidation, prerequisite batches max six — why: no duplicates or lost ownership, fewer duplicate requests.
 - Automation uses canonical work/unique events; retry tests run unchanged SQL in disposable local DBs — why: dedupe and no production faults.
