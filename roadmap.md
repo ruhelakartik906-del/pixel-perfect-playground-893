@@ -107,7 +107,7 @@
 
 ## SaaS Stages 2-10 (Oct 30)
 - [x] Stage 2: permission-aware panels — ROUTE_FEATURES catalog, myOrgFeatures server read, nav hiding, FeatureGate on 13 routes, assertOrgFeature on lead/task/deal/commercial/WhatsApp writes; 6 unit tests + live disabled-feature browser check passed; temp rows cleaned
-- [ ] Stage 3: Customer Admin employee management (invite/edit/suspend, roles, limits UI)
+- [x] Stage 3: Customer Admin employee management — org_employee_action RPC + audit (migration 0099), create/edit/activate/deactivate/remove, permission roles, limit badge, activity log; 7 local DB tests + browser check passed
 - [ ] Stage 4: Master Admin workspace access (View Only / Full Support sessions)
 - [ ] Stage 5: WhatsApp Cloud API platform — blocked on Meta/WhatsApp credentials
 - [ ] Stage 6: Meta Lead Ads — blocked on Meta app credentials
