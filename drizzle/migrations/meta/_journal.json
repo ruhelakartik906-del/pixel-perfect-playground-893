@@ -708,6 +708,13 @@
       "when": 1793369134882,
       "tag": "0100_active_admin_gate_whatsapp",
       "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1793369580890,
+      "tag": "0101_support_workspace_access",
+      "breakpoints": true
     }
   ]
 }
