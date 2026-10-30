@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomerDetail, customerDetailQuery, plansQuery } from "@/components/admin/CustomerDetail";
 
-export const Route = createFileRoute("/_authenticated/admin/all-users/$companyId")({
+export const Route = createFileRoute("/_authenticated/admin/all-users_/$companyId")({
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(customerDetailQuery(params.companyId)),
