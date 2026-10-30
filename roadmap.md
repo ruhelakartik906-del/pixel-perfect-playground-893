@@ -115,4 +115,4 @@
 - [ ] Stage 8: Visual flow builder
 - [ ] Stage 9: Drip campaigns
 - [ ] Stage 10: End-to-end testing & production readiness
-- [ ] Performance audit: near-instant CRM navigation (uploaded brief) — audit bottlenecks, fix, regression-test, no publish
+- [x] Performance audit: router intent preloading, 60s memoized auth guard (0 auth calls across 5 navs), 15-30s staleTime on support/admin queries; hover-preloaded nav 29ms, warm 26-74ms, signed-out redirect intact; 5 nav tests + build PASS; no publish.
