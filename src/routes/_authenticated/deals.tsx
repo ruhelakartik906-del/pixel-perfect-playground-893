@@ -1,6 +1,7 @@
 import { WorkspaceAccessError } from '@/components/workspace/WorkspaceAccessError';
 import { createFileRoute } from '@tanstack/react-router';
 import { UserDeals } from '@/components/workspace/UserDeals';
+import { FeatureGate } from '@/components/workspace/FeatureGate';
 import { phase2Query } from '@/lib/user-phase2-query';
 import { userHead } from '@/lib/user-crm';
 export const Route=createFileRoute('/_authenticated/deals')({
