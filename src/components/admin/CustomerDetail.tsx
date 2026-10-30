@@ -18,11 +18,13 @@ import {
 export const customerDetailQuery = (companyId: string) => queryOptions({
   queryKey: ["admin-customer", companyId],
   queryFn: () => customerDetail({ data: { company_id: companyId } }),
+  staleTime: 15_000,
 });
 
 export const plansQuery = queryOptions({
   queryKey: ["admin-plans"],
   queryFn: () => listPlans(),
+  staleTime: 30_000,
 });
 
 const statusTone = { active: "green", suspended: "orange", expired: "red" } as const;

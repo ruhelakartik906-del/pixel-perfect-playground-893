@@ -18,6 +18,7 @@ import { daysUntilExpiry, type CustomerRow } from "@/lib/org-features";
 export const customersQuery = queryOptions({
   queryKey: ["admin-customers"],
   queryFn: () => listCustomers(),
+  staleTime: 15_000,
 });
 
 const PAGE_SIZE = 20;

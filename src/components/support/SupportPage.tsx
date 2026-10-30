@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { canReopen, supportCategories, supportPriorities, supportStatuses, validateSupportFile } from '@/lib/support-model';
 import { changeSupportTicket, createSupportTicket, downloadSupportAttachment, getSupportTicket, getSupportWorkspace, replySupportTicket, uploadSupportAttachment } from '@/lib/support.functions';
 
-export const supportQuery = (admin: boolean) => queryOptions({ queryKey: ['support-list', admin, '', '', '', '', '', 0, false], queryFn: () => getSupportWorkspace({ data: { admin } }) });
+export const supportQuery = (admin: boolean) => queryOptions({ queryKey: ['support-list', admin, '', '', '', '', '', 0, false], queryFn: () => getSupportWorkspace({ data: { admin } }), staleTime: 15_000 });
 const inputClass = 'w-full rounded-md border bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30';
 const date = (value: string) => new Date(value).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' });
 const number = (value: number) => `RT-${String(value).padStart(6, '0')}`;
