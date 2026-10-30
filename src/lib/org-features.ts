@@ -107,6 +107,7 @@ export const ROUTE_FEATURES = {
   "/follow-ups": "tasks",
   "/my-work-table": "tasks",
   "/my-reports": "reports",
+  "/employees": "employees",
   "/whatsapp/chats": "whatsapp",
   "/whatsapp/templates": "whatsapp_templates",
 } as const satisfies Record<string, FeatureKey>;
