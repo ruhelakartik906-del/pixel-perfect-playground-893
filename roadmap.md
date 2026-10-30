@@ -115,3 +115,4 @@
 - [ ] Stage 8: Visual flow builder
 - [ ] Stage 9: Drip campaigns
 - [ ] Stage 10: End-to-end testing & production readiness
+- [ ] Performance audit: near-instant CRM navigation (uploaded brief) — audit bottlenecks, fix, regression-test, no publish
