@@ -25,10 +25,9 @@
 - /my-hr stays outside Admin; custom HR administrators use scoped permissions — why: no unrelated privileges.
 - Support uses owner reads, locked RPCs, private-note RLS and authorized files — why: secure ownership/history.
 - Settings require active Super Admin; own credentials use Auth/current-password reauthentication, business defaults extend singleton sales settings via authorized RPC — why: preserve identity, seller snapshots and financial history.
-- Work uses locked company/personal RPCs and original creators; five pages share spreadsheets, private per-page drafts/customization and locked cells — why: no duplicates, fictitious companies or lost ownership/history.
 - Chat uses participant RPCs/RLS/files; chat_people exposes public identities only and company groups require membership — why: discovery cannot grant private access.
 - User commercial RPCs scope companies/permissions, proposal evidence and draft-only invoices — why: preserve finance/history.
-- Work/commercial reads use short browser freshness plus mutation invalidation; prerequisite batches max six — why: fewer duplicate requests without shared server caches/skipped authorization.
+- Work uses locked company/personal RPCs and original creators; five pages share spreadsheets, private drafts and locked cells; work/commercial reads use short browser freshness plus mutation invalidation, prerequisite batches max six — why: no duplicates or lost ownership, fewer duplicate requests.
 - Automation uses canonical work/unique events; retry tests run unchanged SQL in disposable local DBs — why: dedupe and no production faults.
 - Attendance projects original HR/personal summaries (HR wins per account/date); bulk attendance is atomic; leave attendance carries source request ID cleared by manual correction; Admin-only roster exclusion preserves HR identity — why: rollback failures and preserve manual records.
 - Licensing: Master manages via Super Admin RPC (hashed credentials); customers verify via /api/public/license/verify; LICENSE_MODE=customer fails closed and mirrors into service-role-only license_state; license_gate policies block direct Data API access when stale — why: central authority, no client-trusted state.
