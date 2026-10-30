@@ -701,6 +701,13 @@
       "when": 1793368302901,
       "tag": "0099_org_employee_management",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1793369134882,
+      "tag": "0100_active_admin_gate_whatsapp",
+      "breakpoints": true
     }
   ]
 }
