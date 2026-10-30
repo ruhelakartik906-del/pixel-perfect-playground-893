@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { userLeadActionSchema } from '@/lib/user-crm';
 import { parseCompanyStages } from './leads-board';
+import { assertOrgFeature } from '@/lib/org-features.functions';
 
 export const loadUserCrm = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const db = context.supabase;
@@ -48,6 +49,7 @@ export const loadUserCrm = createServerFn({ method: 'GET' }).middleware([require
   return { profile, roles, userId: context.userId, allowed, leads: ownLeads, deals: allowed ? deals.filter(d => d.company_id && authorizedIds.has(d.company_id)) : [], work: allowed ? work.filter(w => authorizedIds.has(w.company_id)) : [], stages, sources, companies, companyStages, personalStages, activities };
 });
 export const updateUserLead = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => userLeadActionSchema.parse(input)).handler(async ({ context, data }) => {
+  await assertOrgFeature(context, 'leads');
   const result = await context.supabase.rpc('user_lead_action', { _id: data.id, _updated_at: data.updated_at, _action: data.action, _payload: data.payload });
   if (result.error) throw new Error(result.error.message);
   return result.data;
