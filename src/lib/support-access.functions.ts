@@ -34,7 +34,7 @@ export const readSupportData = createServerFn({ method: "POST" })
     if (r.error) throw new Error(r.error.message);
     const out = r.data as { data?: unknown; error?: string };
     if (out.error) throw new Error(out.error);
-    return out.data as never;
+    return out.data as import("@/integrations/supabase/types").Json;
   });
 
 export const supportUpdateLead = createServerFn({ method: "POST" })
@@ -49,7 +49,7 @@ export const supportUpdateLead = createServerFn({ method: "POST" })
   });
 
 export type SupportSessionRow = { id: string; company_id: string; master_user_id: string; mode: string; reason: string; started_at: string; expires_at: string; ended_at: string | null; end_reason: string | null; revoked: boolean };
-export type SupportAuditRow = { id: string; session_id: string; actor_id: string; action: string; target: string | null; detail: unknown; created_at: string };
+export type SupportAuditRow = { id: string; session_id: string; actor_id: string; action: string; target: string | null; detail: import("@/integrations/supabase/types").Json; created_at: string };
 
 // Readable by active Super Admins (all) and Customer Admins (own organization) via RLS.
 export const listSupportSessions = createServerFn({ method: "POST" })
