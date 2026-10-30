@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AuthCard, AuthLink } from "@/components/auth/AuthCard";
+import { AuthCard } from "@/components/auth/AuthCard";
 import { LoginForm } from "@/components/auth/AuthForms";
 
 export const Route = createFileRoute("/login")({
