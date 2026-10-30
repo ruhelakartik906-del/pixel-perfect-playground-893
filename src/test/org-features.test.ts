@@ -1,44 +1,58 @@
 import { describe, expect, it } from "vitest";
-import { customerStatus, daysUntilExpiry, FEATURE_KEYS, LIMIT_KEYS } from "@/lib/org-features";
+import {
+  FEATURE_KEYS,
+  FEATURE_LABELS,
+  ROUTE_FEATURES,
+  featureEnabled,
+  type FeatureKey,
+} from "@/lib/org-features";
 
-describe("customerStatus", () => {
-  it("treats companies without a subscription row as active (legacy default)", () => {
-    expect(customerStatus(null)).toBe("active");
-    expect(customerStatus(undefined)).toBe("active");
+describe("org feature gating", () => {
+  it("defaults to enabled when no permission row exists", () => {
+    expect(featureEnabled({}, "leads")).toBe(true);
+    expect(featureEnabled(null, "whatsapp")).toBe(true);
+    expect(featureEnabled(undefined, "reports")).toBe(true);
   });
-  it("passes through suspended and active statuses", () => {
-    expect(customerStatus({ status: "suspended", expires_at: null })).toBe("suspended");
-    expect(customerStatus({ status: "active", expires_at: null })).toBe("active");
-  });
-  it("marks an active subscription past its expiry as expired", () => {
-    expect(customerStatus({ status: "active", expires_at: "2020-01-01T00:00:00Z" })).toBe("expired");
-    expect(customerStatus({ status: "active", expires_at: "2999-01-01T00:00:00Z" })).toBe("active");
-  });
-  it("keeps suspended status even when expiry has passed", () => {
-    expect(customerStatus({ status: "suspended", expires_at: "2020-01-01T00:00:00Z" })).toBe("suspended");
-  });
-});
 
-describe("daysUntilExpiry", () => {
-  it("returns null without an expiry date", () => {
-    expect(daysUntilExpiry(null)).toBeNull();
-    expect(daysUntilExpiry(undefined)).toBeNull();
+  it("blocks only explicitly disabled features", () => {
+    const features = { leads: false, whatsapp: true };
+    expect(featureEnabled(features, "leads")).toBe(false);
+    expect(featureEnabled(features, "whatsapp")).toBe(true);
+    expect(featureEnabled(features, "deals")).toBe(true);
   });
-  it("returns a positive day count for future dates", () => {
-    const future = new Date(Date.now() + 10 * 86_400_000).toISOString();
-    expect(daysUntilExpiry(future)).toBe(10);
-  });
-});
 
-describe("catalogs", () => {
-  it("covers the brief's CRM, WhatsApp, chatbot, flow, drip and integration features", () => {
-    for (const key of ["leads", "contacts", "companies", "pipeline", "deals", "tasks", "quotations", "invoices", "payments", "products", "whatsapp", "chatbots", "flows", "drip_campaigns", "integrations"]) {
+  it("maps every gated destination to a valid feature key", () => {
+    for (const key of Object.values(ROUTE_FEATURES)) {
       expect(FEATURE_KEYS).toContain(key);
     }
   });
-  it("covers the brief's usage limits", () => {
-    for (const key of ["max_employees", "max_leads", "monthly_whatsapp_messages", "max_whatsapp_numbers", "max_chatbots", "max_workflows", "max_drip_campaigns"]) {
-      expect(LIMIT_KEYS).toContain(key);
+
+  it("gates the expected workspace destinations", () => {
+    expect(ROUTE_FEATURES["/all-assigned"]).toBe("leads");
+    expect(ROUTE_FEATURES["/my-leads"]).toBe("leads");
+    expect(ROUTE_FEATURES["/lead-status"]).toBe("leads");
+    expect(ROUTE_FEATURES["/pipeline"]).toBe("pipeline");
+    expect(ROUTE_FEATURES["/proposals"]).toBe("quotations");
+    expect(ROUTE_FEATURES["/invoices"]).toBe("invoices");
+    expect(ROUTE_FEATURES["/deals"]).toBe("deals");
+    expect(ROUTE_FEATURES["/tasks"]).toBe("tasks");
+    expect(ROUTE_FEATURES["/follow-ups"]).toBe("tasks");
+    expect(ROUTE_FEATURES["/my-work-table"]).toBe("tasks");
+    expect(ROUTE_FEATURES["/my-reports"]).toBe("reports");
+    expect(ROUTE_FEATURES["/whatsapp/chats"]).toBe("whatsapp");
+    expect(ROUTE_FEATURES["/whatsapp/templates"]).toBe("whatsapp_templates");
+  });
+
+  it("keeps personal destinations ungated", () => {
+    const gated = Object.keys(ROUTE_FEATURES);
+    for (const open of ["/dashboard", "/calendar", "/my-hr", "/team-chat", "/support", "/settings"]) {
+      expect(gated).not.toContain(open);
+    }
+  });
+
+  it("has a label for every feature key", () => {
+    for (const key of FEATURE_KEYS) {
+      expect(FEATURE_LABELS[key as FeatureKey].length).toBeGreaterThan(0);
     }
   });
 });

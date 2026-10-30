@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { WorkspaceAccessError } from '@/components/workspace/WorkspaceAccessError';
 import { MyLeads } from '@/components/workspace/MyLeads';
+import { FeatureGate } from '@/components/workspace/FeatureGate';
 import { checkUserAccess,userCrmQuery } from '@/lib/user-crm-query';
 import { userHead } from '@/lib/user-crm';
-export const Route=createFileRoute('/_authenticated/pipeline')({errorComponent:WorkspaceAccessError,head:()=>userHead('Leads Board','Manage your assigned company leads through saved stages in Routiva CRM.'),loader:async({context})=>checkUserAccess(await context.queryClient.ensureQueryData(userCrmQuery)),component:MyLeads});
+export const Route=createFileRoute('/_authenticated/pipeline')({errorComponent:WorkspaceAccessError,head:()=>userHead('Leads Board','Manage your assigned company leads through saved stages in Routiva CRM.'),loader:async({context})=>checkUserAccess(await context.queryClient.ensureQueryData(userCrmQuery)),component:Page});
+function Page(){return <FeatureGate feature="pipeline"><MyLeads/></FeatureGate>;}

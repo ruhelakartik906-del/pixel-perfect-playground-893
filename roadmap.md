@@ -104,3 +104,14 @@
 
 ## WhatsApp Web-style chat frontend (Phase 1, Oct 21)
 - [ ] Rebuild WhatsApp Chats as two-panel WhatsApp Web-style UI (frontend only, local demo state, no sends)
+
+## SaaS Stages 2-10 (Oct 30)
+- [x] Stage 2: permission-aware panels — ROUTE_FEATURES catalog, myOrgFeatures server read, nav hiding, FeatureGate on 13 routes, assertOrgFeature on lead/task/deal/commercial/WhatsApp writes; 6 unit tests + live disabled-feature browser check passed; temp rows cleaned
+- [ ] Stage 3: Customer Admin employee management (invite/edit/suspend, roles, limits UI)
+- [ ] Stage 4: Master Admin workspace access (View Only / Full Support sessions)
+- [ ] Stage 5: WhatsApp Cloud API platform — blocked on Meta/WhatsApp credentials
+- [ ] Stage 6: Meta Lead Ads — blocked on Meta app credentials
+- [ ] Stage 7: Chatbot builder
+- [ ] Stage 8: Visual flow builder
+- [ ] Stage 9: Drip campaigns
+- [ ] Stage 10: End-to-end testing & production readiness

@@ -1,6 +1,7 @@
 import { WorkspaceAccessError } from '@/components/workspace/WorkspaceAccessError';
 import { createFileRoute } from "@tanstack/react-router";
 import { UserWork } from "@/components/workspace/UserWork";
+import { FeatureGate } from "@/components/workspace/FeatureGate";
 import { phase2Query } from "@/lib/user-phase2-query";
 import { userHead } from "@/lib/user-crm";
 export const Route = createFileRoute("/_authenticated/tasks")({
@@ -9,4 +10,4 @@ export const Route = createFileRoute("/_authenticated/tasks")({
  loader:({context})=>context.queryClient.ensureQueryData(phase2Query),
  component:Page,
 });
-function Page() {return <UserWork kind="task"/>;}
+function Page() {return <FeatureGate feature="tasks"><UserWork kind="task"/></FeatureGate>;}
