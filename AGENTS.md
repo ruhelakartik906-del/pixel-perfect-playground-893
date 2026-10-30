@@ -20,8 +20,7 @@
 - Invitations use public acceptance, remain pending until locked password acceptance; Admin Auth resends preserve identity/company/roles — why: no editor access or duplicates.
 - Legacy Admin policies require active Admin and restrictive CRM assignment/account boundaries — why: permissive policies cannot reopen blocked/unrelated access.
 - Mail/WhatsApp are stored-only without delivery; WhatsApp counts and processing/completed states are server-only via trigger, connected status cannot be set by browser RLS — why: no fake sending/connections.
-- HRM employees link profiles; hr_set_access audits decisions. Shared validated forms/scoped policies and transactional attendance/leave/payroll RPCs preserve identity, balances and history.
-- Calendar derives original meetings/holidays/approved leave; private HR documents/attachments use authorized uploads/downloads matching record visibility — why: no duplicate events or public/cross-company files.
+- HRM employees link profiles; hr_set_access audits decisions. Shared validated forms/scoped policies and transactional attendance/leave/payroll RPCs preserve identity, balances and history. Calendar derives original meetings/holidays/approved leave; private HR documents use authorized access matching record visibility — why: no duplicate events or cross-company files.
 - /my-hr stays outside Admin; custom HR administrators use scoped permissions — why: no unrelated privileges.
 - Support uses owner reads, locked RPCs, private-note RLS and authorized files — why: secure ownership/history.
 - Settings require active Super Admin; own credentials use Auth/current-password reauthentication, business defaults extend singleton sales settings via authorized RPC — why: preserve identity, seller snapshots and financial history.
