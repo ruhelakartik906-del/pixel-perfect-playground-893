@@ -198,7 +198,7 @@ export const orgEmployeeAction = createServerFn({ method: "POST" })
     if (data.action === "update") Object.assign(payload, { full_name: data.full_name, phone: data.phone ?? "" });
     if (data.action === "set_status") payload["status"] = data.status;
     if (data.action === "assign_role") payload["access_role"] = data.access_role ?? null;
-    const result = await context.supabase.rpc("org_employee_action", { _action: data.action, _payload: payload });
+    const result = await context.supabase.rpc("org_employee_action", { _action: data.action, _payload: payload as import("@/integrations/supabase/types").Json });
     if (result.error) throw new Error(result.error.message);
     return { ok: true };
   });
