@@ -3,6 +3,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { columnSchema,dealSchema,userTaskSchema } from './user-phase2';
 import { gridSettingsSchema } from './work-grid';
+import { assertOrgFeature } from '@/lib/org-features.functions';
 export const loadUserPhase2=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  const db=context.supabase;const access=await db.rpc('user_workspace_allowed');if(access.error||!access.data)throw new Error('Workspace access required');
  async function all<T>(fn:(offset:number)=>PromiseLike<{data:T[]|null;error:unknown}>){const rows:T[]=[];for(let o=0;;o+=1000){const r=await fn(o);if(r.error)throw new Error('Workspace records could not be loaded');rows.push(...r.data??[]);if((r.data?.length??0)<1000)return rows;}}
