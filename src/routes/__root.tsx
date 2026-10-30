@@ -1,3 +1,4 @@
+import { resetAuthCheckCache } from "@/lib/auth-check-cache";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
