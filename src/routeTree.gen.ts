@@ -108,6 +108,7 @@ import { Route as AuthenticatedAdminSalesReportsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminSalesRevenueRouteImport } from './routes/_authenticated/admin/sales/revenue'
 import { Route as AuthenticatedAdminSettingsAdminAccountSecurityRouteImport } from './routes/_authenticated/admin/settings/admin-account-security'
 import { Route as AuthenticatedAdminSettingsBusinessSettingsRouteImport } from './routes/_authenticated/admin/settings/business-settings'
+import { Route as AuthenticatedAdminSupportAccessSessionIdRouteImport } from './routes/_authenticated/admin/support-access.$sessionId'
 import { Route as AuthenticatedAdminUsersRoleRouteImport } from './routes/_authenticated/admin/users/role'
 import { Route as AuthenticatedAdminUsersUsersRouteImport } from './routes/_authenticated/admin/users/users'
 import { Route as AuthenticatedAdminWhatsappBroadcastRouteImport } from './routes/_authenticated/admin/whatsapp/broadcast'
@@ -673,6 +674,12 @@ const AuthenticatedAdminSettingsBusinessSettingsRoute =
     path: '/settings/business-settings',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSupportAccessSessionIdRoute =
+  AuthenticatedAdminSupportAccessSessionIdRouteImport.update({
+    id: '/support-access/$sessionId',
+    path: '/support-access/$sessionId',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoleRoute =
   AuthenticatedAdminUsersRoleRouteImport.update({
     id: '/users/role',
@@ -824,6 +831,7 @@ export interface FileRoutesByFullPath {
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   '/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
+  '/admin/support-access/$sessionId': typeof AuthenticatedAdminSupportAccessSessionIdRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -932,6 +940,7 @@ export interface FileRoutesByTo {
   '/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   '/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
+  '/admin/support-access/$sessionId': typeof AuthenticatedAdminSupportAccessSessionIdRoute
   '/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -1043,6 +1052,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sales/revenue': typeof AuthenticatedAdminSalesRevenueRoute
   '/_authenticated/admin/settings/admin-account-security': typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   '/_authenticated/admin/settings/business-settings': typeof AuthenticatedAdminSettingsBusinessSettingsRoute
+  '/_authenticated/admin/support-access/$sessionId': typeof AuthenticatedAdminSupportAccessSessionIdRoute
   '/_authenticated/admin/users/role': typeof AuthenticatedAdminUsersRoleRoute
   '/_authenticated/admin/users/users': typeof AuthenticatedAdminUsersUsersRoute
   '/_authenticated/admin/whatsapp/broadcast': typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -1154,6 +1164,7 @@ export interface FileRouteTypes {
     | '/admin/sales/revenue'
     | '/admin/settings/admin-account-security'
     | '/admin/settings/business-settings'
+    | '/admin/support-access/$sessionId'
     | '/admin/users/role'
     | '/admin/users/users'
     | '/admin/whatsapp/broadcast'
@@ -1262,6 +1273,7 @@ export interface FileRouteTypes {
     | '/admin/sales/revenue'
     | '/admin/settings/admin-account-security'
     | '/admin/settings/business-settings'
+    | '/admin/support-access/$sessionId'
     | '/admin/users/role'
     | '/admin/users/users'
     | '/admin/whatsapp/broadcast'
@@ -1372,6 +1384,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sales/revenue'
     | '/_authenticated/admin/settings/admin-account-security'
     | '/_authenticated/admin/settings/business-settings'
+    | '/_authenticated/admin/support-access/$sessionId'
     | '/_authenticated/admin/users/role'
     | '/_authenticated/admin/users/users'
     | '/_authenticated/admin/whatsapp/broadcast'
@@ -2102,6 +2115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsBusinessSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/support-access/$sessionId': {
+      id: '/_authenticated/admin/support-access/$sessionId'
+      path: '/support-access/$sessionId'
+      fullPath: '/admin/support-access/$sessionId'
+      preLoaderRoute: typeof AuthenticatedAdminSupportAccessSessionIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/users/role': {
       id: '/_authenticated/admin/users/role'
       path: '/users/role'
@@ -2228,6 +2248,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSalesRevenueRoute: typeof AuthenticatedAdminSalesRevenueRoute
   AuthenticatedAdminSettingsAdminAccountSecurityRoute: typeof AuthenticatedAdminSettingsAdminAccountSecurityRoute
   AuthenticatedAdminSettingsBusinessSettingsRoute: typeof AuthenticatedAdminSettingsBusinessSettingsRoute
+  AuthenticatedAdminSupportAccessSessionIdRoute: typeof AuthenticatedAdminSupportAccessSessionIdRoute
   AuthenticatedAdminUsersRoleRoute: typeof AuthenticatedAdminUsersRoleRoute
   AuthenticatedAdminUsersUsersRoute: typeof AuthenticatedAdminUsersUsersRoute
   AuthenticatedAdminWhatsappBroadcastRoute: typeof AuthenticatedAdminWhatsappBroadcastRoute
@@ -2322,6 +2343,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminSettingsAdminAccountSecurityRoute,
     AuthenticatedAdminSettingsBusinessSettingsRoute:
       AuthenticatedAdminSettingsBusinessSettingsRoute,
+    AuthenticatedAdminSupportAccessSessionIdRoute:
+      AuthenticatedAdminSupportAccessSessionIdRoute,
     AuthenticatedAdminUsersRoleRoute: AuthenticatedAdminUsersRoleRoute,
     AuthenticatedAdminUsersUsersRoute: AuthenticatedAdminUsersUsersRoute,
     AuthenticatedAdminWhatsappBroadcastRoute:

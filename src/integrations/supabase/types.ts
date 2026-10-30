@@ -3459,31 +3459,91 @@ export type Database = {
           },
         ]
       }
+      org_support_audit: {
+        Row: {
+          action: string
+          actor_id: string
+          company_id: string
+          created_at: string
+          detail: Json
+          id: string
+          session_id: string
+          target: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          company_id: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          session_id: string
+          target?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          company_id?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          session_id?: string
+          target?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_support_audit_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_support_audit_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "org_support_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_support_sessions: {
         Row: {
           company_id: string
+          end_reason: string | null
           ended_at: string | null
+          ended_by: string | null
+          expires_at: string
           id: string
           master_user_id: string
           mode: string
+          reason: string
           revoked: boolean
           started_at: string
         }
         Insert: {
           company_id: string
+          end_reason?: string | null
           ended_at?: string | null
+          ended_by?: string | null
+          expires_at?: string
           id?: string
           master_user_id: string
           mode: string
+          reason?: string
           revoked?: boolean
           started_at?: string
         }
         Update: {
           company_id?: string
+          end_reason?: string | null
           ended_at?: string | null
+          ended_by?: string | null
+          expires_at?: string
           id?: string
           master_user_id?: string
           mode?: string
+          reason?: string
           revoked?: boolean
           started_at?: string
         }
@@ -5434,6 +5494,58 @@ export type Database = {
         Returns: string
       }
       support_admin: { Args: never; Returns: boolean }
+      support_audit: {
+        Args: {
+          _action: string
+          _detail: Json
+          _s: Database["public"]["Tables"]["org_support_sessions"]["Row"]
+          _target: string
+        }
+        Returns: undefined
+      }
+      support_read: {
+        Args: { _resource: string; _session: string }
+        Returns: Json
+      }
+      support_session_end: {
+        Args: { _reason: string; _session: string }
+        Returns: undefined
+      }
+      support_session_require: {
+        Args: { _need_support: boolean; _session: string }
+        Returns: {
+          company_id: string
+          end_reason: string | null
+          ended_at: string | null
+          ended_by: string | null
+          expires_at: string
+          id: string
+          master_user_id: string
+          mode: string
+          reason: string
+          revoked: boolean
+          started_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "org_support_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      support_session_start: {
+        Args: {
+          _company: string
+          _minutes: number
+          _mode: string
+          _reason: string
+        }
+        Returns: string
+      }
+      support_write: {
+        Args: { _action: string; _payload: Json; _session: string }
+        Returns: Json
+      }
       template_scope: { Args: { _company: string }; Returns: boolean }
       user_board_lead_create: { Args: { _payload: Json }; Returns: string }
       user_board_lead_delete: {

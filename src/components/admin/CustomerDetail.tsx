@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Breadcrumb, Card, PageHeader, StatusBadge } from "./ui";
+import { SupportAccessCard } from "./SupportAccessCard";
 import {
   assignPlan, customerDetail, listPlans, saveCustomerFeatures, saveCustomerLimits, setCustomerStatus,
 } from "@/lib/customers.functions";
@@ -142,6 +143,10 @@ export function CustomerDetail({ companyId }: { companyId: string }) {
           </ul>
         </Card>
       </div>
+
+      <SupportAccessCard companyId={companyId} />
+
+
 
       <Card className="p-6">
         <div className="flex items-center justify-between">

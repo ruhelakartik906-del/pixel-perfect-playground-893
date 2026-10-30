@@ -1,3 +1,4 @@
+import { SupportHistory } from '@/components/admin/SupportAccessCard';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserPlus, Pencil, ShieldCheck, Trash2, Ban, CircleCheck, History } from 'lucide-react';
@@ -204,6 +205,13 @@ export function OrgEmployees() {
         </DialogContent>
       </Dialog>
 
+      {company && (
+        <section className="rounded-xl border bg-card p-5">
+          <h2 className="text-lg font-bold">Master Admin support access</h2>
+          <p className="mb-4 text-sm text-muted-foreground">Time-limited access opened by Routiva support. You can revoke any live session immediately.</p>
+          <SupportHistory companyId={company} canRevoke />
+        </section>
+      )}
       <AlertDialog open={Boolean(removeTarget)} onOpenChange={(open) => { if (!open) setRemoveTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
