@@ -22,8 +22,8 @@ export function SupportWorkspace({ sessionId }: { sessionId: string }) {
   const [tab, setTab] = useState<Exclude<SupportResource, "overview">>("leads");
   const [now, setNow] = useState(() => Date.now());
   const q = (resource: SupportResource) => ({ queryKey: ["support-ws", sessionId, resource], queryFn: () => read({ data: { session_id: sessionId, resource } }), retry: false, staleTime: 0 });
-  const overview = useQuery({ ...q("overview") }) as { data?: Overview; error: Error | null; isLoading: boolean };
-  const list = useQuery({ ...q(tab), enabled: Boolean(overview.data) }) as { data?: unknown[]; error: Error | null; isLoading: boolean };
+  const overview = useQuery({ ...q("overview") }) as unknown as { data?: Overview; error: Error | null; isLoading: boolean };
+  const list = useQuery({ ...q(tab), enabled: Boolean(overview.data) }) as unknown as { data?: unknown[]; error: Error | null; isLoading: boolean };
 
   const exit = async (silent = false) => {
     try { await end({ data: { session_id: sessionId, reason: "Exited by Master Admin" } }); } catch { /* already ended */ }
