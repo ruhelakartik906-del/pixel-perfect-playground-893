@@ -680,6 +680,13 @@
       "when": 1793185729293,
       "tag": "0096_license_rls_gate_all_crm_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "7",
+      "when": 1793366494740,
+      "tag": "0097_multi_tenant_core",
+      "breakpoints": true
     }
   ]
 }
