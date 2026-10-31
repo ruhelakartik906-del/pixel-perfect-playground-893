@@ -5224,6 +5224,38 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_ai_controls: {
+        Row: {
+          company_id: string
+          enabled: boolean
+          instructions: string
+          paused_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          enabled?: boolean
+          instructions?: string
+          paused_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          enabled?: boolean
+          instructions?: string
+          paused_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_ai_controls_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_conversations: {
         Row: {
           assigned_to: string | null
@@ -6053,6 +6085,10 @@ export type Database = {
         Returns: undefined
       }
       user_workspace_allowed: { Args: never; Returns: boolean }
+      wa_ai_settings: {
+        Args: { _company: string; _enabled: boolean; _instructions: string }
+        Returns: undefined
+      }
       wa_inbox_access: {
         Args: { _conversation: string; _write?: boolean }
         Returns: boolean
