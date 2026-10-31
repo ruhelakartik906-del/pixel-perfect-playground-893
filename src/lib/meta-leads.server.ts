@@ -6,7 +6,8 @@ export async function processMetaLead(eventId:string){
  const source=await db.from('org_meta_sources').select('*').eq('id',event.data.source_id??'').eq('enabled',true).single();if(source.error)throw new Error('Source not connected');
  const secret=await db.from('org_meta_secrets').select('token_ciphertext').eq('connection_id',source.data.connection_id).single();if(secret.error)throw new Error('Meta authorization missing');
  const token=await decryptToken(secret.data.token_ciphertext);
- const lead=await graph<{id:string;field_data:{name:string;values:string[]}[];ad_id?:string;ad_name?:string;campaign_id?:string;campaign_name?:string;adset_id?:string;form_id?:string}>(`/${event.data.leadgen_id}`,token,{query:{fields:'id,field_data,ad_id,ad_name,campaign_id,campaign_name,adset_id,form_id'}});
+ const pages=await graph<{data:{id:string;access_token:string}[]}>('/me/accounts',token,{query:{fields:'id,access_token',limit:'100'}});if(!pages.ok)throw new Error(`Meta (${pages.status}): ${pages.message}`);const page=pages.data.data.find(p=>p.id===source.data.page_id);if(!page)throw new Error('Selected Page authorization is no longer available');
+ const lead=await graph<{id:string;field_data:{name:string;values:string[]}[];ad_id?:string;ad_name?:string;campaign_id?:string;campaign_name?:string;adset_id?:string;form_id?:string}>(`/${event.data.leadgen_id}`,page.access_token,{query:{fields:'id,field_data,ad_id,ad_name,campaign_id,campaign_name,adset_id,form_id'}});
  if(!lead.ok)throw new Error(`Meta (${lead.status}, code ${lead.code??'unknown'}): ${lead.message}`);
  if(lead.data.form_id&&lead.data.form_id!==source.data.form_id)throw new Error('Provider form does not match the selected source');
  const answers=Object.fromEntries(lead.data.field_data.map(f=>[f.name,f.values]));

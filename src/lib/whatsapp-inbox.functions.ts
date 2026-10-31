@@ -49,8 +49,8 @@ export const sendInboxMessage = createServerFn({method:'POST'}).middleware([requ
   try{sent=await meta.graph<{messages:{id:string}[]}>(`/${connection.data.phone_number_id}/messages`,token,{method:'POST',body:payload});}
   catch{const uncertain=await db.from('whatsapp_messages').update({status:'unknown',failure_reason:'Provider response unavailable; review before retrying'}).eq('id',row.data.id);if(uncertain.error)throw new Error('Uncertain send outcome could not be saved');throw new Error('Send outcome is unknown; do not resend until reviewed');}
   const providerId=sent.ok?sent.data.messages?.[0]?.id:null;
-  const saved=await db.from('whatsapp_messages').update(sent.ok&&providerId?{wa_message_id:providerId,status:'accepted'}:{status:sent.ok?'unknown':'failed',failure_reason:sent.ok?'Meta response did not include a message ID':`Meta (${sent.status}): ${sent.message}`}).eq('id',row.data.id);
-  if(saved.error) throw new Error('Provider outcome could not be saved; do not resend');
+  const saved=await db.from('whatsapp_messages').update(sent.ok&&providerId?{wa_message_id:providerId,status:'accepted'}:{status:sent.ok?'unknown':'failed',failure_reason:sent.ok?'Meta response did not include a message ID':`Meta (${sent.status}): ${sent.message}`}).eq('id',row.data.id).eq('status','dispatching').select('id').maybeSingle();
+  if(saved.error||!saved.data) throw new Error('Provider outcome could not be saved; do not resend');
   if(!sent.ok) throw new Error(`Meta (${sent.status}): ${sent.message}`);
   if(!providerId) throw new Error('Meta acceptance is unconfirmed; do not resend');
   const events=await db.from('org_whatsapp_webhook_events').select('id').eq('connection_id',c.data.connection_id).is('processed_at',null).order('next_attempt_at').limit(20);
