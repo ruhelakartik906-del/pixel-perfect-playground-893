@@ -15,7 +15,7 @@
 
 ## Tests and evidence
 - 68 focused unit/regression checks passed: WhatsApp rules/signature/encryption, bounded bodies, marketplace, existing routing/eligibility, Make intake and feature guards.
-- Isolated PostgreSQL tests passed for exact IDs, replay/unread behavior, early status reconciliation, no read downgrade, takeover, same phone on separate connections, restrictive RLS against a broad legacy read, canonical Meta deduplication/full answers, immutable source ownership, event-source matching and browser intake denial. Additional send cap/window test results are recorded in the final verification.
+- 11 isolated PostgreSQL tests passed for exact IDs, replay/unread behavior, early status reconciliation, no read downgrade, takeover, same phone on separate connections, restrictive RLS against a broad legacy read, canonical Meta deduplication/full answers, immutable source ownership, event-source matching, browser intake denial, monthly zero/unlimited caps and the 24-hour template boundary.
 - Actual AI SDK gateway request with non-customer customer-service text produced a nonempty suggestion. No WhatsApp message was sent.
 - Local unsigned POSTs to both Meta receivers returned 401. These are negative signature checks, not live provider callback verification.
 - Signed-in Master policy editor, customer Marketplace and empty WhatsApp inbox loaded without browser runtime errors. Populated customer consent, assignment, notes and send acceptance remain unverified.
