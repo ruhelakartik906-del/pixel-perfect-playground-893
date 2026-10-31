@@ -3338,6 +3338,35 @@ export type Database = {
           },
         ]
       }
+      org_configuration_overrides: {
+        Row: {
+          company_id: string
+          features: Json
+          limits: Json
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          features?: Json
+          limits?: Json
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          features?: Json
+          limits?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_configuration_overrides_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_employee_audit: {
         Row: {
           action: string
@@ -5586,6 +5615,7 @@ export type Database = {
         }
         Returns: string
       }
+      master_retire_plan: { Args: { _plan_id: string }; Returns: undefined }
       master_save_customer_features: {
         Args: { _actor: string; _company: string; _features: Json }
         Returns: undefined
@@ -5594,34 +5624,26 @@ export type Database = {
         Args: { _actor: string; _company: string; _limits: Json }
         Returns: undefined
       }
-      master_save_plan:
-        | {
-            Args: {
-              _actor: string
-              _description: string
-              _features: Json
-              _limits: Json
-              _name: string
-              _plan: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              _actor: string
-              _description: string
-              _features: Json
-              _limits: Json
-              _name: string
-              _plan: string
-            }
-            Returns: string
-          }
+      master_save_plan: {
+        Args: {
+          _actor: string
+          _description: string
+          _features: Json
+          _limits: Json
+          _name: string
+          _plan: string
+        }
+        Returns: string
+      }
       master_set_customer_status: {
         Args: { _actor: string; _company: string; _status: string }
         Returns: undefined
       }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
+      org_apply_configuration: {
+        Args: { _company: string }
+        Returns: undefined
+      }
       org_customer_admin: {
         Args: { _company: string; _user: string }
         Returns: boolean
@@ -5638,6 +5660,8 @@ export type Database = {
         Args: { _company: string; _limit: string }
         Returns: boolean
       }
+      org_validate_features: { Args: { _features: Json }; Returns: undefined }
+      org_validate_limits: { Args: { _limits: Json }; Returns: undefined }
       personal_attendance_action: { Args: { _action: string }; Returns: string }
       route_lead: {
         Args: { _lead: string; _manual_user?: string }
