@@ -1,0 +1,23 @@
+import {useState} from 'react';
+import {useQuery,useQueryClient} from '@tanstack/react-query';
+import {useServerFn} from '@tanstack/react-start';
+import {Facebook,RefreshCw} from 'lucide-react';
+import {toast} from 'sonner';
+import {Button} from '@/components/ui/button';
+import {beginMetaLeadConnect,completeMetaLeadConnect,metaLeadAssets,metaLeadWorkspace,selectMetaLeadSource,retryMetaLead} from '@/lib/meta-leads.functions';
+import {loadMetaSdk} from '@/lib/meta-sdk';
+export function MetaLeadConnection({companyId}:{companyId:string}){
+ const qc=useQueryClient(),begin=useServerFn(beginMetaLeadConnect),complete=useServerFn(completeMetaLeadConnect),save=useServerFn(selectMetaLeadSource),retry=useServerFn(retryMetaLead);
+ const workspace=useQuery({queryKey:['meta-leads',companyId],queryFn:()=>metaLeadWorkspace({data:{company_id:companyId}})});
+ const [busy,setBusy]=useState(false),[connection,setConnection]=useState('');const selected=connection||workspace.data?.connections[0]?.id||'';
+ const assets=useQuery({queryKey:['meta-assets',selected],queryFn:()=>metaLeadAssets({data:{connection_id:selected}}),enabled:false});
+ const run=async(fn:()=>Promise<unknown>)=>{setBusy(true);try{await fn();await qc.invalidateQueries({queryKey:['meta-leads',companyId]});}catch(e){toast.error(e instanceof Error?e.message:'Meta action failed');}finally{setBusy(false);}};
+ return <section className="space-y-4 border-t pt-6"><header className="flex flex-wrap items-center justify-between gap-3"><h2 className="flex items-center gap-2 text-xl font-bold"><Facebook className="size-5 text-primary"/>Meta Lead Ads</h2><Button disabled={busy} onClick={()=>run(async()=>{const auth=await begin({data:{company_id:companyId}});await loadMetaSdk(auth.appId);const code=await new Promise<string|null>(resolve=>window.FB.login((r:any)=>resolve(r?.authResponse?.code??null),{scope:auth.scopes.join(','),response_type:'code',override_default_response_type:true}));if(!code)throw new Error('Meta authorization was cancelled');const result=await complete({data:{company_id:companyId,nonce:auth.nonce,code}});setConnection(result.id);toast.success('Authorization saved; select a Page and form');})}>Connect with Meta</Button></header>
+ {workspace.error&&<p role="alert" className="text-sm text-destructive">{workspace.error.message}</p>}
+ {workspace.data?.connections.length? <div className="flex flex-wrap items-center gap-3"><select aria-label="Meta connection" value={selected} onChange={e=>setConnection(e.target.value)} className="max-w-full rounded-md border bg-card p-2">{workspace.data.connections.map((c,i)=><option key={c.id} value={c.id}>Authorization {i+1} · {c.status}</option>)}</select><Button variant="outline" disabled={assets.isFetching} onClick={()=>assets.refetch()}><RefreshCw className="size-4"/>Load Pages and forms</Button></div>:<p className="text-sm text-muted-foreground">No customer Meta authorization saved.</p>}
+ {assets.error&&<p role="alert" className="text-sm text-destructive">{assets.error.message}</p>}
+ {assets.data?.map(page=><article key={page.id} className="rounded-lg border bg-card p-4"><h3 className="font-semibold">{page.name}</h3>{page.instagram_business_account&&<p className="text-sm text-muted-foreground">Instagram: {page.instagram_business_account.username??page.instagram_business_account.id}</p>}<div className="mt-3 flex flex-wrap gap-2">{page.forms.map(form=><Button variant="outline" key={form.id} disabled={busy||workspace.data?.sources.some(s=>s.page_id===page.id&&s.form_id===form.id)} onClick={()=>run(async()=>{await save({data:{connection_id:selected,page_id:page.id,form_id:form.id,field_mapping:{}}});toast.success('Form selected and Page subscription accepted');})}>{form.name}</Button>)}{!page.forms.length&&<p className="text-sm text-muted-foreground">No authorized lead forms.</p>}</div></article>)}
+ <div><h3 className="mb-2 font-semibold">Selected sources</h3>{workspace.data?.sources.map(s=><p key={s.id} className="break-words text-sm text-muted-foreground">Page {s.page_id} · Form {s.form_id}</p>)}</div>
+ <div><h3 className="mb-2 font-semibold">Sync history</h3>{workspace.data?.events.length?workspace.data.events.map(e=><div key={e.id} className="flex flex-wrap items-center justify-between gap-2 border-b py-3 text-sm"><div><p>Lead {e.leadgen_id} · {e.processed_at?'Imported':'Pending'}</p>{e.last_error&&<p className="text-destructive">{e.last_error}</p>}</div>{!e.processed_at&&<Button variant="outline" disabled={busy} onClick={()=>run(()=>retry({data:{id:e.id}}))}><RefreshCw className="size-4"/>Retry</Button>}</div>):<p className="text-sm text-muted-foreground">No lead deliveries recorded.</p>}</div>
+ </section>;
+}
