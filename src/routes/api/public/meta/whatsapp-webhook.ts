@@ -22,8 +22,7 @@ export const Route = createFileRoute("/api/public/meta/whatsapp-webhook")({
       POST: async ({ request }) => {
         const secret = process.env["META_APP_SECRET"];
         if (!secret) return new Response("Not configured", { status: 503 });
-        const raw = await request.text();
-        if (raw.length > 4 * 1024 * 1024) return new Response("Too large", { status: 413 });
+        let raw:string;try{raw=await (await import('@/lib/request-body.server')).boundedBody(request,4*1024*1024);}catch{return new Response('Too large or invalid body',{status:413});}
         const { validMetaSignature } = await import("@/lib/whatsapp-meta.server");
         if (!(await validMetaSignature(secret, raw, request.headers.get("x-hub-signature-256")))) {
           return new Response("Invalid signature", { status: 401 });

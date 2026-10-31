@@ -6,6 +6,7 @@ export const suggestWhatsAppReply=createServerFn({method:'POST'}).middleware([re
   const permission=await context.supabase.rpc('wa_inbox_access',{_conversation:data.id,_write:true});
   if(permission.error||permission.data!==true)throw new Error('Reply permission required');
   const c=await context.supabase.from('whatsapp_conversations').select('company_id').eq('id',data.id).single();if(c.error||!c.data.company_id)throw new Error('Organization conversation required');
+  const allowed=await context.supabase.rpc('integration_provider_allowed',{_company:c.data.company_id,_provider:'whatsapp',_action:'use'});if(allowed.error||!allowed.data)throw new Error('AI inbox use is unavailable under your permissions or plan');
   const [history,controls]=await Promise.all([context.supabase.from('whatsapp_messages').select('body,direction').eq('conversation_id',data.id).eq('message_type','text').order('created_at',{ascending:false}).limit(12),context.supabase.from('whatsapp_ai_controls').select('instructions,paused_reason').eq('company_id',c.data.company_id).maybeSingle()]);
   if(history.error||controls.error)throw new Error('Conversation context could not be loaded');
   if(controls.data?.paused_reason)throw new Error(controls.data.paused_reason);
@@ -17,5 +18,5 @@ export const suggestWhatsAppReply=createServerFn({method:'POST'}).middleware([re
   try {const text=await result.text;if(!text.trim())throw new Error('AI returned no suggestion or refused the request');return {text:text.slice(0,4000)};}
   catch(error){const status=typeof error==='object'&&error!==null&&'statusCode' in error?Number(error.statusCode):null;
     if(status===402||status===403){const {supabaseAdmin}=await import('@/integrations/supabase/client.server');const paused=await supabaseAdmin.from('whatsapp_ai_controls').upsert({company_id:c.data.company_id,paused_reason:status===402?'Lovable AI credits are unavailable; owner action required':'Lovable AI access is denied; restore access before a new request'});if(paused.error)throw new Error('AI pause could not be recorded');}
-    throw new Error(status?`Lovable AI request failed (${status}); no reply was sent`:error instanceof Error?error.message:'Lovable AI failed; no reply was sent');}
+    const safe=error instanceof Error?error.message:'Lovable AI failed';throw new Error(`${status?`Lovable AI (${status}): `:''}${safe}; no reply was sent`);}
 });
