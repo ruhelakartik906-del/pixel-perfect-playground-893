@@ -7,7 +7,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "./ui";
-import { endSupportSession, readSupportData, supportUpdateLead, type SupportResource } from "@/lib/support-access.functions";
+import { endSupportSession, readSupportData, supportUpdateLead, type SupportResource, loadSupportWorkspace } from "@/lib/support-access.functions";
+import { UserDashboard } from "@/components/workspace/UserDashboard";
+import { AllAssigned } from "@/components/workspace/AllAssigned";
+import { SupportContext } from "@/components/workspace/SupportContext";
 import { remaining } from "@/lib/support-access";
 
 type Overview = { company: { id: string; name: string; email: string; phone: string; contact_person: string }; session: { id: string; mode: "view" | "support"; expires_at: string; reason: string }; counts: { members: number; leads: number } };
@@ -16,6 +19,9 @@ type Employee = { id: string; full_name: string; email: string; status: string; 
 
 export function SupportWorkspace({ sessionId }: { sessionId: string }) {
   const read = useServerFn(readSupportData);
+  const load = useServerFn(loadSupportWorkspace);
+  const [page, setPage] = useState<"dashboard" | "all-assigned">("dashboard");
+  const workspace = useQuery({ queryKey: ["support-ws", sessionId, "context"], queryFn: () => load({ data: { session_id: sessionId } }), retry: false, staleTime: 0, refetchInterval: 10_000 });
   const end = useServerFn(endSupportSession);
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -43,9 +49,9 @@ export function SupportWorkspace({ sessionId }: { sessionId: string }) {
     }
   }, [left?.ms === 0]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const error = overview.error ?? list.error;
+  const error = workspace.error ?? overview.error ?? list.error;
   if (overview.isLoading) return <p className="p-6 text-muted-foreground">Opening customer workspace…</p>;
-  if (!overview.data) {
+  if (!overview.data || workspace.error) {
     return (
       <Card className="p-6">
         <h1 className="text-lg font-bold">Support access unavailable</h1>
@@ -62,7 +68,7 @@ export function SupportWorkspace({ sessionId }: { sessionId: string }) {
         <div className="flex items-center gap-3">
           {full ? <LifeBuoy className="size-5" /> : <Eye className="size-5" />}
           <div>
-            <div className="font-bold">Support access: {o.company.name}</div>
+            <div className="font-bold">Master Admin — {full ? "Full Support Access" : "View Only Access"}</div><div className="text-sm font-semibold">{o.company.name}</div>
             <div className="text-xs text-muted-foreground">{full ? "Full Support — changes are allowed and recorded" : "View Only — no changes allowed"} · {o.session.reason}</div>
           </div>
         </div>
@@ -72,20 +78,9 @@ export function SupportWorkspace({ sessionId }: { sessionId: string }) {
         </div>
       </div>
       {error && <p className="text-sm text-destructive">{error.message}</p>}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="p-4"><div className="text-xs text-muted-foreground">Contact</div><div className="font-semibold">{o.company.contact_person || o.company.email || "—"}</div></Card>
-        <Card className="p-4"><div className="text-xs text-muted-foreground">Members</div><div className="text-2xl font-bold">{o.counts.members}</div></Card>
-        <Card className="p-4"><div className="text-xs text-muted-foreground">Leads</div><div className="text-2xl font-bold">{o.counts.leads}</div></Card>
-      </div>
-      <div className="flex gap-2">
-        <Button variant={tab === "leads" ? "default" : "outline"} onClick={() => setTab("leads")}>Leads</Button>
-        <Button variant={tab === "employees" ? "default" : "outline"} onClick={() => setTab("employees")}>Employees</Button>
-      </div>
-      <Card className="p-0">
-        {list.isLoading ? <p className="p-5 text-sm text-muted-foreground">Loading…</p> : tab === "leads"
-          ? <LeadsTable rows={(list.data ?? []) as Lead[]} full={full} sessionId={sessionId} />
-          : <ul className="divide-y">{((list.data ?? []) as Employee[]).map((e) => <li key={e.id} className="flex justify-between px-5 py-3 text-sm"><span><b>{e.full_name || "—"}</b> · {e.email}</span><span className="text-muted-foreground">{e.roles.join(", ")} · {e.status}</span></li>)}</ul>}
-      </Card>
+      {workspace.data && <SupportContext value={{ sessionId, mode: full ? "support" : "view", page, onNavigate: setPage, features: workspace.data.features, companyName: workspace.data.companyName }}>
+        {page === "dashboard" ? <UserDashboard /> : <AllAssigned />}
+      </SupportContext>}
     </div>
   );
 }
