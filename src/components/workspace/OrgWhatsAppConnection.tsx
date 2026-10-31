@@ -104,7 +104,7 @@ export function OrgWhatsAppConnection() {
 
       {setup.data && !setup.data.ready && <div className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm"><b>Setup required.</b> The platform's Meta app is not fully configured yet, so connecting is unavailable. Everything else in your CRM keeps working.</div>}
 
-      {(d?.connections ?? []).map((c) => { const [l, cls] = STATUS[c.status] ?? STATUS.pending!; return (
+      {(d?.connections ?? []).map((c) => { const [l, cls] = STATUS[c.status] ?? STATUS['pending']!; return (
         <div key={c.id} className="rounded-xl border bg-card p-6 shadow-card">
           <div className="flex flex-wrap items-center gap-3"><span className="grid size-11 place-items-center rounded-full bg-primary/10 text-primary"><MessageCircle className="size-5" /></span>
             <div className="flex-1"><h3 className="text-lg font-semibold">{c.verified_name ?? c.display_phone_number ?? 'WhatsApp number'}</h3><p className="text-sm text-muted-foreground">{c.display_phone_number} · {c.business_name ?? 'Business'}</p></div>

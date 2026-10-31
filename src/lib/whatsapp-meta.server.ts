@@ -8,7 +8,7 @@ const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
 export type MetaConfig = { appId: string; appSecret: string; configId: string; verifyToken: string };
 
 /** Reads Meta app settings; null fields mean "Setup required". Call only inside handlers. */
-export function readMetaConfig(): Partial<MetaConfig> {
+export function readMetaConfig(): { [K in keyof MetaConfig]: string | undefined } {
   return {
     appId: process.env["META_APP_ID"] || undefined,
     appSecret: process.env["META_APP_SECRET"] || undefined,
@@ -46,11 +46,9 @@ export type GraphResult<T> = { ok: true; data: T } | { ok: false; status: number
 export async function graph<T>(path: string, token: string, init?: { method?: string; body?: unknown; query?: Record<string, string> }): Promise<GraphResult<T>> {
   const url = new URL(`${GRAPH}${path}`);
   for (const [k, v] of Object.entries(init?.query ?? {})) url.searchParams.set(k, v);
-  const res = await fetch(url, {
-    method: init?.method ?? "GET",
-    headers: { Authorization: `Bearer ${token}`, ...(init?.body ? { "Content-Type": "application/json" } : {}) },
-    body: init?.body ? JSON.stringify(init.body) : undefined,
-  });
+  const req: RequestInit = { method: init?.method ?? "GET", headers: { Authorization: `Bearer ${token}`, ...(init?.body ? { "Content-Type": "application/json" } : {}) } };
+  if (init?.body) req.body = JSON.stringify(init.body);
+  const res = await fetch(url, req);
   const text = await res.text();
   let json: any = null;
   try { json = JSON.parse(text); } catch { /* non-JSON */ }

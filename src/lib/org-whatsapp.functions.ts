@@ -32,7 +32,7 @@ export type WaConnection = {
   last_error: string | null;
   connected_at: string | null;
 };
-export type WaAudit = { id: string; action: string; detail: Record<string, unknown>; created_at: string; company_id: string };
+export type WaAudit = { id: string; action: string; detail: { [k: string]: string | number | boolean | null }; created_at: string; company_id: string };
 
 const COLS = "id,company_id,waba_id,phone_number_id,display_phone_number,verified_name,business_name,quality_rating,coexistence,status,token_ok,number_registered,webhook_subscribed,scopes,token_expires_at,last_health_at,last_error,connected_at";
 const ACTIVE = ["pending", "connected", "error", "token_expired"];
@@ -108,7 +108,7 @@ export const completeWhatsAppSignup = createServerFn({ method: "POST" })
     const meta = await import("@/lib/whatsapp-meta.server");
     const cfg = meta.readMetaConfig();
     if (!cfg.appId || !cfg.appSecret || !cfg.configId || !cfg.verifyToken) throw new Error("WhatsApp setup is not configured yet");
-    const full = cfg as meta.MetaConfig;
+    const full = cfg as import("@/lib/whatsapp-meta.server").MetaConfig;
     const db = await admin();
 
     const existing = await db.from("org_whatsapp_connections").select("id,company_id").eq("phone_number_id", data.phone_number_id).in("status", ACTIVE);
@@ -207,7 +207,7 @@ export const checkWhatsAppHealth = createServerFn({ method: "POST" })
     }
     const saved = await db.from("org_whatsapp_connections").update({ ...update, updated_at: now }).eq("id", data.connection_id).select(COLS).single();
     if (saved.error) throw new Error("Health result could not be saved");
-    await audit(conn.data.company_id, data.connection_id, context.userId, isMaster ? "master_health_check" : "health_check", { status: update.status, error: update.last_error ?? null });
+    await audit(conn.data.company_id, data.connection_id, context.userId, isMaster ? "master_health_check" : "health_check", { status: String(update["status"]), error: (update["last_error"] as string | null) ?? null });
     return saved.data as WaConnection;
   });
 
