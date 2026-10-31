@@ -5757,6 +5757,16 @@ export type Database = {
         }
         Returns: string
       }
+      support_workspace_crm: { Args: { _session: string }; Returns: Json }
+      support_workspace_lead_action: {
+        Args: {
+          _details: Json
+          _lead: string
+          _session: string
+          _updated_at: string
+        }
+        Returns: Json
+      }
       support_write: {
         Args: { _action: string; _payload: Json; _session: string }
         Returns: Json
