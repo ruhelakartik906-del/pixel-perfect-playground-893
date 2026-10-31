@@ -15,10 +15,12 @@ import { userCrmQuery } from '@/lib/user-crm-query';
 import { moveAssignedLead } from '@/lib/leads-board.functions';
 import { boardStageId, stageLabel, boardDateMatches, leadCacheKeys, type BoardStage } from '@/lib/leads-board';
 import type { UserCrmData } from '@/lib/user-crm.functions';
+import { useWorkspaceCrmQuery, useSupportWorkspace } from './SupportContext';
 type Lead = UserCrmData['leads'][number] & { board_moved_at?: string | null };
 const PAGE = 20;
 export function AllAssigned() {
-  const { data } = useSuspenseQuery(userCrmQuery);
+  const { data } = useSuspenseQuery(useWorkspaceCrmQuery());
+  const support = useSupportWorkspace();
   const qc = useQueryClient(), move = useServerFn(moveAssignedLead);
   const [q, setQ] = useState(''), [view, setView] = useState<'pending' | 'moved' | 'all'>('pending'), [source, setSource] = useState(''), [stageF, setStageF] = useState(''), [from, setFrom] = useState(''), [to, setTo] = useState('');
   const [page, setPage] = useState(0), [selected, setSelected] = useState<string[]>([]), [open, setOpen] = useState<string | null>(null);
@@ -45,6 +47,7 @@ export function AllAssigned() {
   const allSel = rows.length > 0 && rows.every(r => selected.includes(r.id));
   const openMove = (ids: string[]) => { setTarget(ids); setStageId(''); setOutcome(''); };
   async function confirm() {
+    if (support) { toast.error('Board changes are not enabled in support access'); return; }
     if (!chosen) return;
     if (chosen.board_closed && !outcome) { toast.error('Choose Won or Lost'); return; }
     setBusy(true); let ok = 0; const failed: string[] = [];
@@ -70,7 +73,7 @@ export function AllAssigned() {
       <select aria-label="Board stage" className="inp h-9 w-full sm:min-w-36 sm:flex-1" value={stageF} onChange={e => { setStageF(e.target.value); setPage(0); }}><option value="">All stages</option>{allStageNames.map(n => <option key={n}>{n}</option>)}</select>
       <Input aria-label="Assigned date" type="date" className="h-9 w-auto" value={from} onChange={e => { setFrom(e.target.value); setTo(e.target.value); setPage(0); }} />
       <div className="flex h-9 items-center rounded-md border p-0.5">{(['pending', 'moved', 'all'] as const).map(v => <Button key={v} size="sm" variant={view === v ? 'default' : 'ghost'} onClick={() => { setView(v); setPage(0); setSelected([]); }}>{v[0]!.toUpperCase() + v.slice(1)}</Button>)}</div>
-      <Button className="h-9 shrink-0" disabled={!selected.length} onClick={() => openMove(selected)}><ArrowRightLeft className="size-4" />Move to Board{selected.length ? ` (${selected.length})` : ''}</Button>
+      {!support && <Button className="h-9 shrink-0" disabled={!selected.length} onClick={() => openMove(selected)}><ArrowRightLeft className="size-4" />Move to Board{selected.length ? ` (${selected.length})` : ''}</Button>}
     </div>
     <div className="overflow-x-auto rounded-xl border bg-card"><table className="w-full min-w-[1000px] text-sm"><thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground"><tr>
       <th className="p-3"><Checkbox aria-label="Select all" checked={allSel} onCheckedChange={c => setSelected(c ? rows.map(r => r.id) : [])} /></th>
@@ -85,7 +88,7 @@ export function AllAssigned() {
         <td className="p-3"><DropdownMenu><DropdownMenuTrigger asChild><Button size="icon" variant="ghost" aria-label="Lead actions"><MoreVertical className="size-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setOpen(l.id)}>View Details</DropdownMenuItem>
           <DropdownMenuItem onClick={() => { void navigator.clipboard.writeText(l.phone).then(() => toast.success('Phone number copied'), () => toast.error('Could not copy')); }}>Copy Phone Number</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => openMove([l.id])}>Move to Board</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
+          {!support && <DropdownMenuItem onClick={() => openMove([l.id])}>Move to Board</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu></td>
       </tr>) : <tr><td colSpan={10} className="p-10 text-center text-muted-foreground">{assigned.length ? 'No leads match these filters.' : 'No leads have been assigned to you yet.'}</td></tr>}</tbody></table></div>
     <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground"><span>{rows.length} lead{rows.length === 1 ? '' : 's'}</span><div className="flex items-center gap-2"><Button size="sm" variant="outline" disabled={cur === 0} onClick={() => setPage(cur - 1)}>Previous</Button><span>Page {cur + 1} of {pages}</span><Button size="sm" variant="outline" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}>Next</Button></div></div>
     <Dialog open={!!target} onOpenChange={o => { if (!o && !busy) setTarget(null); }}><DialogContent className="max-w-sm"><DialogHeader><DialogTitle>Move to Board</DialogTitle><DialogDescription>{targetLeads.length} lead{targetLeads.length === 1 ? '' : 's'} selected</DialogDescription></DialogHeader>

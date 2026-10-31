@@ -11,8 +11,10 @@ import { userCrmQuery } from '@/lib/user-crm-query';
 import { inPeriod, stageCategory, type Period } from '@/lib/user-crm';
 import { localDay } from '@/lib/crm-work';
 import { StatusBadge } from '@/components/admin/ui';
+import { useWorkspaceCrmQuery, useSupportWorkspace } from './SupportContext';
 export function UserDashboard() {
-  const { data } = useSuspenseQuery(userCrmQuery), qc = useQueryClient();
+  const workspaceQuery = useWorkspaceCrmQuery(), support = useSupportWorkspace();
+  const { data } = useSuspenseQuery(workspaceQuery), qc = useQueryClient();
   const [period, setPeriod] = useState<Period>('all'), [selected, setSelected] = useState<string | null>(null);
   const now = new Date(), hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', hourCycle: 'h23' }).format(now));
   const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';

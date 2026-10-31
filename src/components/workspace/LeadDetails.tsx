@@ -15,17 +15,28 @@ import { saveCrmWork } from '@/lib/crm-work.functions';
 import { scheduleUtc, workSchema } from '@/lib/crm-work';
 import { stageLabel } from '@/lib/leads-board';
 import { UserPick, userDate } from './UserCrmUi';
+import { useSupportWorkspace, useWorkspaceCrmQuery } from './SupportContext';
+import { supportSaveLeadDetails } from '@/lib/support-access.functions';
 type Lead = UserCrmData['leads'][number];
 export function LeadDetails({ lead, data, close }: { lead: Lead; data: UserCrmData; close: () => void }) {
   const update = useServerFn(updateUserLead), saveFollowUp = useServerFn(saveCrmWork), qc = useQueryClient();
+  const support = useSupportWorkspace(), workspaceQuery = useWorkspaceCrmQuery(), saveSupport = useServerFn(supportSaveLeadDetails);
   const [note, setNote] = useState(''), [editing, setEditing] = useState(false), [busy, setBusy] = useState(false), [scheduling, setScheduling] = useState(false), [when, setWhen] = useState(''), [type, setType] = useState('call'), [title, setTitle] = useState('');
   const [form, setForm] = useState({ customer_name: lead.customer_name, phone: lead.phone, email: lead.email, business_name: lead.business_name, business_category: lead.business_category, region: lead.region, requirements: lead.requirements, interest_level: lead.interest_level });
   const links = contactLinks(lead.phone), answers = formEntries(lead.form_answers);
   const stages = data.stages.filter(s => s.is_active && s.pipeline_id === lead.pipeline_id).map(s=>({...s,name:stageLabel(s)}));
   const callAction = async (action: 'note' | 'stage' | 'status' | 'details', payload: z.infer<typeof userLeadActionSchema>['payload']) => {
+    if (support) {
+      if (support.mode !== 'support' || action !== 'details') { toast.error('This action is not permitted in support access'); return; }
+      setBusy(true);
+      try { await saveSupport({ data: { session_id: support.sessionId, lead_id: lead.id, updated_at: lead.updated_at, details: leadDetailsSchema.parse(payload) } }); await qc.invalidateQueries({ queryKey: workspaceQuery.queryKey }); setEditing(false); toast.success('Lead saved'); }
+      catch (e) { toast.error(e instanceof Error ? e.message : 'Could not save'); } finally { setBusy(false); }
+      return;
+    }
     setBusy(true); try { await update({ data: { id: lead.id, updated_at: lead.updated_at, action, payload } }); await qc.invalidateQueries({ queryKey: userCrmQuery.queryKey }); setNote(''); setEditing(false); toast.success('Lead saved'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Could not save'); } finally { setBusy(false); }
   };
   const schedule = async () => {
+    if (support) { toast.error('Scheduling is not enabled in support access'); return; }
     if (!lead.company_id || !when) { toast.error('Choose a scheduled date and time'); return; }
     let scheduled: string; try { scheduled = scheduleUtc(when); } catch { toast.error('Invalid scheduled time'); return; }
     const parsed = workSchema.safeParse({ kind: 'follow_up', company_id: lead.company_id, assigned_to: data.userId, lead_id: lead.id, deal_id: null, title, notes: '', priority: 'medium', status: 'scheduled', start_date: null, due_date: null, scheduled_at: scheduled, interaction_type: type });
