@@ -32,6 +32,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
 import { Route as AuthenticatedEmployeesRouteImport } from './routes/_authenticated/employees'
 import { Route as AuthenticatedFollowUpsRouteImport } from './routes/_authenticated/follow-ups'
+import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
 import { Route as AuthenticatedInvoicesRouteImport } from './routes/_authenticated/invoices'
 import { Route as AuthenticatedLeadStatusRouteImport } from './routes/_authenticated/lead-status'
 import { Route as AuthenticatedMyHrRouteImport } from './routes/_authenticated/my-hr'
@@ -238,6 +239,12 @@ const AuthenticatedFollowUpsRoute = AuthenticatedFollowUpsRouteImport.update({
   path: '/follow-ups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedIntegrationsRoute =
+  AuthenticatedIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInvoicesRoute = AuthenticatedInvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
@@ -784,6 +791,7 @@ export interface FileRoutesByFullPath {
   '/deals': typeof AuthenticatedDealsRoute
   '/employees': typeof AuthenticatedEmployeesRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/invoices': typeof AuthenticatedInvoicesRoute
   '/lead-status': typeof AuthenticatedLeadStatusRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
@@ -897,6 +905,7 @@ export interface FileRoutesByTo {
   '/deals': typeof AuthenticatedDealsRoute
   '/employees': typeof AuthenticatedEmployeesRoute
   '/follow-ups': typeof AuthenticatedFollowUpsRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/invoices': typeof AuthenticatedInvoicesRoute
   '/lead-status': typeof AuthenticatedLeadStatusRoute
   '/my-hr': typeof AuthenticatedMyHrRoute
@@ -1013,6 +1022,7 @@ export interface FileRoutesById {
   '/_authenticated/deals': typeof AuthenticatedDealsRoute
   '/_authenticated/employees': typeof AuthenticatedEmployeesRoute
   '/_authenticated/follow-ups': typeof AuthenticatedFollowUpsRoute
+  '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
   '/_authenticated/invoices': typeof AuthenticatedInvoicesRoute
   '/_authenticated/lead-status': typeof AuthenticatedLeadStatusRoute
   '/_authenticated/my-hr': typeof AuthenticatedMyHrRoute
@@ -1129,6 +1139,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/employees'
     | '/follow-ups'
+    | '/integrations'
     | '/invoices'
     | '/lead-status'
     | '/my-hr'
@@ -1242,6 +1253,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/employees'
     | '/follow-ups'
+    | '/integrations'
     | '/invoices'
     | '/lead-status'
     | '/my-hr'
@@ -1357,6 +1369,7 @@ export interface FileRouteTypes {
     | '/_authenticated/deals'
     | '/_authenticated/employees'
     | '/_authenticated/follow-ups'
+    | '/_authenticated/integrations'
     | '/_authenticated/invoices'
     | '/_authenticated/lead-status'
     | '/_authenticated/my-hr'
@@ -1635,6 +1648,13 @@ declare module '@tanstack/react-router' {
       path: '/follow-ups'
       fullPath: '/follow-ups'
       preLoaderRoute: typeof AuthenticatedFollowUpsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/integrations': {
+      id: '/_authenticated/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/invoices': {
@@ -2458,6 +2478,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
   AuthenticatedEmployeesRoute: typeof AuthenticatedEmployeesRoute
   AuthenticatedFollowUpsRoute: typeof AuthenticatedFollowUpsRoute
+  AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
   AuthenticatedInvoicesRoute: typeof AuthenticatedInvoicesRoute
   AuthenticatedLeadStatusRoute: typeof AuthenticatedLeadStatusRoute
   AuthenticatedMyHrRoute: typeof AuthenticatedMyHrRoute
@@ -2483,6 +2504,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDealsRoute: AuthenticatedDealsRoute,
   AuthenticatedEmployeesRoute: AuthenticatedEmployeesRoute,
   AuthenticatedFollowUpsRoute: AuthenticatedFollowUpsRoute,
+  AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
   AuthenticatedInvoicesRoute: AuthenticatedInvoicesRoute,
   AuthenticatedLeadStatusRoute: AuthenticatedLeadStatusRoute,
   AuthenticatedMyHrRoute: AuthenticatedMyHrRoute,
