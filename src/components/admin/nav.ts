@@ -25,7 +25,7 @@ export const adminNav: NavGroup[] = [
   ] },
   g("User Management", UserCog, "users", ["Users", "Role"]),
   g("Communication", MessageSquare, "communication", ["Mail", "Chat"]),
-  g("WhatsApp", Phone, "whatsapp", ["WhatsApp Chat", "Message Templates", "Workflows", "Broadcast", "Message Log"]),
+  g("WhatsApp", Phone, "whatsapp", ["Org Connections", "WhatsApp Chat", "Message Templates", "Workflows", "Broadcast", "Message Log"]),
   { label: "Integrations", icon: Cable, badge: "NEW", items: [{ label: "Integrations", path: "integrations" }] },
   { label: "All Users", icon: Briefcase, items: [
     { label: "All Users", path: "all-users" },
