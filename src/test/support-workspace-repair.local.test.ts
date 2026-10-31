@@ -24,6 +24,7 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Support workspace 
     await sql.unsafe(readFileSync("drizzle/migrations/0104_support_workspace_crm_adapter.sql", "utf8"));
     await sql.unsafe(readFileSync("drizzle/migrations/0107_support_crm_projection_resolution.sql", "utf8"));
     await sql.unsafe(readFileSync("drizzle/migrations/0105_support_mutation_boundary.sql", "utf8"));
+    await sql.unsafe(readFileSync("drizzle/migrations/0108_support_existing_action_compatibility.sql", "utf8"));
     await sql.unsafe(`INSERT INTO license_state(id,mode) VALUES(true,'master');
       INSERT INTO companies(id,name,is_active) VALUES('${company}','Isolated X',true),('${other}','Isolated Y',true);
       INSERT INTO profiles(id,account_status,full_name) VALUES('${master}','active','Master'),('${customer}','active','Customer');
