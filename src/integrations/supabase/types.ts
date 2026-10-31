@@ -5238,6 +5238,7 @@ export type Database = {
           last_inbound_at: string | null
           last_message_at: string | null
           lead_id: string | null
+          provider_phone: string | null
           unread_count: number
           wa_phone: string
         }
@@ -5254,6 +5255,7 @@ export type Database = {
           last_inbound_at?: string | null
           last_message_at?: string | null
           lead_id?: string | null
+          provider_phone?: string | null
           unread_count?: number
           wa_phone: string
         }
@@ -5270,6 +5272,7 @@ export type Database = {
           last_inbound_at?: string | null
           last_message_at?: string | null
           lead_id?: string | null
+          provider_phone?: string | null
           unread_count?: number
           wa_phone?: string
         }
@@ -6059,6 +6062,16 @@ export type Database = {
         Returns: undefined
       }
       wa_process_event: { Args: { _id: string }; Returns: boolean }
+      wa_reserve_send: {
+        Args: {
+          _actor: string
+          _body: string
+          _client: string
+          _conversation: string
+          _type: string
+        }
+        Returns: string
+      }
       whatsapp_add_contact: {
         Args: { _name: string; _phone: string }
         Returns: string
