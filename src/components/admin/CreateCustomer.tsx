@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Breadcrumb, Card, PageHeader } from "./ui";
-import { createCustomerViaCloud } from "@/lib/customer-create.client";
+import { createCustomerViaCloud } from "@/lib/customer-create-request";
 
 const schema = z.object({
   company_name: z.string().trim().min(1, "Company name is required").max(120),
