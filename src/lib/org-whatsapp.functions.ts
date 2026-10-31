@@ -260,3 +260,17 @@ export const masterRevokeWhatsApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ connection_id: z.string().uuid(), reason: z.string().trim().min(3).max(300) }).strict().parse(i))
   .handler(async ({ context, data }) => { await teardown(context, data.connection_id, "revoked", data.reason); return { ok: true }; });
+
+/** Active organizations the caller belongs to, with whether they administer each. */
+export const myWhatsAppOrgs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ id: string; name: string; is_admin: boolean }[]> => {
+    const m = await context.supabase.from("company_members").select("company_id").eq("user_id", context.userId);
+    if (m.error) throw new Error("Your organizations could not be loaded");
+    const ids = (m.data ?? []).map((r) => r.company_id);
+    if (!ids.length) return [];
+    const c = await context.supabase.from("companies").select("id,name").in("id", ids).eq("is_active", true);
+    if (c.error) throw new Error("Your organizations could not be loaded");
+    const checks = await Promise.all((c.data ?? []).map((co) => context.supabase.rpc("org_customer_admin", { _user: context.userId, _company: co.id })));
+    return (c.data ?? []).map((co, i) => ({ id: co.id, name: co.name, is_admin: checks[i]?.data === true }));
+  });
