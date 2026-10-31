@@ -60,6 +60,8 @@ function AdminLayout() {
     }
   };
 
+  if (pathname.startsWith("/admin/support-access/")) return <Outlet />;
+
   return (
     <div className="flex h-screen overflow-hidden bg-admin-bg">
       <aside className={cn("hidden shrink-0 transition-[width] duration-300 lg:block", collapsed ? "w-[88px]" : "w-[280px]")}>

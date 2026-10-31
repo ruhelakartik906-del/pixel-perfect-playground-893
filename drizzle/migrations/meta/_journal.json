@@ -722,6 +722,41 @@
       "when": 1793428455713,
       "tag": "0102_org_whatsapp_connections",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1793434221579,
+      "tag": "0103_plan_limits_overrides_and_canonical_save",
+      "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1793434355579,
+      "tag": "0104_support_workspace_crm_adapter",
+      "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1793434531435,
+      "tag": "0105_support_mutation_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1793434607993,
+      "tag": "0106_org_number_and_document_storage_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1793434702259,
+      "tag": "0107_support_crm_projection_resolution",
+      "breakpoints": true
     }
   ]
 }

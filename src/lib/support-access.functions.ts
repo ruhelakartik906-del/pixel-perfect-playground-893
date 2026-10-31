@@ -6,6 +6,28 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // session, organization-bound, mode-checked, audited). These wrappers only validate input.
 const uuid = z.string().uuid();
 
+export const loadSupportWorkspace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ session_id: uuid }).strict().parse(d))
+  .handler(async ({ data, context }) => {
+    const r = await context.supabase.rpc("support_workspace_crm", { _session: data.session_id });
+    if (r.error) throw new Error(r.error.message);
+    const out = r.data as { error?: string; data?: import("@/lib/user-crm.functions").UserCrmData & { session: SupportSessionRow; features: import("./org-features").OrgFeatureMap; companyName: string } };
+    if (out.error || !out.data) throw new Error(out.error ?? "Support workspace unavailable");
+    return { crm: out.data as import("@/lib/user-crm.functions").UserCrmData, session: out.data.session, features: out.data.features, companyName: out.data.companyName };
+  });
+
+export const supportSaveLeadDetails = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ session_id: uuid, lead_id: uuid, updated_at: z.string().datetime({ offset: true }), details: z.object({ customer_name: z.string().trim().min(1).max(120), phone: z.string().max(40), email: z.string().max(255), business_name: z.string().max(200), business_category: z.string().max(200), region: z.string().max(200), requirements: z.string().max(5000), interest_level: z.string().max(100) }).strict() }).strict().parse(d))
+  .handler(async ({ data, context }) => {
+    const r = await context.supabase.rpc("support_workspace_lead_action", { _session: data.session_id, _lead: data.lead_id, _updated_at: data.updated_at, _details: data.details });
+    if (r.error) throw new Error(r.error.message);
+    const out = r.data as { error?: string; ok?: boolean };
+    if (out.error || out.ok !== true) throw new Error(out.error ?? "Lead update not confirmed");
+    return { ok: true };
+  });
+
 export const startSupportSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ company_id: uuid, mode: z.enum(["view", "support"]), reason: z.string().trim().min(5).max(500), minutes: z.number().int().min(5).max(60) }).parse(d))

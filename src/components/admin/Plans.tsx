@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,6 +12,8 @@ import { Breadcrumb, Card, EmptyState, PageHeader, StatusBadge } from "./ui";
 import { deletePlan, savePlan } from "@/lib/customers.functions";
 import { plansQuery } from "./CustomerDetail";
 import { FEATURE_KEYS, FEATURE_LABELS, LIMIT_KEYS, LIMIT_LABELS, type OrgLimits, type PlanRow } from "@/lib/org-features";
+import { LimitEditor } from "./LimitEditor";
+import { effectiveLimits } from "@/lib/plan-limits";
 
 type Draft = { id: string | null; name: string; description: string; limits: OrgLimits; features: Record<string, boolean> };
 
@@ -35,7 +37,8 @@ export function Plans() {
     if (!draft.name.trim()) { toast.error("Plan name is required"); return; }
     setBusy(true);
     try {
-      await save({ data: { id: draft.id, name: draft.name, description: draft.description, limits: draft.limits, features: draft.features } });
+      const previous = plans.find(p => p.id === draft.id);
+      await save({ data: { id: draft.id, name: draft.name, description: draft.description, limits: effectiveLimits(previous?.limits ?? {}, draft.limits), features: draft.features } });
       toast.success(draft.id ? "Plan updated" : "Plan created");
       setDraft(null);
       await qc.invalidateQueries({ queryKey: ["admin-plans"] });
@@ -51,7 +54,7 @@ export function Plans() {
     setBusy(true);
     try {
       await remove({ data: { plan_id: confirmDelete.id } });
-      toast.success(`${confirmDelete.name} deleted`);
+      toast.success(`${confirmDelete.name} retired; customer settings preserved`);
       setConfirmDelete(null);
       await qc.invalidateQueries({ queryKey: ["admin-plans"] });
     } catch (e) {
@@ -72,7 +75,7 @@ export function Plans() {
         <Card><EmptyState title="No plans yet" hint="Create a plan to apply the same features and limits to many customers at once." /></Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {plans.map((p) => {
+          {plans.filter(p => p.is_active).map((p) => {
             const enabled = FEATURE_KEYS.filter((k) => p.features[k] ?? true).length;
             return (
               <Card key={p.id} className="p-6">
@@ -89,6 +92,7 @@ export function Plans() {
                 </p>
                 <div className="mt-4 flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => edit(p)}><Pencil /> Edit</Button>
+                  <Button variant="outline" size="sm" aria-label={`Duplicate ${p.name}`} onClick={() => setDraft({ ...p, id: null, name: `${p.name} copy` })}><Copy /> Duplicate</Button>
                   <Button variant="outline" size="sm" className="text-destructive" onClick={() => setConfirmDelete(p)}><Trash2 /> Delete</Button>
                 </div>
               </Card>
@@ -101,7 +105,7 @@ export function Plans() {
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{draft?.id ? "Edit Plan" : "Create Plan"}</DialogTitle>
-            <DialogDescription>Features and limits in this plan replace a customer's settings when applied.</DialogDescription>
+            <DialogDescription>Customer-specific overrides are preserved when this plan is applied.</DialogDescription>
           </DialogHeader>
           {draft && (
             <div className="grid gap-4">
@@ -130,22 +134,7 @@ export function Plans() {
               </div>
               <div>
                 <p className="text-sm font-semibold">Limits</p>
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  {LIMIT_KEYS.map((key) => (
-                    <div key={key}>
-                      <Label htmlFor={`plan-${key}`} className="text-xs">{LIMIT_LABELS[key]}</Label>
-                      <Input
-                        id={`plan-${key}`}
-                        type="number"
-                        min={1}
-                        placeholder="No limit"
-                        value={draft.limits[key] ?? ""}
-                        onChange={(e) => setDraft({ ...draft, limits: { ...draft.limits, [key]: e.target.value === "" ? null : Number(e.target.value) } })}
-                        className="mt-1 h-10 rounded-xl"
-                      />
-                    </div>
-                  ))}
-                </div>
+                <div className="mt-2"><LimitEditor value={draft.limits} defaults={plans.find(p => p.id === draft.id)?.limits} onChange={limits => setDraft({ ...draft, limits })} disabled={busy} /></div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setDraft(null)}>Cancel</Button>
@@ -162,7 +151,7 @@ export function Plans() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete {confirmDelete?.name}?</DialogTitle>
-            <DialogDescription>Customers using this plan keep their current settings; the plan is simply no longer assignable.</DialogDescription>
+            <DialogDescription>This retires the plan. Existing assignments, subscription history and customer settings remain intact.</DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>

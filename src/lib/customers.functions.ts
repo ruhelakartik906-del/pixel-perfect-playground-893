@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { customerStatus, type CustomerDetail, type CustomerRow, type PlanRow } from "@/lib/org-features";
+import { planLimitsSchema } from "./plan-limits";
 
 type Context = {
   supabase: import("@supabase/supabase-js").SupabaseClient<import("@/integrations/supabase/types").Database>;
@@ -13,17 +14,7 @@ async function authorize(context: Context) {
   if (result.error || result.data !== true) throw new Error("Active Super Admin authorization required");
 }
 
-const limitShape = z.object({
-  max_employees: z.number().int().positive().nullish(),
-  max_leads: z.number().int().positive().nullish(),
-  monthly_whatsapp_messages: z.number().int().positive().nullish(),
-  max_whatsapp_numbers: z.number().int().positive().nullish(),
-  max_chatbots: z.number().int().positive().nullish(),
-  max_workflows: z.number().int().positive().nullish(),
-  max_drip_campaigns: z.number().int().positive().nullish(),
-  max_api_requests: z.number().int().positive().nullish(),
-  max_storage_mb: z.number().int().positive().nullish(),
-}).strict();
+const limitShape = planLimitsSchema;
 
 export const listCustomers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -103,6 +94,8 @@ export const customerDetail = createServerFn({ method: "GET" })
       throw new Error("Customer details could not be loaded");
     }
     if (!company.data) throw new Error("Customer not found");
+    const overrides = await context.supabase.from("org_configuration_overrides").select("limits,features").eq("company_id", data.company_id).maybeSingle();
+    if (overrides.error) throw new Error("Customer overrides could not be loaded");
     const memberIds = (members.data ?? []).map((m) => m.user_id);
     const [profiles, roles] = await Promise.all([
       memberIds.length ? context.supabase.from("profiles").select("id,full_name,email,account_status").in("id", memberIds) : { data: [], error: null },
@@ -115,6 +108,8 @@ export const customerDetail = createServerFn({ method: "GET" })
     const limitRow = limits.data;
     return {
       company: company.data,
+      limit_overrides: (overrides.data?.limits ?? {}) as CustomerDetail["limits"],
+      feature_overrides: (overrides.data?.features ?? {}) as Record<string, boolean>,
       subscription: sub.data
         ? {
             status: customerStatus(sub.data),
@@ -268,7 +263,7 @@ export const deletePlan = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ plan_id: z.string().uuid() }).strict().parse(i))
   .handler(async ({ context, data }) => {
     await authorize(context);
-    const result = await context.supabase.from("plans").delete().eq("id", data.plan_id);
+    const result = await context.supabase.rpc("master_retire_plan", { _plan_id: data.plan_id });
     if (result.error) throw new Error(result.error.message);
     return { ok: true };
   });

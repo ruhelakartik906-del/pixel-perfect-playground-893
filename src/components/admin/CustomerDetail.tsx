@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Breadcrumb, Card, PageHeader, StatusBadge } from "./ui";
 import { SupportAccessCard } from "./SupportAccessCard";
+import { LimitEditor } from "./LimitEditor";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   assignPlan, customerDetail, listPlans, saveCustomerFeatures, saveCustomerLimits, setCustomerStatus,
 } from "@/lib/customers.functions";
@@ -38,9 +40,13 @@ export function CustomerDetail({ companyId }: { companyId: string }) {
   const saveLimits = useServerFn(saveCustomerLimits);
   const changeStatus = useServerFn(setCustomerStatus);
   const assign = useServerFn(assignPlan);
-  const [features, setFeatures] = useState<Record<string, boolean>>(data.features);
-  const [limits, setLimits] = useState<OrgLimits>(data.limits);
+  const [features, setFeatures] = useState<Record<string, boolean>>(data.feature_overrides);
+  const [limits, setLimits] = useState<OrgLimits>(data.limit_overrides);
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [confirmAssignment, setConfirmAssignment] = useState(false);
   const [busy, setBusy] = useState(false);
+  useEffect(() => { setFeatures(data.feature_overrides); setLimits(data.limit_overrides); }, [data]);
+  const assignedPlan = plans.find(p => p.id === data.subscription?.plan_id);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-customer", companyId] });
 
@@ -60,7 +66,7 @@ export function CustomerDetail({ companyId }: { companyId: string }) {
   const sub = data.subscription;
   const status = sub?.status ?? "active";
   const days = daysUntilExpiry(sub?.expires_at);
-  const maxEmployees = limits.max_employees ?? null;
+  const maxEmployees = data.limits.max_employees ?? null;
 
   return (
     <div className="grid gap-5">
@@ -104,17 +110,16 @@ export function CustomerDetail({ companyId }: { companyId: string }) {
           <div className="mt-5">
             <label className="text-sm font-semibold">Assign plan</label>
             <div className="mt-1.5 flex gap-2">
-              <select id="plan-select" className="h-11 flex-1 rounded-md border bg-card px-3 text-sm" defaultValue="">
+              <select aria-label="Assign plan" id="plan-select" className="h-11 min-w-0 flex-1 rounded-md border bg-card px-3 text-sm" value={selectedPlan} onChange={e => setSelectedPlan(e.target.value)}>
                 <option value="" disabled>Select a plan</option>
                 {plans.filter((p) => p.is_active).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
               <Button disabled={busy} onClick={() => {
-                const select = document.getElementById("plan-select") as HTMLSelectElement | null;
-                if (!select?.value) { toast.error("Select a plan first"); return; }
-                void run(() => assign({ data: { company_id: companyId, plan_id: select.value } }), "Plan assigned");
+                if (!selectedPlan) { toast.error("Select a plan first"); return; }
+                setConfirmAssignment(true);
               }}>Apply</Button>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Applying a plan replaces this customer's features and limits with the plan defaults.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Customer overrides and subscription dates are preserved.</p>
           </div>
         </Card>
 
@@ -158,14 +163,15 @@ export function CustomerDetail({ companyId }: { companyId: string }) {
         <p className="mt-1 text-sm text-muted-foreground">Disabled features are hidden and their requests are rejected for this customer. Data is preserved.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {FEATURE_KEYS.map((key) => (
-            <label key={key} className="flex items-center justify-between rounded-lg border px-4 py-3">
-              <span className="text-[15px] font-medium">{FEATURE_LABELS[key]}</span>
+            <div key={key} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3">
+              <span className="text-[15px] font-medium">{FEATURE_LABELS[key]}<span className="block text-xs text-muted-foreground">{Object.hasOwn(features, key) ? "Customer override" : "Plan default"}</span></span>
               <Switch
-                checked={features[key] ?? true}
+                checked={features[key] ?? assignedPlan?.features[key] ?? true}
                 onCheckedChange={(on) => setFeatures((f) => ({ ...f, [key]: on }))}
                 aria-label={FEATURE_LABELS[key]}
               />
-            </label>
+              {Object.hasOwn(features, key) && <Button variant="ghost" size="sm" onClick={() => setFeatures(f => { const next = { ...f }; delete next[key]; return next; })}>Reset to default</Button>}
+            </div>
           ))}
         </div>
       </Card>
@@ -177,24 +183,9 @@ export function CustomerDetail({ companyId }: { companyId: string }) {
             {busy ? <Loader2 className="animate-spin" /> : <Save />} Save Limits
           </Button>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">Leave a field empty for no limit. Limits are enforced by the backend.</p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {LIMIT_KEYS.map((key) => (
-            <div key={key}>
-              <label className="text-sm font-semibold" htmlFor={`limit-${key}`}>{LIMIT_LABELS[key]}</label>
-              <Input
-                id={`limit-${key}`}
-                type="number"
-                min={1}
-                value={limits[key] ?? ""}
-                onChange={(e) => setLimits((l) => ({ ...l, [key]: e.target.value === "" ? null : Number(e.target.value) }))}
-                className="mt-1.5 h-11 rounded-xl"
-                placeholder="No limit"
-              />
-            </div>
-          ))}
-        </div>
+        <div className="mt-4"><LimitEditor value={limits} defaults={assignedPlan?.limits} onChange={setLimits} disabled={busy} /></div>
       </Card>
+      <Dialog open={confirmAssignment} onOpenChange={setConfirmAssignment}><DialogContent><DialogHeader><DialogTitle>Apply {plans.find(p => p.id === selectedPlan)?.name}?</DialogTitle><DialogDescription>Customer-specific overrides, subscription dates and status remain unchanged. Settings without overrides use the selected plan.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setConfirmAssignment(false)}>Cancel</Button><Button disabled={busy} onClick={() => void run(async () => { await assign({ data: { company_id: companyId, plan_id: selectedPlan } }); setConfirmAssignment(false); }, "Plan assigned")}>Apply plan</Button></div></DialogContent></Dialog>
     </div>
   );
 }

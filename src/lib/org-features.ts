@@ -161,6 +161,8 @@ export type CustomerDetail = {
   features: Record<string, boolean>;
   limits: OrgLimits;
   members: CustomerMember[];
+  limit_overrides: OrgLimits;
+  feature_overrides: Record<string, boolean>;
 };
 
 export type PlanRow = {
