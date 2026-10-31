@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { queryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { PROVIDERS, defaultPolicy, policyInput, type IntegrationPolicy } from './integration-marketplace';
+import { PROVIDERS, defaultPolicy, policyInput } from './integration-marketplace';
 
 export const integrationMarketplace = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
@@ -53,7 +53,7 @@ export const masterPolicyQuery = queryOptions({ queryKey: ['master-integration-p
 export const saveIntegrationPolicy = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => policyInput.parse(input))
-  .handler(async ({ context, data }: { context: any; data: IntegrationPolicy }) => {
+  .handler(async ({ context, data }) => {
     const result = await context.supabase.rpc('master_save_integration_policy', { _provider: data.provider, _enabled: data.enabled, _plans: data.plan_ids, _max: data.max_connections, _permissions: data.required_permissions });
     if (result.error) throw new Error(result.error.message);
     return { ok: true };

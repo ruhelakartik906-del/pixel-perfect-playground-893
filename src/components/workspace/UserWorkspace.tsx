@@ -14,7 +14,7 @@ import { userCrmQuery } from '@/lib/user-crm-query';
 import { myOrgFeaturesQuery } from '@/lib/org-features.functions';
 import { ROUTE_FEATURES, featureEnabled, type FeatureKey } from '@/lib/org-features';
 import { useSupportWorkspace, useWorkspaceCrmQuery } from './SupportContext';
-type Destination = '/dashboard' | '/my-leads' | '/pipeline' | '/tasks' | '/follow-ups' | '/my-hr' | '/support' | '/my-work-table' | '/deals' | '/calendar' | '/team-chat' | '/whatsapp/chats' | '/whatsapp/templates' | '/whatsapp/connection' | '/proposals' | '/invoices' | '/my-reports' | '/settings' | '/lead-status' | '/all-assigned' | '/employees';
+type Destination = '/integrations' | '/dashboard' | '/my-leads' | '/pipeline' | '/tasks' | '/follow-ups' | '/my-hr' | '/support' | '/my-work-table' | '/deals' | '/calendar' | '/team-chat' | '/whatsapp/chats' | '/whatsapp/templates' | '/whatsapp/connection' | '/proposals' | '/invoices' | '/my-reports' | '/settings' | '/lead-status' | '/all-assigned' | '/employees';
 export function UserWorkspace({ children }: { children: ReactNode; support?: boolean }) {
   const navigate = useNavigate(), queryClient = useQueryClient(), location = useLocation();
   const support = useSupportWorkspace();
