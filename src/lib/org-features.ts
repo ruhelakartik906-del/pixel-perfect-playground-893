@@ -110,6 +110,7 @@ export const ROUTE_FEATURES = {
   "/employees": "employees",
   "/whatsapp/chats": "whatsapp",
   "/whatsapp/templates": "whatsapp_templates",
+  "/whatsapp/connection": "whatsapp",
 } as const satisfies Record<string, FeatureKey>;
 
 export type GatedDestination = keyof typeof ROUTE_FEATURES;
