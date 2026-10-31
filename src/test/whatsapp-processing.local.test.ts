@@ -36,6 +36,12 @@ describe.skipIf(process.env['CRM_LICENSE_LOCAL_QA']!=='1')('WhatsApp durable inb
   expect((await sql`SELECT status,sent_at IS NOT NULL AS stamped FROM whatsapp_messages WHERE wa_message_id='wamid.out'`)[0]).toMatchObject({status:'read',stamped:true});
  });
  it('takeover is persisted and status validates exact allowed values',async()=>{const id=(await sql`SELECT id FROM whatsapp_conversations`)[0]?.['id'];await sql`SELECT wa_inbox_action(${id},'takeover','{}')`;expect((await sql`SELECT human_takeover FROM whatsapp_conversations`)[0]?.['human_takeover']).toBe(true);await expect(sql`SELECT wa_inbox_action(${id},'status','{"status":"invalid"}')`).rejects.toThrow('Invalid status');});
+ it('monthly zero denies and unlimited allows while outside-window text is blocked',async()=>{
+  await sql`INSERT INTO profiles VALUES(${company},'active')`;await sql`INSERT INTO org_usage_limits VALUES(${company},0)`;const id=(await sql`SELECT id FROM whatsapp_conversations WHERE connection_id=${connection}`)[0]?.['id'];
+  await expect(sql`SELECT wa_reserve_send(${id},'44444444-4444-4444-8444-444444444444',${company},'Template','template')`).rejects.toThrow('Monthly WhatsApp message limit');
+  await sql`UPDATE org_usage_limits SET monthly_whatsapp_messages=NULL WHERE company_id=${company}`;expect((await sql`SELECT wa_reserve_send(${id},'44444444-4444-4444-8444-444444444444',${company},'Template','template') id`)[0]?.['id']).toBeTruthy();
+  await sql`UPDATE whatsapp_conversations SET last_inbound_at=now()-interval '25 hours' WHERE id=${id}`;await expect(sql`SELECT wa_reserve_send(${id},'55555555-5555-4555-8555-555555555555',${company},'Text','text')`).rejects.toThrow('24-hour');
+ });
  it('same customer phone on two numbers remains separate by organization',async()=>{
   const second='33333333-3333-4333-8333-333333333333';await sql`INSERT INTO org_whatsapp_connections VALUES(${second},${second},'connected',true,true)`;
   const id=(await sql`INSERT INTO org_whatsapp_webhook_events(company_id,connection_id,payload) VALUES(${second},${second},${sql.json({value:{messages:[{id:'wamid.second',from:'919876543210',timestamp:'1793448001',type:'text',text:{body:'Private second organization'}}]}})}) RETURNING id`)[0]?.['id'];await sql`SELECT wa_process_event(${id})`;

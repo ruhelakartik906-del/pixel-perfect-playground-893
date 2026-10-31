@@ -8,6 +8,7 @@ import { InboxConversationTools } from './InboxConversationTools';
 import { myOrgWhatsApp } from '@/lib/org-whatsapp.functions';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { UserWorkspace } from '@/components/workspace/UserWorkspace';
 import { whatsAppQuery } from '@/lib/messaging-query';
@@ -27,7 +28,7 @@ export function WhatsAppChats() {
     const lead = d?.leads.find((l) => l.id === c.lead_id || l.phone.replace(/\D/g, '') === c.wa_phone.replace(/\D/g, ''));
     return { id: c.id, name: c.contact_name || c.provider_phone || c.wa_phone, phone: c.provider_phone || c.wa_phone, at: c.last_message_at, unread: c.unread_count, kind: 'contact', leadTo: lead ? '/my-leads' : undefined, leadLabel: lead?.customer_name };
   });
-  const messages: WaChatMessage[] = (history.data ?? []).map((m) => ({ id: m.id, direction: m.direction === 'outbound' ? 'outbound' : 'inbound', body: m.body, at: m.created_at, status: m.status }));
+  const messages: WaChatMessage[] = (history.data ?? []).map((m) => ({ id: m.id, direction: m.direction === 'outbound' ? 'outbound' : 'inbound', body: m.body||(m.message_type!=='text'?`[${m.message_type}${m.media_filename?`: ${m.media_filename}`:''}]`:''), at: m.created_at, status: m.status }));
   const active=d?.conversations.find(c=>c.id===selected);
   const orgConnection=useQuery({queryKey:['wa-inbox-connection',active?.company_id],queryFn:()=>myOrgWhatsApp({data:{company_id:active?.company_id??''}}),enabled:Boolean(active?.company_id)});
   const connected = orgConnection.data?.connections.some(c=>c.id===active?.connection_id&&c.status==='connected'&&c.token_ok&&c.webhook_subscribed)===true;
@@ -68,7 +69,7 @@ export function WhatsAppChats() {
         loading={isPending}
         error={error ? error.message : null}
         selectedId={selected}
-        onSelect={(id)=>{setSelected(id);if(d?.conversations.find(c=>c.id===id)?.connection_id)void action({data:{id,action:'read',payload:{}}}).then(()=>qc.invalidateQueries({queryKey:whatsAppQuery.queryKey})).catch(()=>undefined);}}
+        onSelect={(id)=>{setSelected(id);if(d?.conversations.find(c=>c.id===id)?.connection_id)void action({data:{id,action:'read',payload:{}}}).then(()=>qc.invalidateQueries({queryKey:whatsAppQuery.queryKey})).catch(()=>toast.error('Unread count could not be updated'));}}
         messages={messages}
         messagesLoading={history.isPending}
         messagesError={history.error ? 'History could not be loaded' : null}
