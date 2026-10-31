@@ -29,7 +29,7 @@ export const getHrmWorkspace=createServerFn({method:'GET'}).middleware([requireS
  if(data.module==='document'){const r=await context.supabase.from('hr_document_versions').select('*').order('created_at',{ascending:false});if(r.error)throw new Error(r.error.message);extra['versions']=r.data;}
  return {rows:attendancePeople?extra['attendance']||[]:result[0]||[],companies:result[1]||[],branches:result[2]||[],designations:result[3]||[],departments:result[4]||[],roles:result[5]||[],people:attendancePeople||(people.data||[]) as HrRow[],userId:context.userId,isAdmin:perms.data===true,manageable,extra};
 });
-export const mutateHrm=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:moduleSchema,action:z.enum(['save','delete']),id:z.string().uuid().optional(),payload:z.record(z.unknown()).optional()}).parse(v)).handler(async({context,data})=>{
+export const mutateHrm=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:moduleSchema,action:z.enum(['save','delete']),id:z.string().uuid().optional(),payload:z.record(z.string(), z.unknown()).optional()}).parse(v)).handler(async({context,data})=>{
  if(['attendance','leave','payroll'].includes(data.module))throw new Error('Use the audited action');
  const db=context.supabase as any;const table=hrTables[data.module];
  if(data.action==='delete') {if(!data.id)throw new Error('Record required'); const old=await db.from(table).select('*').eq('id',data.id).single();if(old.error)throw new Error('Record not found or access denied');
@@ -39,7 +39,7 @@ export const mutateHrm=createServerFn({method:'POST'}).middleware([requireSupaba
  const r=data.id?await db.from(table).update(payload).eq('id',data.id).select('id').single():await db.from(table).insert({...payload,...(['branch','designation'].includes(data.module)?{}:{created_by:context.userId})}).select('id').single();
  if(r.error)throw new Error(r.error.message.includes('duplicate')?'A matching record already exists':r.error.message);return r.data.id as string;
 });
-export const hrmControlledAction=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:z.enum(['attendance','leave','payroll','meeting']),action:z.string().max(30),payload:z.record(z.unknown())}).parse(v)).handler(async({context,data})=>{
+export const hrmControlledAction=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({module:z.enum(['attendance','leave','payroll','meeting']),action:z.string().max(30),payload:z.record(z.string(), z.unknown())}).parse(v)).handler(async({context,data})=>{
  let p:Record<string,unknown>=data.payload;
  if(data.module==='attendance'){if(data.action==='manual')p=attendanceSchema.parse(p);else if(['check_in','check_out'].includes(data.action))p={};else throw new Error('Invalid attendance action');}
  if(data.module==='leave'){if(data.action==='request')p=leaveSchema.parse(p);else if(data.action==='balance')p=z.object({employee_id:z.string().uuid(),kind:z.enum(['casual','sick','earned','other']),year:z.coerce.number().int().min(2000).max(2200),entitlement:z.coerce.number().min(0).max(366),reason:z.string().trim().min(3).max(2000)}).strict().parse(p);else{if(!['approve','reject','correction','cancel'].includes(data.action))throw new Error('Invalid leave action');p=z.object({id:z.string().uuid(),reason:z.string().max(2000).optional()}).strict().parse(p);}}
