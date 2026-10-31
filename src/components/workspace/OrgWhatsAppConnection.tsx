@@ -100,12 +100,12 @@ export function OrgWhatsAppConnection() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><h1 className="text-2xl font-bold">WhatsApp Business Connection</h1><p className="text-sm text-muted-foreground">Connect your organization's own WhatsApp Business number through Meta. Employees use it without separate Meta login.</p></div>
-        {(orgs.data?.length ?? 0) > 1 && <Select value={company} onValueChange={setPicked}><SelectTrigger className="w-60"><SelectValue placeholder="Organization" /></SelectTrigger><SelectContent>{orgs.data!.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}</SelectContent></Select>}
+        {(orgs.data?.length ?? 0) > 1 && <Select value={company} onValueChange={setPicked}><SelectTrigger className="w-60"><SelectValue placeholder="Organization" /></SelectTrigger><SelectContent>{orgs.data?.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}</SelectContent></Select>}
       </div>
 
       {setup.data && !setup.data.ready && <div className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm"><b>Setup required.</b> The platform's Meta app is not fully configured yet, so connecting is unavailable. Everything else in your CRM keeps working.</div>}
 
-      {(d?.connections ?? []).map((c) => { const [l, cls] = STATUS[c.status] ?? STATUS['pending']!; return (
+      {(d?.connections ?? []).map((c) => { const [l, cls] = STATUS[c.status] ?? ['Pending', 'bg-muted text-muted-foreground']; return (
         <div key={c.id} className="rounded-xl border bg-card p-6 shadow-card">
           <div className="flex flex-wrap items-center gap-3"><span className="grid size-11 place-items-center rounded-full bg-primary/10 text-primary"><MessageCircle className="size-5" /></span>
             <div className="flex-1"><h3 className="text-lg font-semibold">{c.verified_name ?? c.display_phone_number ?? 'WhatsApp number'}</h3><p className="text-sm text-muted-foreground">{c.display_phone_number} · {c.business_name ?? 'Business'}</p></div>
@@ -136,7 +136,7 @@ export function OrgWhatsAppConnection() {
         {atLimit && <p className="mt-2 text-xs text-muted-foreground">Your plan's number limit is reached; reconnecting an existing number is still allowed.</p>}
       </div>}
 
-      {isAdmin && (d?.audit.length ?? 0) > 0 && <div className="rounded-xl border bg-card p-6"><h3 className="mb-3 flex items-center gap-2 font-semibold"><History className="size-4" />Connection history</h3><ul className="space-y-1.5 text-sm">{d!.audit.map((a) => <li key={a.id} className="flex justify-between gap-4"><span className="capitalize">{a.action.replace(/_/g, ' ')}</span><span className="text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span></li>)}</ul></div>}
+      {isAdmin && (d?.audit.length ?? 0) > 0 && <div className="rounded-xl border bg-card p-6"><h3 className="mb-3 flex items-center gap-2 font-semibold"><History className="size-4" />Connection history</h3><ul className="space-y-1.5 text-sm">{d?.audit.map((a) => <li key={a.id} className="flex justify-between gap-4"><span className="capitalize">{a.action.replace(/_/g, ' ')}</span><span className="text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span></li>)}</ul></div>}
 
       <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
         <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Disconnect this WhatsApp number?</AlertDialogTitle><AlertDialogDescription>The stored Meta authorization is deleted and webhooks are unsubscribed. Past records stay. You can reconnect anytime.</AlertDialogDescription></AlertDialogHeader>
