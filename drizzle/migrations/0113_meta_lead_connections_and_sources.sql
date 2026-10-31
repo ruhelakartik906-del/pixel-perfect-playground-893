@@ -1,0 +1,25 @@
+ALTER TABLE public.org_whatsapp_webhook_events ADD CONSTRAINT wa_delivery_key_unique UNIQUE(delivery_key);
+CREATE TABLE public.org_meta_connections(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),company_id uuid NOT NULL REFERENCES public.companies(id),connected_by uuid NOT NULL,account_name text,status text NOT NULL DEFAULT 'pending',scopes text[] NOT NULL DEFAULT '{}',last_sync_at timestamptz,last_error text,created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.org_meta_connections TO authenticated;GRANT ALL ON public.org_meta_connections TO service_role;ALTER TABLE public.org_meta_connections ENABLE ROW LEVEL SECURITY;
+CREATE POLICY meta_connections_read ON public.org_meta_connections FOR SELECT TO authenticated USING(public.integration_provider_allowed(company_id,'meta_ads','manage'));
+CREATE TABLE public.org_meta_secrets(connection_id uuid PRIMARY KEY REFERENCES public.org_meta_connections(id),token_ciphertext text NOT NULL);GRANT ALL ON public.org_meta_secrets TO service_role;ALTER TABLE public.org_meta_secrets ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.org_meta_sources(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),connection_id uuid NOT NULL REFERENCES public.org_meta_connections(id),company_id uuid NOT NULL REFERENCES public.companies(id),page_id text NOT NULL,form_id text NOT NULL,page_name text,form_name text,field_mapping jsonb NOT NULL DEFAULT '{}',enabled boolean NOT NULL DEFAULT true,created_at timestamptz NOT NULL DEFAULT now(),UNIQUE(page_id,form_id));
+GRANT SELECT ON public.org_meta_sources TO authenticated;GRANT ALL ON public.org_meta_sources TO service_role;ALTER TABLE public.org_meta_sources ENABLE ROW LEVEL SECURITY;
+CREATE POLICY meta_source_read ON public.org_meta_sources FOR SELECT TO authenticated USING(public.integration_provider_allowed(company_id,'meta_ads','manage'));
+CREATE TABLE public.org_meta_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),source_id uuid REFERENCES public.org_meta_sources(id),company_id uuid REFERENCES public.companies(id),leadgen_id text NOT NULL UNIQUE,page_id text NOT NULL,form_id text NOT NULL,payload jsonb NOT NULL,processed_at timestamptz,lead_id uuid,attempts integer NOT NULL DEFAULT 0,next_attempt_at timestamptz NOT NULL DEFAULT now(),last_error text,created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.org_meta_events TO authenticated;GRANT ALL ON public.org_meta_events TO service_role;ALTER TABLE public.org_meta_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY meta_event_read ON public.org_meta_events FOR SELECT TO authenticated USING(public.integration_provider_allowed(company_id,'meta_ads','manage'));
+CREATE OR REPLACE FUNCTION public.meta_canonical_intake(_source uuid,_payload jsonb) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE s public.org_meta_sources;l public.leads;pid uuid;sid uuid;lid uuid;
+BEGIN
+ SELECT * INTO s FROM public.org_meta_sources WHERE id=_source AND enabled;
+ IF NOT FOUND OR NOT EXISTS(SELECT 1 FROM public.companies WHERE id=s.company_id AND is_active) OR NOT public.org_feature_allowed(s.company_id,'integrations') OR EXISTS(SELECT 1 FROM public.integration_platform_policies WHERE provider='meta_ads' AND NOT enabled) THEN RAISE EXCEPTION 'Meta source unavailable'; END IF;
+ IF coalesce(_payload->>'meta_lead_id','') !~ '^[0-9]{1,40}$' OR coalesce(_payload->>'name','')='' OR octet_length(_payload::text)>65536 THEN RAISE EXCEPTION 'Invalid lead data';END IF;
+ PERFORM pg_advisory_xact_lock(84219631);
+ SELECT * INTO l FROM public.leads WHERE meta_lead_id=_payload->>'meta_lead_id';
+ IF FOUND THEN IF l.company_id IS DISTINCT FROM s.company_id OR l.meta_page_id IS DISTINCT FROM s.page_id OR l.meta_form_id IS DISTINCT FROM s.form_id THEN RAISE EXCEPTION 'Lead organization/source conflict'; END IF;RETURN l.id;END IF;
+ SELECT id INTO pid FROM public.crm_pipelines WHERE kind='lead' AND is_active ORDER BY is_default DESC,position,id LIMIT 1;SELECT id INTO sid FROM public.crm_stages WHERE pipeline_id=pid AND kind='lead' AND is_active ORDER BY position,id LIMIT 1;
+ INSERT INTO public.leads(company_id,pipeline_id,stage_id,customer_name,phone,email,form_answers,intake_source,meta_lead_id,meta_page_id,meta_form_id,meta_account_id,meta_campaign_id,meta_campaign_name,meta_ad_id,meta_ad_name,meta_adset_id) VALUES(s.company_id,pid,sid,left(_payload->>'name',200),left(coalesce(_payload->>'phone',''),40),left(coalesce(_payload->>'email',''),255),_payload->'form_answers','meta_ads',_payload->>'meta_lead_id',s.page_id,s.form_id,_payload->>'account_id',_payload->>'campaign_id',_payload->>'campaign_name',_payload->>'ad_id',_payload->>'ad_name',_payload->>'adset_id') RETURNING id INTO lid;
+ RETURN lid;
+END $$;
+REVOKE ALL ON FUNCTION public.meta_canonical_intake(uuid,jsonb) FROM PUBLIC,anon,authenticated;GRANT EXECUTE ON FUNCTION public.meta_canonical_intake(uuid,jsonb) TO service_role;

@@ -3535,6 +3535,190 @@ export type Database = {
           },
         ]
       }
+      org_meta_connections: {
+        Row: {
+          account_name: string | null
+          company_id: string
+          connected_by: string
+          created_at: string
+          id: string
+          last_error: string | null
+          last_sync_at: string | null
+          scopes: string[]
+          status: string
+        }
+        Insert: {
+          account_name?: string | null
+          company_id: string
+          connected_by: string
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          scopes?: string[]
+          status?: string
+        }
+        Update: {
+          account_name?: string | null
+          company_id?: string
+          connected_by?: string
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          scopes?: string[]
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_connections_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_meta_events: {
+        Row: {
+          attempts: number
+          company_id: string | null
+          created_at: string
+          form_id: string
+          id: string
+          last_error: string | null
+          lead_id: string | null
+          leadgen_id: string
+          next_attempt_at: string
+          page_id: string
+          payload: Json
+          processed_at: string | null
+          source_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          company_id?: string | null
+          created_at?: string
+          form_id: string
+          id?: string
+          last_error?: string | null
+          lead_id?: string | null
+          leadgen_id: string
+          next_attempt_at?: string
+          page_id: string
+          payload: Json
+          processed_at?: string | null
+          source_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          company_id?: string | null
+          created_at?: string
+          form_id?: string
+          id?: string
+          last_error?: string | null
+          lead_id?: string | null
+          leadgen_id?: string
+          next_attempt_at?: string
+          page_id?: string
+          payload?: Json
+          processed_at?: string | null
+          source_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_meta_events_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "org_meta_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_meta_secrets: {
+        Row: {
+          connection_id: string
+          token_ciphertext: string
+        }
+        Insert: {
+          connection_id: string
+          token_ciphertext: string
+        }
+        Update: {
+          connection_id?: string
+          token_ciphertext?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_secrets_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: true
+            referencedRelation: "org_meta_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_meta_sources: {
+        Row: {
+          company_id: string
+          connection_id: string
+          created_at: string
+          enabled: boolean
+          field_mapping: Json
+          form_id: string
+          form_name: string | null
+          id: string
+          page_id: string
+          page_name: string | null
+        }
+        Insert: {
+          company_id: string
+          connection_id: string
+          created_at?: string
+          enabled?: boolean
+          field_mapping?: Json
+          form_id: string
+          form_name?: string | null
+          id?: string
+          page_id: string
+          page_name?: string | null
+        }
+        Update: {
+          company_id?: string
+          connection_id?: string
+          created_at?: string
+          enabled?: boolean
+          field_mapping?: Json
+          form_id?: string
+          form_name?: string | null
+          id?: string
+          page_id?: string
+          page_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_sources_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_meta_sources_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "org_meta_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_subscriptions: {
         Row: {
           company_id: string
@@ -5877,6 +6061,10 @@ export type Database = {
         Returns: undefined
       }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
+      meta_canonical_intake: {
+        Args: { _payload: Json; _source: string }
+        Returns: string
+      }
       org_apply_configuration: {
         Args: { _company: string }
         Returns: undefined
