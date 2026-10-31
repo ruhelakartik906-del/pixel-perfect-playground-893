@@ -59,7 +59,7 @@ export function WhatsAppChats() {
           <Button asChild variant="outline" className="border-wa-green-deep/40 text-wa-green-deep hover:bg-wa-bubble"><Link to="/whatsapp/connection"><ShieldCheck className="size-4" />Connect WhatsApp Business</Link></Button>
         )}
       </div>
-      {active?.connection_id&&<InboxConversationTools key={active.id} id={active.id} status={active.inbox_status} takeover={active.human_takeover}/>}
+      {active?.connection_id&&active.company_id&&<InboxConversationTools key={active.id} id={active.id} status={active.inbox_status} takeover={active.human_takeover} companyId={active.company_id} assignedTo={active.assigned_to}/>}
       <WhatsAppWebChat
         me={{ name: 'Me', role: 'User' }}
         conversations={conversations}

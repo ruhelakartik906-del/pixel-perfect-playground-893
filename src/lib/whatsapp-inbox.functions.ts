@@ -13,6 +13,12 @@ export const inboxNotes = createServerFn({method:'GET'}).middleware([requireSupa
   const r=await context.supabase.from('whatsapp_internal_notes').select('id,body,actor_id,created_at').eq('conversation_id',data.id).order('created_at');
   if(r.error) throw new Error('Notes could not be loaded'); return r.data;
 });
+export const inboxApprovedTemplates=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).inputValidator((i:unknown)=>z.object({id:z.string().uuid()}).strict().parse(i)).handler(async({context,data})=>{
+ const access=await context.supabase.rpc('wa_inbox_access',{_conversation:data.id,_write:true});if(access.error||!access.data)throw new Error('Reply permission required');const c=await context.supabase.from('whatsapp_conversations').select('connection_id,company_id').eq('id',data.id).single();if(c.error||!c.data.connection_id||!c.data.company_id)throw new Error('Organization conversation required');
+ const allowed=await context.supabase.rpc('integration_provider_allowed',{_company:c.data.company_id,_provider:'whatsapp',_action:'use'});if(allowed.error||!allowed.data)throw new Error('WhatsApp usage is not permitted');
+ const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');const [conn,secret]=await Promise.all([db.from('org_whatsapp_connections').select('waba_id').eq('id',c.data.connection_id).single(),db.from('org_whatsapp_secrets').select('token_ciphertext').eq('connection_id',c.data.connection_id).single()]);if(conn.error||secret.error)throw new Error('Stored connection unavailable');const meta=await import('@/lib/whatsapp-meta.server');
+ const r=await meta.graph<{data:{name:string;language:string;status:string;components:{type:string;text?:string}[]}[];paging?:{next?:string}}>(`/${conn.data.waba_id}/message_templates`,await meta.decryptToken(secret.data.token_ciphertext),{query:{fields:'name,language,status,components',limit:'100'}});if(!r.ok)throw new Error(`Meta (${r.status}): ${r.message}`);if(r.data.paging?.next)throw new Error('Template pagination beyond 100 is not implemented yet');return r.data.data.filter(t=>t.status==='APPROVED'&&t.components.every(c=>c.type==='BODY'||c.type==='FOOTER'));
+});
 export const sendInboxMessage = createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((input:unknown)=>inboxSendSchema.parse(input)).handler(async({context,data})=>{
   const access=await context.supabase.rpc('wa_inbox_access',{_conversation:data.id,_write:true});
   if(access.error||access.data!==true) throw new Error('Reply permission required');
