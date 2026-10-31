@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LIMIT_KEYS, LIMIT_LABELS, type OrgLimits } from "@/lib/org-features";
 import { changeLimitMode, limitMode, type LimitMode } from "@/lib/plan-limits";
 
-export function LimitEditor({ value, defaults = {}, onChange, disabled = false }: { value: OrgLimits; defaults?: OrgLimits; onChange: (value: OrgLimits) => void; disabled?: boolean }) {
+export function LimitEditor({ value, defaults = {}, onChange, disabled = false }: { value: OrgLimits; defaults?: OrgLimits | undefined; onChange: (value: OrgLimits) => void; disabled?: boolean }) {
   return <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{LIMIT_KEYS.map(key => {
     const mode = limitMode(value, key);
     return <div key={key} className="min-w-0 space-y-2">
