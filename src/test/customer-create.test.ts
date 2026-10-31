@@ -108,6 +108,13 @@ describe("Cloud customer API security and creation", () => {
     expect((await res.json()).error).toBe("CREATION_UNCERTAIN");
     expect(f.deleteUser).not.toHaveBeenCalled();
   });
+  it.each([0, 502, 503])("does not compensate an uncertain PostgREST response with status %s", async (status) => {
+    const f = fixtures();
+    f.rpc.mockImplementation(async (name: string) => name === "routing_admin" ? { data: true, error: null } : { data: null, status, error: { message: "connection lost" } });
+    const res = await handleCustomerCreate(request(), f.deps);
+    expect((await res.json()).error).toBe("CREATION_UNCERTAIN");
+    expect(f.deleteUser).not.toHaveBeenCalled();
+  });
   it("fails closed outside master mode", async () => {
     const f = fixtures();
     f.deps.masterReady.mockResolvedValue(false);

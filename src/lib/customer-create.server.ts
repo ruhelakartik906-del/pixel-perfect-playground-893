@@ -50,6 +50,10 @@ export async function createCustomerWorkspace(
     throw new CustomerCreateError("CREATION_UNCERTAIN", 503, "Creation could not be confirmed. Ask the Master Admin to check the account before retrying.");
   }
   if (setup.error) {
+    if (setup.status === 0 || setup.status >= 500) {
+      // PostgREST also reports transport failures as error results rather than throws.
+      throw new CustomerCreateError("CREATION_UNCERTAIN", 503, "Creation could not be confirmed. Ask the Master Admin to check the account before retrying.");
+    }
     let rolledBack = false;
     try { rolledBack = !(await admin.auth.admin.deleteUser(userId)).error; } catch { /* Never log passwords or backend errors. */ }
     throw new CustomerCreateError(rolledBack ? "WORKSPACE_ROLLED_BACK" : "ROLLBACK_FAILED", 503,
