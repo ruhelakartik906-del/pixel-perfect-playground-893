@@ -15,7 +15,13 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Support workspace 
       CREATE TABLE org_support_sessions(id uuid primary key default gen_random_uuid(),company_id uuid references companies(id),master_user_id uuid,mode text,started_at timestamptz default now(),ended_at timestamptz,revoked boolean default false);
       GRANT ALL ON org_support_sessions TO authenticated; ALTER TABLE org_support_sessions ENABLE ROW LEVEL SECURITY;
       CREATE FUNCTION org_feature_allowed(uuid,text) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;`);
+    await sql.unsafe(`CREATE TABLE deals(id uuid,title text,status text,created_at timestamptz,company_id uuid,assigned_to uuid,deleted_at timestamptz);
+      CREATE TABLE crm_stages(id uuid,kind text,company_id uuid,owner_id uuid,position int);
+      CREATE TABLE crm_options(id uuid,name text,is_active boolean,category text);
+      CREATE TABLE lead_activities(id uuid,lead_id uuid,created_at timestamptz);
+      CREATE TABLE org_feature_permissions(company_id uuid,feature_key text,enabled boolean);`);
     await sql.unsafe(readFileSync("drizzle/migrations/0101_support_workspace_access.sql", "utf8"));
+    await sql.unsafe(readFileSync("drizzle/migrations/0104_support_workspace_crm_adapter.sql", "utf8"));
     await sql.unsafe(readFileSync("drizzle/migrations/0105_support_mutation_boundary.sql", "utf8"));
     await sql.unsafe(`INSERT INTO license_state(id,mode) VALUES(true,'master');
       INSERT INTO companies(id,name,is_active) VALUES('${company}','Isolated X',true),('${other}','Isolated Y',true);
@@ -46,6 +52,13 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Support workspace 
     await expect(sql`UPDATE leads SET customer_name='Bypass' WHERE id=${lead}`).rejects.toThrow("authorized session");
     expect((await sql`SELECT customer_name FROM leads WHERE id=${lead}`)[0]?.["customer_name"]).toBe("Updated");
     expect(await sql`SELECT id FROM org_support_audit WHERE session_id=${session} AND action='lead.details'`).toHaveLength(1);
+  });
+  it("CRM adapter returns canonical customer identity and only their organization", async () => {
+    const rows = await sql`SELECT support_workspace_crm(${session}) r`;
+    const out = rows[0]?.["r"] as { data: { userId: string; leads: { id: string }[]; companies: { id: string }[] } };
+    expect(out.data.userId).toBe(customer);
+    expect(out.data.leads.map(l => l.id)).toEqual([lead]);
+    expect(out.data.companies.map(c => c.id)).toEqual([company]);
   });
   it("Full Support rejects another organization and ownership edits", async () => {
     await expect(sql`SELECT support_workspace_lead_action(${session},${foreignLead},now(),${sql.json({ customer_name: "Wrong" })})`).rejects.toThrow("not available");
