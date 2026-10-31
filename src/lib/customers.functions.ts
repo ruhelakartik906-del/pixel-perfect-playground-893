@@ -82,33 +82,8 @@ export const createCustomer = createServerFn({ method: "POST" })
     password: z.string().min(8, "Password must be at least 8 characters").max(128),
   }).strict().parse(i))
   .handler(async ({ context, data }) => {
-    await authorize(context);
-    const existing = await context.supabase.from("profiles").select("id").ilike("email", data.email).maybeSingle();
-    if (existing.error) throw new Error("Customer eligibility could not be checked");
-    if (existing.data) throw new Error("An account with this email already exists");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const created = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
-      password: data.password,
-      email_confirm: true,
-      user_metadata: { full_name: data.full_name, phone: data.phone },
-    });
-    if (created.error || !created.data.user) throw new Error(created.error?.message ?? "Customer account could not be created");
-    const userId = created.data.user.id;
-    const setup = await context.supabase.rpc("master_create_customer", {
-      _actor: context.userId,
-      _user: userId,
-      _email: data.email,
-      _name: data.full_name,
-      _phone: data.phone,
-      _company: data.company_name,
-    });
-    if (setup.error || !setup.data) {
-      // Roll back the auth account so a retry does not hit a duplicate email.
-      await supabaseAdmin.auth.admin.deleteUser(userId);
-      throw new Error("Customer workspace could not be created; the account was rolled back. Please retry.");
-    }
-    return { company_id: setup.data, user_id: userId };
+    const { createCustomerWorkspace } = await import("@/lib/customer-create.server");
+    return createCustomerWorkspace(context.supabase, context.userId, data);
   });
 
 export const customerDetail = createServerFn({ method: "GET" })

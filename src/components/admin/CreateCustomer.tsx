@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { Loader2, UserPlus } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Breadcrumb, Card, PageHeader } from "./ui";
-import { createCustomer } from "@/lib/customers.functions";
+import { createCustomerViaCloud } from "@/lib/customer-create.client";
 
 const schema = z.object({
   company_name: z.string().trim().min(1, "Company name is required").max(120),
@@ -22,7 +21,6 @@ type Form = z.infer<typeof schema>;
 
 export function CreateCustomer() {
   const navigate = useNavigate();
-  const create = useServerFn(createCustomer);
   const [form, setForm] = useState<Form>({ company_name: "", full_name: "", email: "", phone: "", password: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string | undefined>>>({});
   const [loading, setLoading] = useState(false);
@@ -44,7 +42,7 @@ export function CreateCustomer() {
     setErrors({});
     setLoading(true);
     try {
-      const result = await create({ data: parsed.data });
+      const result = await createCustomerViaCloud({ ...parsed.data, phone: parsed.data.phone ?? "" });
       toast.success(`${parsed.data.company_name} created. The customer can sign in now.`);
       await navigate({ to: "/admin/all-users/$companyId", params: { companyId: result.company_id } });
     } catch (err) {
