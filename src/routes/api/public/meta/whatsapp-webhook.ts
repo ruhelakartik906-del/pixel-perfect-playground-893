@@ -46,12 +46,15 @@ export const Route = createFileRoute("/api/public/meta/whatsapp-webhook")({
               company_id: owner?.company_id ?? null, connection_id: owner?.id ?? null,
               phone_number_id: phoneId ? String(phoneId) : null, waba_id: wabaId,
               field: typeof change?.field === "string" ? change.field : null, payload: change,
+              delivery_key: await (await import('@/lib/integration-marketplace')).nonceDigest(JSON.stringify([wabaId,change])),
             });
           }
         }
         if (rows.length) {
-          const ins = await db.from("org_whatsapp_webhook_events").insert(rows as never);
+          const ins = await db.from("org_whatsapp_webhook_events").upsert(rows as never,{onConflict:'delivery_key',ignoreDuplicates:true});
           if (ins.error) return new Response("Storage error", { status: 500 });
+          try { await (await import('@/lib/whatsapp-events.server')).recoverWhatsAppEvents(); }
+          catch { return new Response('Processing error',{status:500}); }
         }
         return new Response("ok");
       },
