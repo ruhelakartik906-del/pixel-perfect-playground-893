@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useServerFn } from '@tanstack/react-start';
 import { sendInboxMessage } from '@/lib/whatsapp-inbox.functions';
 import { InboxConversationTools } from './InboxConversationTools';
+import { myOrgWhatsApp } from '@/lib/org-whatsapp.functions';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,8 @@ export function WhatsAppChats() {
   });
   const messages: WaChatMessage[] = (history.data ?? []).map((m) => ({ id: m.id, direction: m.direction === 'outbound' ? 'outbound' : 'inbound', body: m.body, at: m.created_at, status: m.status }));
   const active=d?.conversations.find(c=>c.id===selected);
-  const connected = Boolean(active?.connection_id);
+  const orgConnection=useQuery({queryKey:['wa-inbox-connection',active?.company_id],queryFn:()=>myOrgWhatsApp({data:{company_id:active?.company_id??''}}),enabled:Boolean(active?.company_id)});
+  const connected = orgConnection.data?.connections.some(c=>c.id===active?.connection_id&&c.status==='connected'&&c.token_ok&&c.webhook_subscribed)===true;
 
   const checkConnection = async () => {
     const r = await connection.refetch();

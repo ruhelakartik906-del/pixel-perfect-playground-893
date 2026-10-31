@@ -152,7 +152,8 @@ export const completeWhatsAppSignup = createServerFn({ method: "POST" })
     const token = ex.data.access_token;
 
     const dbg = await meta.debugToken(full, token);
-    if (!dbg.ok || !dbg.data.is_valid) throw new Error("Meta returned an invalid token");
+    if (!dbg.ok || !dbg.data.is_valid || dbg.data.app_id !== full.appId) throw new Error("Meta returned an invalid token or a token for another app");
+    if (!['whatsapp_business_management','whatsapp_business_messaging'].every(scope=>dbg.data.scopes?.includes(scope))) throw new Error('Meta did not grant the required WhatsApp permissions');
     const granted = (dbg.data.granular_scopes ?? []).flatMap((g) => g.target_ids ?? []);
     if (granted.length && !granted.includes(data.waba_id)) throw new Error("This WhatsApp Business Account was not granted to the app");
 

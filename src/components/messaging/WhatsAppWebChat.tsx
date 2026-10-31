@@ -51,7 +51,7 @@ type Props = {
   onCheckConnection: () => Promise<boolean>;
   checkingConnection?: boolean;
   onAddContact: (input: WaContactForm) => Promise<void>;
-  onSend?: (body:string)=>Promise<void>;
+  onSend?: ((body:string)=>Promise<void>) | undefined;
 };
 
 const AVATAR_COLORS = ['bg-admin-blue', 'bg-admin-green', 'bg-admin-purple', 'bg-admin-orange', 'bg-admin-pink'] as const;
@@ -216,7 +216,6 @@ export function WhatsAppWebChat(p: Props) {
             <span className="grid size-24 place-items-center rounded-full bg-wa-bubble"><MessageCirclePlus className="size-12 text-wa-green-deep" strokeWidth={1.4} /></span>
             <h2 className="text-3xl font-light text-foreground">Routiva WhatsApp Chats</h2>
             <p className="max-w-md text-sm text-muted-foreground">Send and receive WhatsApp messages with your leads and customers without leaving the CRM.{p.connected ? ` Connected as ${p.connectedPhone ?? 'your business number'}.` : ' Connect WhatsApp Business to enable live messaging.'}</p>
-            <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground"><Check className="size-3.5 text-wa-green-deep" />End-to-end encrypted</p>
           </div>
         ) : (<>
           <header className="flex h-16 shrink-0 items-center gap-3 border-b bg-wa-panel px-3">
