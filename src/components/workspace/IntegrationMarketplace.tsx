@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { marketplaceQuery } from '@/lib/integration-marketplace.functions';
 import type { ProviderId } from '@/lib/integration-marketplace';
+import { MetaLeadConnection } from './MetaLeadConnection';
 
 const icons = { whatsapp: MessageCircle, meta_ads: Facebook, google_calendar: Calendar, google_meet: Video, zoom: Video };
 export function IntegrationMarketplace({ organizations }: { organizations: { id: string; name: string }[] }) {
@@ -20,7 +21,7 @@ export function IntegrationMarketplace({ organizations }: { organizations: { id:
 }
 function OrganizationMarketplace({ companyId }: { companyId: string }) {
   const { data } = useSuspenseQuery(marketplaceQuery(companyId));
-  return <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{data.providers.map(p => {
+  return <><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{data.providers.map(p => {
     const Icon = icons[p.id];
     const connections = p.id === 'whatsapp' ? data.whatsapp : [];
     const status = !p.policy.enabled ? 'Disabled by platform' : !p.allowed ? 'Not available for this organization' : connections.length ? `${connections.length} number${connections.length === 1 ? '' : 's'}` : 'Setup required';
@@ -30,7 +31,7 @@ function OrganizationMarketplace({ companyId }: { companyId: string }) {
       {connections.map(c => <dl key={c.id} className="mt-3 space-y-1 text-sm"><dt className="font-semibold">{c.verified_name || c.display_phone_number}</dt><dd className="capitalize text-muted-foreground">{c.status.replaceAll('_', ' ')}</dd><dd className="text-muted-foreground">Last check: {c.last_health_at ? new Date(c.last_health_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Not checked'}</dd>{c.last_error && <dd className="break-words text-destructive">{c.last_error}</dd>}</dl>)}
       {p.id === 'whatsapp' && p.allowed ? <Button asChild variant="outline" className="mt-5"><Link to="/whatsapp/connection">{p.can_manage ? 'Manage connection' : 'View connection'}</Link></Button> : <Button variant="outline" className="mt-5" disabled>{providerAction(p.id, p.allowed)}</Button>}
     </article>;
-  })}</div>;
+  })}</div>{data.providers.some(p=>p.id==='meta_ads'&&p.can_manage)&&<MetaLeadConnection key={companyId} companyId={companyId}/>}</>;
 }
 function providerAction(id: ProviderId, allowed: boolean) {
   return allowed ? id === 'whatsapp' ? 'Connect' : 'Provider setup pending' : 'Unavailable';

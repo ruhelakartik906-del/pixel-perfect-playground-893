@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import {
-  ArrowLeft, Ban, Camera, Check, CheckCheck, FileText, IdCard, Image as ImageIcon,
+  ArrowLeft, Ban, Camera, Check, CheckCheck, Clock, CircleAlert, FileText, IdCard, Image as ImageIcon,
   MessageCirclePlus, Mic, MoreVertical, Paperclip, Phone, Plus, Search, Send, ShieldCheck, Smile, UserPlus, X,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -76,7 +76,9 @@ const COUNTRY_CODES = ['+91', '+1', '+44', '+971', '+65', '+61', '+880', '+92', 
 function Tick({ status }: { status?: string | undefined }) {
   if (status === 'read') return <CheckCheck className="size-3.5 text-wa-tick" />;
   if (status === 'delivered') return <CheckCheck className="size-3.5 text-muted-foreground" />;
-  return <Check className="size-3.5 text-muted-foreground" />;
+  if(status==='sent')return <Check aria-label="Sent" className="size-3.5 text-muted-foreground" />;
+  if(status==='failed'||status==='unknown')return <CircleAlert aria-label={status==='failed'?'Failed':'Outcome unknown'} className="size-3.5 text-destructive"/>;
+  return <Clock aria-label="Delivery pending" className="size-3.5 text-muted-foreground" />;
 }
 
 export function WhatsAppWebChat(p: Props) {

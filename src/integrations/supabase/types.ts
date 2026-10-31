@@ -6273,6 +6273,10 @@ export type Database = {
         Returns: undefined
       }
       user_workspace_allowed: { Args: never; Returns: boolean }
+      wa_actor_authorized: {
+        Args: { _actor: string; _conversation: string }
+        Returns: boolean
+      }
       wa_ai_settings: {
         Args: { _company: string; _enabled: boolean; _instructions: string }
         Returns: undefined
@@ -6285,6 +6289,7 @@ export type Database = {
         Args: { _action: string; _id: string; _payload: Json }
         Returns: undefined
       }
+      wa_is_org_conversation: { Args: { _id: string }; Returns: boolean }
       wa_process_event: { Args: { _id: string }; Returns: boolean }
       wa_reserve_send: {
         Args: {

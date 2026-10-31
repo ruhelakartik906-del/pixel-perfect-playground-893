@@ -13,6 +13,12 @@ export const inboxNotes = createServerFn({method:'GET'}).middleware([requireSupa
   const r=await context.supabase.from('whatsapp_internal_notes').select('id,body,actor_id,created_at').eq('conversation_id',data.id).order('created_at');
   if(r.error) throw new Error('Notes could not be loaded'); return r.data;
 });
+export const inboxApprovedTemplates=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).inputValidator((i:unknown)=>z.object({id:z.string().uuid()}).strict().parse(i)).handler(async({context,data})=>{
+ const access=await context.supabase.rpc('wa_inbox_access',{_conversation:data.id,_write:true});if(access.error||!access.data)throw new Error('Reply permission required');const c=await context.supabase.from('whatsapp_conversations').select('connection_id,company_id').eq('id',data.id).single();if(c.error||!c.data.connection_id||!c.data.company_id)throw new Error('Organization conversation required');
+ const allowed=await context.supabase.rpc('integration_provider_allowed',{_company:c.data.company_id,_provider:'whatsapp',_action:'use'});if(allowed.error||!allowed.data)throw new Error('WhatsApp usage is not permitted');
+ const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');const [conn,secret]=await Promise.all([db.from('org_whatsapp_connections').select('waba_id').eq('id',c.data.connection_id).single(),db.from('org_whatsapp_secrets').select('token_ciphertext').eq('connection_id',c.data.connection_id).single()]);if(conn.error||secret.error)throw new Error('Stored connection unavailable');const meta=await import('@/lib/whatsapp-meta.server');
+ const r=await meta.graph<{data:{name:string;language:string;status:string;components:{type:string;text?:string}[]}[];paging?:{next?:string}}>(`/${conn.data.waba_id}/message_templates`,await meta.decryptToken(secret.data.token_ciphertext),{query:{fields:'name,language,status,components',limit:'100'}});if(!r.ok)throw new Error(`Meta (${r.status}): ${r.message}`);if(r.data.paging?.next)throw new Error('Template pagination beyond 100 is not implemented yet');return r.data.data.filter(t=>t.status==='APPROVED'&&t.components.every(c=>c.type==='BODY'||c.type==='FOOTER'));
+});
 export const sendInboxMessage = createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((input:unknown)=>inboxSendSchema.parse(input)).handler(async({context,data})=>{
   const access=await context.supabase.rpc('wa_inbox_access',{_conversation:data.id,_write:true});
   if(access.error||access.data!==true) throw new Error('Reply permission required');
@@ -49,8 +55,8 @@ export const sendInboxMessage = createServerFn({method:'POST'}).middleware([requ
   try{sent=await meta.graph<{messages:{id:string}[]}>(`/${connection.data.phone_number_id}/messages`,token,{method:'POST',body:payload});}
   catch{const uncertain=await db.from('whatsapp_messages').update({status:'unknown',failure_reason:'Provider response unavailable; review before retrying'}).eq('id',row.data.id);if(uncertain.error)throw new Error('Uncertain send outcome could not be saved');throw new Error('Send outcome is unknown; do not resend until reviewed');}
   const providerId=sent.ok?sent.data.messages?.[0]?.id:null;
-  const saved=await db.from('whatsapp_messages').update(sent.ok&&providerId?{wa_message_id:providerId,status:'accepted'}:{status:sent.ok?'unknown':'failed',failure_reason:sent.ok?'Meta response did not include a message ID':`Meta (${sent.status}): ${sent.message}`}).eq('id',row.data.id);
-  if(saved.error) throw new Error('Provider outcome could not be saved; do not resend');
+  const saved=await db.from('whatsapp_messages').update(sent.ok&&providerId?{wa_message_id:providerId,status:'accepted'}:{status:sent.ok?'unknown':'failed',failure_reason:sent.ok?'Meta response did not include a message ID':`Meta (${sent.status}): ${sent.message}`}).eq('id',row.data.id).eq('status','dispatching').select('id').maybeSingle();
+  if(saved.error||!saved.data) throw new Error('Provider outcome could not be saved; do not resend');
   if(!sent.ok) throw new Error(`Meta (${sent.status}): ${sent.message}`);
   if(!providerId) throw new Error('Meta acceptance is unconfirmed; do not resend');
   const events=await db.from('org_whatsapp_webhook_events').select('id').eq('connection_id',c.data.connection_id).is('processed_at',null).order('next_attempt_at').limit(20);
