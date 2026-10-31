@@ -3535,6 +3535,190 @@ export type Database = {
           },
         ]
       }
+      org_meta_connections: {
+        Row: {
+          account_name: string | null
+          company_id: string
+          connected_by: string
+          created_at: string
+          id: string
+          last_error: string | null
+          last_sync_at: string | null
+          scopes: string[]
+          status: string
+        }
+        Insert: {
+          account_name?: string | null
+          company_id: string
+          connected_by: string
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          scopes?: string[]
+          status?: string
+        }
+        Update: {
+          account_name?: string | null
+          company_id?: string
+          connected_by?: string
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          scopes?: string[]
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_connections_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_meta_events: {
+        Row: {
+          attempts: number
+          company_id: string | null
+          created_at: string
+          form_id: string
+          id: string
+          last_error: string | null
+          lead_id: string | null
+          leadgen_id: string
+          next_attempt_at: string
+          page_id: string
+          payload: Json
+          processed_at: string | null
+          source_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          company_id?: string | null
+          created_at?: string
+          form_id: string
+          id?: string
+          last_error?: string | null
+          lead_id?: string | null
+          leadgen_id: string
+          next_attempt_at?: string
+          page_id: string
+          payload: Json
+          processed_at?: string | null
+          source_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          company_id?: string | null
+          created_at?: string
+          form_id?: string
+          id?: string
+          last_error?: string | null
+          lead_id?: string | null
+          leadgen_id?: string
+          next_attempt_at?: string
+          page_id?: string
+          payload?: Json
+          processed_at?: string | null
+          source_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_meta_events_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "org_meta_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_meta_secrets: {
+        Row: {
+          connection_id: string
+          token_ciphertext: string
+        }
+        Insert: {
+          connection_id: string
+          token_ciphertext: string
+        }
+        Update: {
+          connection_id?: string
+          token_ciphertext?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_secrets_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: true
+            referencedRelation: "org_meta_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_meta_sources: {
+        Row: {
+          company_id: string
+          connection_id: string
+          created_at: string
+          enabled: boolean
+          field_mapping: Json
+          form_id: string
+          form_name: string | null
+          id: string
+          page_id: string
+          page_name: string | null
+        }
+        Insert: {
+          company_id: string
+          connection_id: string
+          created_at?: string
+          enabled?: boolean
+          field_mapping?: Json
+          form_id: string
+          form_name?: string | null
+          id?: string
+          page_id: string
+          page_name?: string | null
+        }
+        Update: {
+          company_id?: string
+          connection_id?: string
+          created_at?: string
+          enabled?: boolean
+          field_mapping?: Json
+          form_id?: string
+          form_name?: string | null
+          id?: string
+          page_id?: string
+          page_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_meta_sources_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_meta_sources_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "org_meta_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_subscriptions: {
         Row: {
           company_id: string
@@ -3883,10 +4067,13 @@ export type Database = {
       }
       org_whatsapp_webhook_events: {
         Row: {
+          attempts: number
           company_id: string | null
           connection_id: string | null
+          delivery_key: string | null
           field: string | null
           id: string
+          next_attempt_at: string
           payload: Json
           phone_number_id: string | null
           processed_at: string | null
@@ -3895,10 +4082,13 @@ export type Database = {
           waba_id: string | null
         }
         Insert: {
+          attempts?: number
           company_id?: string | null
           connection_id?: string | null
+          delivery_key?: string | null
           field?: string | null
           id?: string
+          next_attempt_at?: string
           payload: Json
           phone_number_id?: string | null
           processed_at?: string | null
@@ -3907,10 +4097,13 @@ export type Database = {
           waba_id?: string | null
         }
         Update: {
+          attempts?: number
           company_id?: string | null
           connection_id?: string | null
+          delivery_key?: string | null
           field?: string | null
           id?: string
+          next_attempt_at?: string
           payload?: Json
           phone_number_id?: string | null
           processed_at?: string | null
@@ -5215,40 +5408,87 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_ai_controls: {
+        Row: {
+          company_id: string
+          enabled: boolean
+          instructions: string
+          paused_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          enabled?: boolean
+          instructions?: string
+          paused_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          enabled?: boolean
+          instructions?: string
+          paused_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_ai_controls_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_conversations: {
         Row: {
           assigned_to: string | null
           company_id: string | null
+          connection_id: string | null
           contact_name: string
           created_at: string
+          human_takeover: boolean
           id: string
+          inbox_status: string
+          inbox_version: number
           last_inbound_at: string | null
           last_message_at: string | null
           lead_id: string | null
+          provider_phone: string | null
           unread_count: number
           wa_phone: string
         }
         Insert: {
           assigned_to?: string | null
           company_id?: string | null
+          connection_id?: string | null
           contact_name?: string
           created_at?: string
+          human_takeover?: boolean
           id?: string
+          inbox_status?: string
+          inbox_version?: number
           last_inbound_at?: string | null
           last_message_at?: string | null
           lead_id?: string | null
+          provider_phone?: string | null
           unread_count?: number
           wa_phone: string
         }
         Update: {
           assigned_to?: string | null
           company_id?: string | null
+          connection_id?: string | null
           contact_name?: string
           created_at?: string
+          human_takeover?: boolean
           id?: string
+          inbox_status?: string
+          inbox_version?: number
           last_inbound_at?: string | null
           last_message_at?: string | null
           lead_id?: string | null
+          provider_phone?: string | null
           unread_count?: number
           wa_phone?: string
         }
@@ -5268,6 +5508,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "whatsapp_conversations_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "org_whatsapp_connections"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "whatsapp_conversations_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
@@ -5276,16 +5523,55 @@ export type Database = {
           },
         ]
       }
+      whatsapp_internal_notes: {
+        Row: {
+          actor_id: string
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          actor_id: string
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          actor_id?: string
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_internal_notes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_messages: {
         Row: {
+          actor_id: string | null
           body: string
           broadcast_id: string | null
+          client_id: string | null
           conversation_id: string
           created_at: string
           delivered_at: string | null
           direction: string
           failure_reason: string | null
           id: string
+          media_filename: string | null
+          media_id: string | null
+          media_mime: string | null
+          message_type: string
+          provider_errors: Json | null
           read_at: string | null
           sent_at: string | null
           status: string
@@ -5293,14 +5579,21 @@ export type Database = {
           wa_message_id: string | null
         }
         Insert: {
+          actor_id?: string | null
           body?: string
           broadcast_id?: string | null
+          client_id?: string | null
           conversation_id: string
           created_at?: string
           delivered_at?: string | null
           direction: string
           failure_reason?: string | null
           id?: string
+          media_filename?: string | null
+          media_id?: string | null
+          media_mime?: string | null
+          message_type?: string
+          provider_errors?: Json | null
           read_at?: string | null
           sent_at?: string | null
           status?: string
@@ -5308,14 +5601,21 @@ export type Database = {
           wa_message_id?: string | null
         }
         Update: {
+          actor_id?: string | null
           body?: string
           broadcast_id?: string | null
+          client_id?: string | null
           conversation_id?: string
           created_at?: string
           delivered_at?: string | null
           direction?: string
           failure_reason?: string | null
           id?: string
+          media_filename?: string | null
+          media_id?: string | null
+          media_mime?: string | null
+          message_type?: string
+          provider_errors?: Json | null
           read_at?: string | null
           sent_at?: string | null
           status?: string
@@ -5761,6 +6061,10 @@ export type Database = {
         Returns: undefined
       }
       messaging_allowed: { Args: { _permission?: string }; Returns: boolean }
+      meta_canonical_intake: {
+        Args: { _payload: Json; _source: string }
+        Returns: string
+      }
       org_apply_configuration: {
         Args: { _company: string }
         Returns: undefined
@@ -5969,6 +6273,29 @@ export type Database = {
         Returns: undefined
       }
       user_workspace_allowed: { Args: never; Returns: boolean }
+      wa_ai_settings: {
+        Args: { _company: string; _enabled: boolean; _instructions: string }
+        Returns: undefined
+      }
+      wa_inbox_access: {
+        Args: { _conversation: string; _write?: boolean }
+        Returns: boolean
+      }
+      wa_inbox_action: {
+        Args: { _action: string; _id: string; _payload: Json }
+        Returns: undefined
+      }
+      wa_process_event: { Args: { _id: string }; Returns: boolean }
+      wa_reserve_send: {
+        Args: {
+          _actor: string
+          _body: string
+          _client: string
+          _conversation: string
+          _type: string
+        }
+        Returns: string
+      }
       whatsapp_add_contact: {
         Args: { _name: string; _phone: string }
         Returns: string

@@ -122,6 +122,7 @@ import { Route as AuthenticatedAdminWhatsappWorkflowsRouteImport } from './route
 import { Route as ApiPublicCustomersCreateRouteImport } from './routes/api/public/customers/create'
 import { Route as ApiPublicLicenseStatusRouteImport } from './routes/api/public/license/status'
 import { Route as ApiPublicLicenseVerifyRouteImport } from './routes/api/public/license/verify'
+import { Route as ApiPublicMetaLeadWebhookRouteImport } from './routes/api/public/meta/lead-webhook'
 import { Route as ApiPublicMetaWhatsappWebhookRouteImport } from './routes/api/public/meta/whatsapp-webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -761,6 +762,12 @@ const ApiPublicLicenseVerifyRoute = ApiPublicLicenseVerifyRouteImport.update({
   path: '/api/public/license/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMetaLeadWebhookRoute =
+  ApiPublicMetaLeadWebhookRouteImport.update({
+    id: '/api/public/meta/lead-webhook',
+    path: '/api/public/meta/lead-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicMetaWhatsappWebhookRoute =
   ApiPublicMetaWhatsappWebhookRouteImport.update({
     id: '/api/public/meta/whatsapp-webhook',
@@ -880,6 +887,7 @@ export interface FileRoutesByFullPath {
   '/api/public/customers/create': typeof ApiPublicCustomersCreateRoute
   '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
   '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
+  '/api/public/meta/lead-webhook': typeof ApiPublicMetaLeadWebhookRoute
   '/api/public/meta/whatsapp-webhook': typeof ApiPublicMetaWhatsappWebhookRoute
   '/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -994,6 +1002,7 @@ export interface FileRoutesByTo {
   '/api/public/customers/create': typeof ApiPublicCustomersCreateRoute
   '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
   '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
+  '/api/public/meta/lead-webhook': typeof ApiPublicMetaLeadWebhookRoute
   '/api/public/meta/whatsapp-webhook': typeof ApiPublicMetaWhatsappWebhookRoute
   '/admin/routing': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -1111,6 +1120,7 @@ export interface FileRoutesById {
   '/api/public/customers/create': typeof ApiPublicCustomersCreateRoute
   '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
   '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
+  '/api/public/meta/lead-webhook': typeof ApiPublicMetaLeadWebhookRoute
   '/api/public/meta/whatsapp-webhook': typeof ApiPublicMetaWhatsappWebhookRoute
   '/_authenticated/admin/routing/': typeof AuthenticatedAdminRoutingIndexRoute
 }
@@ -1228,6 +1238,7 @@ export interface FileRouteTypes {
     | '/api/public/customers/create'
     | '/api/public/license/status'
     | '/api/public/license/verify'
+    | '/api/public/meta/lead-webhook'
     | '/api/public/meta/whatsapp-webhook'
     | '/admin/routing/'
   fileRoutesByTo: FileRoutesByTo
@@ -1342,6 +1353,7 @@ export interface FileRouteTypes {
     | '/api/public/customers/create'
     | '/api/public/license/status'
     | '/api/public/license/verify'
+    | '/api/public/meta/lead-webhook'
     | '/api/public/meta/whatsapp-webhook'
     | '/admin/routing'
   id:
@@ -1458,6 +1470,7 @@ export interface FileRouteTypes {
     | '/api/public/customers/create'
     | '/api/public/license/status'
     | '/api/public/license/verify'
+    | '/api/public/meta/lead-webhook'
     | '/api/public/meta/whatsapp-webhook'
     | '/_authenticated/admin/routing/'
   fileRoutesById: FileRoutesById
@@ -1484,6 +1497,7 @@ export interface RootRouteChildren {
   ApiPublicCustomersCreateRoute: typeof ApiPublicCustomersCreateRoute
   ApiPublicLicenseStatusRoute: typeof ApiPublicLicenseStatusRoute
   ApiPublicLicenseVerifyRoute: typeof ApiPublicLicenseVerifyRoute
+  ApiPublicMetaLeadWebhookRoute: typeof ApiPublicMetaLeadWebhookRoute
   ApiPublicMetaWhatsappWebhookRoute: typeof ApiPublicMetaWhatsappWebhookRoute
 }
 
@@ -2280,6 +2294,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLicenseVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/meta/lead-webhook': {
+      id: '/api/public/meta/lead-webhook'
+      path: '/api/public/meta/lead-webhook'
+      fullPath: '/api/public/meta/lead-webhook'
+      preLoaderRoute: typeof ApiPublicMetaLeadWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/meta/whatsapp-webhook': {
       id: '/api/public/meta/whatsapp-webhook'
       path: '/api/public/meta/whatsapp-webhook'
@@ -2547,6 +2568,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCustomersCreateRoute: ApiPublicCustomersCreateRoute,
   ApiPublicLicenseStatusRoute: ApiPublicLicenseStatusRoute,
   ApiPublicLicenseVerifyRoute: ApiPublicLicenseVerifyRoute,
+  ApiPublicMetaLeadWebhookRoute: ApiPublicMetaLeadWebhookRoute,
   ApiPublicMetaWhatsappWebhookRoute: ApiPublicMetaWhatsappWebhookRoute,
 }
 export const routeTree = rootRouteImport

@@ -51,6 +51,7 @@ type Props = {
   onCheckConnection: () => Promise<boolean>;
   checkingConnection?: boolean;
   onAddContact: (input: WaContactForm) => Promise<void>;
+  onSend?: ((body:string)=>Promise<void>) | undefined;
 };
 
 const AVATAR_COLORS = ['bg-admin-blue', 'bg-admin-green', 'bg-admin-purple', 'bg-admin-orange', 'bg-admin-pink'] as const;
@@ -97,7 +98,8 @@ export function WhatsAppWebChat(p: Props) {
   const conversations = p.conversations.filter((c) => (!q || `${c.name} ${c.phone}`.toLowerCase().includes(q.toLowerCase())) && (filter === 'all' || (filter === 'unread' ? (c.unread ?? 0) > 0 : filter === 'favorites' ? c.favorite : c.kind === 'group')));
   const active = p.conversations.find((c) => c.id === p.selectedId) ?? null;
   const anySelected = !!active;
-  const canSend = p.connected && !!active;
+  const canSend = p.connected && !!active && Boolean(p.onSend);
+  const send = async()=>{if(!p.onSend||!draft.trim()||saving)return;setSaving(true);try{await p.onSend(draft.trim());setDraft('');}catch(e){toast.error(e instanceof Error?e.message:'Message was not sent');}finally{setSaving(false);}};
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }); }, [p.messages.length, p.selectedId]);
   useEffect(() => { setDetailsOpen(false); setMenuOpen(false); setDraft(''); }, [p.selectedId]);
@@ -214,7 +216,6 @@ export function WhatsAppWebChat(p: Props) {
             <span className="grid size-24 place-items-center rounded-full bg-wa-bubble"><MessageCirclePlus className="size-12 text-wa-green-deep" strokeWidth={1.4} /></span>
             <h2 className="text-3xl font-light text-foreground">Routiva WhatsApp Chats</h2>
             <p className="max-w-md text-sm text-muted-foreground">Send and receive WhatsApp messages with your leads and customers without leaving the CRM.{p.connected ? ` Connected as ${p.connectedPhone ?? 'your business number'}.` : ' Connect WhatsApp Business to enable live messaging.'}</p>
-            <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground"><Check className="size-3.5 text-wa-green-deep" />End-to-end encrypted</p>
           </div>
         ) : (<>
           <header className="flex h-16 shrink-0 items-center gap-3 border-b bg-wa-panel px-3">
@@ -283,14 +284,14 @@ export function WhatsAppWebChat(p: Props) {
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); toast.info('Sending requires an active WhatsApp Business connection — this message was not sent.'); } }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault();void send(); } }}
               placeholder="Type a message"
               aria-label="Message"
               disabled={!canSend}
               className="h-11 min-w-0 flex-1 rounded-full border bg-card px-4 text-[15px] outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/30 disabled:opacity-70"
             />
             {canSend && draft.trim() ? (
-              <button aria-label="Send message" title="Send message" onClick={() => toast.info('Sending requires the WhatsApp Business integration — this message was not sent.')} className="grid size-11 shrink-0 place-items-center rounded-full bg-wa-green-deep text-primary-foreground hover:opacity-90"><Send className="size-5" /></button>
+              <Button size="icon" aria-label="Send message" title="Send message" disabled={saving} onClick={send} className="size-11 shrink-0 rounded-full bg-wa-green-deep text-primary-foreground hover:opacity-90"><Send className="size-5" /></Button>
             ) : (
               <button aria-label="Voice message" title="Voice message" onClick={() => toast.info('Sending requires a verified WhatsApp Business connection.')} className="grid size-11 shrink-0 place-items-center rounded-full text-wa-icon hover:bg-muted"><Mic className="size-5" /></button>
             )}

@@ -74,7 +74,7 @@ export async function exchangeCode(cfg: MetaConfig, code: string): Promise<Graph
 
 /** Inspects a token with the app token: validity, scopes, expiry and granted WABA IDs. */
 export async function debugToken(cfg: MetaConfig, token: string) {
-  const r = await graph<{ data: { is_valid: boolean; scopes?: string[]; expires_at?: number; granular_scopes?: { scope: string; target_ids?: string[] }[] } }>(
+  const r = await graph<{ data: { is_valid: boolean; app_id?: string; scopes?: string[]; expires_at?: number; granular_scopes?: { scope: string; target_ids?: string[] }[] } }>(
     "/debug_token", `${cfg.appId}|${cfg.appSecret}`, { query: { input_token: token } },
   );
   if (!r.ok) return r;
