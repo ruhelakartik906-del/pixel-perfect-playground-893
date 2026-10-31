@@ -54,7 +54,8 @@ export const saveIntegrationPolicy = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => policyInput.parse(input))
   .handler(async ({ context, data }) => {
-    const result = await context.supabase.rpc('master_save_integration_policy', { _provider: data.provider, _enabled: data.enabled, _plans: data.plan_ids, _max: data.max_connections, _permissions: data.required_permissions });
+    // PostgreSQL accepts explicit NULL; generated RPC argument types omit that nullability.
+    const result = await context.supabase.rpc('master_save_integration_policy', { _provider: data.provider, _enabled: data.enabled, _plans: data.plan_ids as never, _max: data.max_connections as never, _permissions: data.required_permissions });
     if (result.error) throw new Error(result.error.message);
     return { ok: true };
   });

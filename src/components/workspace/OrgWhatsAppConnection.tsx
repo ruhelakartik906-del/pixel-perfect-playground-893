@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { checkWhatsAppHealth, completeWhatsAppSignup, disconnectWhatsApp, myOrgWhatsApp, myWhatsAppOrgs, whatsappSetupInfo, type WaConnection } from '@/lib/org-whatsapp.functions';
+import { beginWhatsAppSignup, checkWhatsAppHealth, completeWhatsAppSignup, disconnectWhatsApp, myOrgWhatsApp, myWhatsAppOrgs, whatsappSetupInfo, type WaConnection } from '@/lib/org-whatsapp.functions';
 import { cn } from '@/lib/utils';
 
 declare global {
@@ -47,15 +47,15 @@ export function OrgWhatsAppConnection() {
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
-      if (!/(^|\.)facebook\.com$/.test(new URL(e.origin).hostname)) return;
       try {
+        if (!busy || !['https://www.facebook.com', 'https://web.facebook.com'].includes(e.origin)) return;
         const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
         if (d?.type === 'WA_EMBEDDED_SIGNUP' && d.event?.startsWith('FINISH')) session.current = { waba_id: d.data?.waba_id, phone_number_id: d.data?.phone_number_id };
       } catch { /* other messages */ }
     };
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
-  }, []);
+  }, [busy]);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['wa-conn', company] });
   const run = async (fn: () => Promise<unknown>, ok: string) => {
@@ -70,6 +70,7 @@ export function OrgWhatsAppConnection() {
     setBusy(true);
     try {
       await loadSdk(s.appId);
+      const { nonce } = await beginWhatsAppSignup({ data: { company_id: company } });
       session.current = {};
       const code: string | null = await new Promise((resolve) => {
         window.FB.login((r: any) => resolve(r?.authResponse?.code ?? null), {
@@ -79,7 +80,7 @@ export function OrgWhatsAppConnection() {
       });
       const { waba_id, phone_number_id } = session.current;
       if (!code || !waba_id || !phone_number_id) { toast.error('Meta signup was cancelled or did not finish'); return; }
-      const conn = await completeWhatsAppSignup({ data: { company_id: company, code, waba_id, phone_number_id, coexistence, ...(coexistence ? {} : { pin }) } });
+      const conn = await completeWhatsAppSignup({ data: { company_id: company, nonce, code, waba_id, phone_number_id, coexistence, ...(coexistence ? {} : { pin }) } });
       if (conn.status === 'connected') toast.success('WhatsApp connected and verified');
       else toast.warning(`Saved, but not fully verified: ${conn.last_error ?? 'see details'}`);
       setPin('');

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { nonceDigest } from './integration-marketplace';
 
 // Organization-level WhatsApp Business connection. Authorization is always checked through
 // the caller's own RLS-scoped client (org_customer_admin / routing_admin) before any
@@ -46,6 +47,8 @@ async function assertMaster(context: Context) {
   if (r.error || r.data !== true) throw new Error("Active Super Admin authorization required");
 }
 async function assertFeature(context: Context, companyId: string) {
+  const policy = await context.supabase.rpc('integration_provider_allowed', { _company: companyId, _provider: 'whatsapp', _action: 'manage' });
+  if (policy.error || policy.data !== true) throw new Error('WhatsApp is unavailable under the platform or subscription policy');
   const r = await context.supabase.rpc("org_feature_allowed", { _company: companyId, _feature: "whatsapp" });
   if (r.error) throw new Error("Plan permissions could not be verified");
   if (r.data !== true) throw new Error("WhatsApp is not included in this organization's plan");
@@ -91,11 +94,25 @@ export const myOrgWhatsApp = createServerFn({ method: "GET" })
 const signupInput = z.object({
   company_id: z.string().uuid(),
   code: z.string().min(10).max(2048),
+  nonce: z.string().uuid(),
   waba_id: z.string().regex(/^\d{5,25}$/),
   phone_number_id: z.string().regex(/^\d{5,25}$/),
   coexistence: z.boolean(),
   pin: z.string().regex(/^\d{6}$/).optional(),
 }).strict();
+
+export const beginWhatsAppSignup = createServerFn({ method: 'POST' })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ company_id: z.string().uuid() }).strict().parse(input))
+  .handler(async ({ context, data }) => {
+    await assertCustomerAdmin(context, data.company_id);
+    await assertFeature(context, data.company_id);
+    const nonce = crypto.randomUUID();
+    const db = await admin();
+    const saved = await db.from('integration_oauth_attempts').insert({ user_id: context.userId, company_id: data.company_id, provider: 'whatsapp', nonce_hash: await nonceDigest(nonce) });
+    if (saved.error) throw new Error('Signup attempt could not be started');
+    return { nonce };
+  });
 
 /** Completes Embedded Signup: exchange code, verify token/WABA grant, register number, subscribe webhooks. */
 export const completeWhatsAppSignup = createServerFn({ method: "POST" })
@@ -110,6 +127,9 @@ export const completeWhatsAppSignup = createServerFn({ method: "POST" })
     if (!cfg.appId || !cfg.appSecret || !cfg.configId || !cfg.verifyToken) throw new Error("WhatsApp setup is not configured yet");
     const full = cfg as import("@/lib/whatsapp-meta.server").MetaConfig;
     const db = await admin();
+
+    const attempt = await db.rpc('integration_consume_attempt', { _user: context.userId, _company: data.company_id, _provider: 'whatsapp', _hash: await nonceDigest(data.nonce) });
+    if (attempt.error || attempt.data !== true) throw new Error('Signup attempt expired or was already used; start again');
 
     const existing = await db.from("org_whatsapp_connections").select("id,company_id").eq("phone_number_id", data.phone_number_id).in("status", ACTIVE);
     if (existing.error) throw new Error("Connection could not be checked");
@@ -142,7 +162,11 @@ export const completeWhatsAppSignup = createServerFn({ method: "POST" })
     ]);
     if (!phone.ok) throw new Error(`Phone number could not be read: ${phone.message}`);
 
-    let registered = data.coexistence;
+    const ownedNumbers = await meta.graph<{ data: { id: string; is_on_biz_app?: boolean }[] }>(`/${data.waba_id}/phone_numbers`, token, { query: { fields: 'id,is_on_biz_app', limit: '100' } });
+    const ownedPhone = ownedNumbers.ok ? ownedNumbers.data.data.find(p => p.id === data.phone_number_id) : undefined;
+    if (!ownedPhone) throw new Error('The selected number does not belong to the authorized WhatsApp account');
+    if (data.coexistence && ownedPhone.is_on_biz_app !== true) throw new Error('Meta has not confirmed Business App coexistence for this number');
+    let registered = data.coexistence && ownedPhone.is_on_biz_app === true;
     let regError: string | null = null;
     if (!data.coexistence) {
       const reg = await meta.graph(`/${data.phone_number_id}/register`, token, { method: "POST", body: { messaging_product: "whatsapp", pin: data.pin } });
