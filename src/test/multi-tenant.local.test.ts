@@ -39,6 +39,22 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Multi-tenant core"
     ).rejects.toThrow("Super Admin");
   });
 
+  it("rolls back company, membership, role and profile activation when subscription setup fails", async () => {
+    const failedUser = "55555555-5555-4555-8555-555555555555";
+    await sql`INSERT INTO profiles(id, account_status, email) VALUES (${failedUser}, 'pending', 'rollback@example.invalid')`;
+    await sql.unsafe(`CREATE FUNCTION public.qa_fail_customer_subscription() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'QA subscription failure'; END $$;
+      CREATE TRIGGER qa_fail_customer_subscription BEFORE INSERT ON org_subscriptions FOR EACH ROW EXECUTE FUNCTION public.qa_fail_customer_subscription();`);
+    try {
+      await expect(sql`SELECT master_create_customer(${admin}, ${failedUser}, 'rollback@example.invalid', 'Rollback Test', '', 'Rollback Co')`).rejects.toThrow("QA subscription failure");
+      expect(await sql`SELECT id FROM companies WHERE email='rollback@example.invalid'`).toHaveLength(0);
+      expect(await sql`SELECT id FROM company_members WHERE user_id=${failedUser}`).toHaveLength(0);
+      expect(await sql`SELECT role FROM user_roles WHERE user_id=${failedUser}`).toHaveLength(0);
+      expect((await sql`SELECT account_status FROM profiles WHERE id=${failedUser}`)[0]).toMatchObject({ account_status: "pending" });
+    } finally {
+      await sql.unsafe("DROP TRIGGER qa_fail_customer_subscription ON org_subscriptions; DROP FUNCTION public.qa_fail_customer_subscription();");
+    }
+  });
+
   it("creates company, membership, client role and active 1-year subscription atomically", async () => {
     const rows = await sql`SELECT master_create_customer(${admin}, ${newCustomer}, 'c@test.dev', 'Cust Name', '123', 'Acme Co') AS id`;
     companyId = rows[0]!["id"] as string;
