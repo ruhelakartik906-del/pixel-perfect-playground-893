@@ -118,6 +118,7 @@ import { Route as AuthenticatedAdminWhatsappMessageTemplatesRouteImport } from '
 import { Route as AuthenticatedAdminWhatsappOrgConnectionsRouteImport } from './routes/_authenticated/admin/whatsapp/org-connections'
 import { Route as AuthenticatedAdminWhatsappWhatsappChatRouteImport } from './routes/_authenticated/admin/whatsapp/whatsapp-chat'
 import { Route as AuthenticatedAdminWhatsappWorkflowsRouteImport } from './routes/_authenticated/admin/whatsapp/workflows'
+import { Route as ApiPublicCustomersCreateRouteImport } from './routes/api/public/customers/create'
 import { Route as ApiPublicLicenseStatusRouteImport } from './routes/api/public/license/status'
 import { Route as ApiPublicLicenseVerifyRouteImport } from './routes/api/public/license/verify'
 import { Route as ApiPublicMetaWhatsappWebhookRouteImport } from './routes/api/public/meta/whatsapp-webhook'
@@ -737,6 +738,12 @@ const AuthenticatedAdminWhatsappWorkflowsRoute =
     path: '/whatsapp/workflows',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const ApiPublicCustomersCreateRoute =
+  ApiPublicCustomersCreateRouteImport.update({
+    id: '/api/public/customers/create',
+    path: '/api/public/customers/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicLicenseStatusRoute = ApiPublicLicenseStatusRouteImport.update({
   id: '/api/public/license/status',
   path: '/api/public/license/status',
@@ -862,6 +869,7 @@ export interface FileRoutesByFullPath {
   '/admin/whatsapp/org-connections': typeof AuthenticatedAdminWhatsappOrgConnectionsRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
+  '/api/public/customers/create': typeof ApiPublicCustomersCreateRoute
   '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
   '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
   '/api/public/meta/whatsapp-webhook': typeof ApiPublicMetaWhatsappWebhookRoute
@@ -974,6 +982,7 @@ export interface FileRoutesByTo {
   '/admin/whatsapp/org-connections': typeof AuthenticatedAdminWhatsappOrgConnectionsRoute
   '/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
+  '/api/public/customers/create': typeof ApiPublicCustomersCreateRoute
   '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
   '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
   '/api/public/meta/whatsapp-webhook': typeof ApiPublicMetaWhatsappWebhookRoute
@@ -1089,6 +1098,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/whatsapp/org-connections': typeof AuthenticatedAdminWhatsappOrgConnectionsRoute
   '/_authenticated/admin/whatsapp/whatsapp-chat': typeof AuthenticatedAdminWhatsappWhatsappChatRoute
   '/_authenticated/admin/whatsapp/workflows': typeof AuthenticatedAdminWhatsappWorkflowsRoute
+  '/api/public/customers/create': typeof ApiPublicCustomersCreateRoute
   '/api/public/license/status': typeof ApiPublicLicenseStatusRoute
   '/api/public/license/verify': typeof ApiPublicLicenseVerifyRoute
   '/api/public/meta/whatsapp-webhook': typeof ApiPublicMetaWhatsappWebhookRoute
@@ -1204,6 +1214,7 @@ export interface FileRouteTypes {
     | '/admin/whatsapp/org-connections'
     | '/admin/whatsapp/whatsapp-chat'
     | '/admin/whatsapp/workflows'
+    | '/api/public/customers/create'
     | '/api/public/license/status'
     | '/api/public/license/verify'
     | '/api/public/meta/whatsapp-webhook'
@@ -1316,6 +1327,7 @@ export interface FileRouteTypes {
     | '/admin/whatsapp/org-connections'
     | '/admin/whatsapp/whatsapp-chat'
     | '/admin/whatsapp/workflows'
+    | '/api/public/customers/create'
     | '/api/public/license/status'
     | '/api/public/license/verify'
     | '/api/public/meta/whatsapp-webhook'
@@ -1430,6 +1442,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/whatsapp/org-connections'
     | '/_authenticated/admin/whatsapp/whatsapp-chat'
     | '/_authenticated/admin/whatsapp/workflows'
+    | '/api/public/customers/create'
     | '/api/public/license/status'
     | '/api/public/license/verify'
     | '/api/public/meta/whatsapp-webhook'
@@ -1455,6 +1468,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ApiPublicMakeLeadsRoute: typeof ApiPublicMakeLeadsRoute
+  ApiPublicCustomersCreateRoute: typeof ApiPublicCustomersCreateRoute
   ApiPublicLicenseStatusRoute: typeof ApiPublicLicenseStatusRoute
   ApiPublicLicenseVerifyRoute: typeof ApiPublicLicenseVerifyRoute
   ApiPublicMetaWhatsappWebhookRoute: typeof ApiPublicMetaWhatsappWebhookRoute
@@ -2225,6 +2239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWhatsappWorkflowsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/api/public/customers/create': {
+      id: '/api/public/customers/create'
+      path: '/api/public/customers/create'
+      fullPath: '/api/public/customers/create'
+      preLoaderRoute: typeof ApiPublicCustomersCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/license/status': {
       id: '/api/public/license/status'
       path: '/api/public/license/status'
@@ -2501,6 +2522,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   AdminLoginRoute: AdminLoginRoute,
   ApiPublicMakeLeadsRoute: ApiPublicMakeLeadsRoute,
+  ApiPublicCustomersCreateRoute: ApiPublicCustomersCreateRoute,
   ApiPublicLicenseStatusRoute: ApiPublicLicenseStatusRoute,
   ApiPublicLicenseVerifyRoute: ApiPublicLicenseVerifyRoute,
   ApiPublicMetaWhatsappWebhookRoute: ApiPublicMetaWhatsappWebhookRoute,
