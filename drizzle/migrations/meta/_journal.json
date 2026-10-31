@@ -715,6 +715,13 @@
       "when": 1793369580890,
       "tag": "0101_support_workspace_access",
       "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1793428455713,
+      "tag": "0102_org_whatsapp_connections",
+      "breakpoints": true
     }
   ]
 }

@@ -3610,6 +3610,197 @@ export type Database = {
           },
         ]
       }
+      org_whatsapp_audit: {
+        Row: {
+          action: string
+          actor: string | null
+          company_id: string
+          connection_id: string | null
+          created_at: string
+          detail: Json
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          company_id: string
+          connection_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          company_id?: string
+          connection_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_whatsapp_audit_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_whatsapp_connections: {
+        Row: {
+          business_name: string | null
+          coexistence: boolean
+          company_id: string
+          connected_at: string | null
+          connected_by: string | null
+          created_at: string
+          display_phone_number: string | null
+          id: string
+          last_error: string | null
+          last_health_at: string | null
+          number_registered: boolean
+          phone_number_id: string
+          quality_rating: string | null
+          scopes: string[]
+          status: string
+          token_expires_at: string | null
+          token_ok: boolean
+          updated_at: string
+          verified_name: string | null
+          waba_id: string
+          webhook_subscribed: boolean
+        }
+        Insert: {
+          business_name?: string | null
+          coexistence?: boolean
+          company_id: string
+          connected_at?: string | null
+          connected_by?: string | null
+          created_at?: string
+          display_phone_number?: string | null
+          id?: string
+          last_error?: string | null
+          last_health_at?: string | null
+          number_registered?: boolean
+          phone_number_id: string
+          quality_rating?: string | null
+          scopes?: string[]
+          status?: string
+          token_expires_at?: string | null
+          token_ok?: boolean
+          updated_at?: string
+          verified_name?: string | null
+          waba_id: string
+          webhook_subscribed?: boolean
+        }
+        Update: {
+          business_name?: string | null
+          coexistence?: boolean
+          company_id?: string
+          connected_at?: string | null
+          connected_by?: string | null
+          created_at?: string
+          display_phone_number?: string | null
+          id?: string
+          last_error?: string | null
+          last_health_at?: string | null
+          number_registered?: boolean
+          phone_number_id?: string
+          quality_rating?: string | null
+          scopes?: string[]
+          status?: string
+          token_expires_at?: string | null
+          token_ok?: boolean
+          updated_at?: string
+          verified_name?: string | null
+          waba_id?: string
+          webhook_subscribed?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_whatsapp_connections_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_whatsapp_secrets: {
+        Row: {
+          connection_id: string
+          token_ciphertext: string
+          updated_at: string
+        }
+        Insert: {
+          connection_id: string
+          token_ciphertext: string
+          updated_at?: string
+        }
+        Update: {
+          connection_id?: string
+          token_ciphertext?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_whatsapp_secrets_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: true
+            referencedRelation: "org_whatsapp_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_whatsapp_webhook_events: {
+        Row: {
+          company_id: string | null
+          connection_id: string | null
+          field: string | null
+          id: string
+          payload: Json
+          phone_number_id: string | null
+          processed_at: string | null
+          processing_error: string | null
+          received_at: string
+          waba_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          connection_id?: string | null
+          field?: string | null
+          id?: string
+          payload: Json
+          phone_number_id?: string | null
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+          waba_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          connection_id?: string | null
+          field?: string | null
+          id?: string
+          payload?: Json
+          phone_number_id?: string | null
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+          waba_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_whatsapp_webhook_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
