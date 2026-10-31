@@ -204,7 +204,10 @@ export const checkWhatsAppHealth = createServerFn({ method: "POST" })
     const conn = await db.from("org_whatsapp_connections").select(COLS).eq("id", data.connection_id).in("status", ACTIVE).maybeSingle();
     if (conn.error || !conn.data) throw new Error("Connection not found");
     const isMaster = (await context.supabase.rpc("routing_admin")).data === true;
-    if (!isMaster) await assertCustomerAdmin(context, conn.data.company_id);
+    if (!isMaster) {
+      await assertCustomerAdmin(context, conn.data.company_id);
+      await assertFeature(context, conn.data.company_id);
+    }
     const meta = await import("@/lib/whatsapp-meta.server");
     const sec = await db.from("org_whatsapp_secrets").select("token_ciphertext").eq("connection_id", data.connection_id).maybeSingle();
     if (sec.error) throw new Error("Connection could not be checked");
