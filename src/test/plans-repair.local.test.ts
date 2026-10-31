@@ -59,6 +59,20 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Plan repair persis
     await expect(sql`SELECT master_assign_plan(${actor},${company},${plan})`).rejects.toThrow("Invalid actor");
     await sql`SELECT set_config('qa.uid',${actor},false)`;
   });
+  it("enforces connected-number zero and document storage bytes", async () => {
+    await sql.unsafe(`CREATE TABLE org_whatsapp_connections(id uuid primary key default gen_random_uuid(),company_id uuid,status text);
+      CREATE TABLE hr_document_versions(id uuid primary key default gen_random_uuid(),company_id uuid,size bigint);
+      CREATE TABLE hr_announcement_attachments(id uuid primary key default gen_random_uuid(),company_id uuid,size bigint);`);
+    await sql.unsafe(readFileSync("drizzle/migrations/0106_org_number_and_document_storage_limits.sql", "utf8"));
+    await sql`SELECT master_save_customer_limits(${actor},${company},${sql.json({ max_whatsapp_numbers: 0, max_storage_mb: 1 })})`;
+    await expect(sql`INSERT INTO org_whatsapp_connections(company_id,status) VALUES(${company},'connected')`).rejects.toThrow("number limit");
+    await sql`INSERT INTO hr_document_versions(company_id,size) VALUES(${company},1048576)`;
+    await expect(sql`INSERT INTO hr_announcement_attachments(company_id,size) VALUES(${company},1)`).rejects.toThrow("storage limit");
+    await sql`SELECT master_save_customer_limits(${actor},${company},${sql.json({ max_whatsapp_numbers: null, max_storage_mb: null })})`;
+    await sql`INSERT INTO org_whatsapp_connections(company_id,status) VALUES(${company},'connected')`;
+    await sql`INSERT INTO hr_announcement_attachments(company_id,size) VALUES(${company},1)`;
+    expect(await sql`SELECT id FROM org_whatsapp_connections`).toHaveLength(1);
+  });
   it("assigned plans cannot be deleted and retirement preserves assignments", async () => {
     await expect(sql`DELETE FROM plans WHERE id=${plan}`).rejects.toThrow("retired");
     await sql`SELECT master_retire_plan(${plan})`;

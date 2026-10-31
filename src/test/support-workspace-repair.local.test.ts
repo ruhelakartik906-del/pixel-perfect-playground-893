@@ -55,4 +55,13 @@ describe.skipIf(process.env["CRM_LICENSE_LOCAL_QA"] !== "1")("Support workspace 
     await sql`SELECT support_session_end(${session},'Complete')`;
     await expect(sql`SELECT support_workspace_lead_action(${session},${lead},now(),${sql.json({ customer_name: "No" })})`).rejects.toThrow("ended");
   });
+  it("expiry stops the next action and records expiry", async () => {
+    await start("support");
+    await sql`SELECT set_config('request.jwt.claim.sub','',false)`;
+    await sql`UPDATE org_support_sessions SET expires_at=now()-interval '1 second' WHERE id=${session}`;
+    await sql`SELECT set_config('request.jwt.claim.sub',${master},false)`;
+    const r = await sql`SELECT support_workspace_lead_action(${session},${lead},now(),${sql.json({ customer_name: "No" })}) r`;
+    expect((r[0]?.["r"] as { error: string }).error).toContain("expired");
+    expect(await sql`SELECT id FROM org_support_audit WHERE session_id=${session} AND action='session.expired'`).toHaveLength(1);
+  });
 });
