@@ -2600,6 +2600,104 @@ export type Database = {
           },
         ]
       }
+      integration_oauth_attempts: {
+        Row: {
+          company_id: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          nonce_hash: string
+          provider: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          nonce_hash: string
+          provider: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          nonce_hash?: string
+          provider?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_oauth_attempts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_platform_audit: {
+        Row: {
+          actor: string
+          after_values: Json
+          before_values: Json | null
+          created_at: string
+          id: string
+          provider: string
+        }
+        Insert: {
+          actor: string
+          after_values: Json
+          before_values?: Json | null
+          created_at?: string
+          id?: string
+          provider: string
+        }
+        Update: {
+          actor?: string
+          after_values?: Json
+          before_values?: Json | null
+          created_at?: string
+          id?: string
+          provider?: string
+        }
+        Relationships: []
+      }
+      integration_platform_policies: {
+        Row: {
+          enabled: boolean
+          max_connections: number | null
+          plan_ids: string[] | null
+          provider: string
+          required_permissions: string[]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          max_connections?: number | null
+          plan_ids?: string[] | null
+          provider: string
+          required_permissions?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          max_connections?: number | null
+          plan_ids?: string[] | null
+          provider?: string
+          required_permissions?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       integration_settings: {
         Row: {
           config: Json
@@ -5492,6 +5590,19 @@ export type Database = {
           profile_id: string
         }[]
       }
+      integration_consume_attempt: {
+        Args: {
+          _company: string
+          _hash: string
+          _provider: string
+          _user: string
+        }
+        Returns: boolean
+      }
+      integration_provider_allowed: {
+        Args: { _action?: string; _company: string; _provider: string }
+        Returns: boolean
+      }
       is_company_member: {
         Args: { _company: string; _user: string }
         Returns: boolean
@@ -5622,6 +5733,16 @@ export type Database = {
       }
       master_save_customer_limits: {
         Args: { _actor: string; _company: string; _limits: Json }
+        Returns: undefined
+      }
+      master_save_integration_policy: {
+        Args: {
+          _enabled: boolean
+          _max: number
+          _permissions: string[]
+          _plans: string[]
+          _provider: string
+        }
         Returns: undefined
       }
       master_save_plan: {

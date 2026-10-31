@@ -764,6 +764,13 @@
       "when": 1793434801685,
       "tag": "0108_support_existing_action_compatibility",
       "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "7",
+      "when": 1793435405043,
+      "tag": "0109_integration_marketplace_controls",
+      "breakpoints": true
     }
   ]
 }

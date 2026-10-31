@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { adminHead } from "@/lib/admin-head";
 import { cn } from "@/lib/utils";
 import { MakeIntegration } from '@/components/admin/MakeIntegration';
+import { IntegrationPlatformControls } from '@/components/admin/IntegrationPlatformControls';
 
 export const Route = createFileRoute("/_authenticated/admin/integrations")({
   head: () => adminHead("Integrations Cockpit", "Manage and connect lead capture, communication and scheduling systems."),
@@ -63,6 +64,7 @@ function Cockpit() {
     <div className="space-y-5">
       <Breadcrumb label="Integrations" />
       <PageHeader title="Integrations Cockpit" subtitle="Manage and connect lead capture, communication and scheduling systems." />
+      <IntegrationPlatformControls />
       {makeOpen ? <MakeIntegration onBack={() => setMakeOpen(false)} /> : <>
       <Card className="flex flex-wrap items-center gap-8 px-6 py-4">
         {tabs.map((t) => <button key={t.id} onClick={() => setTab(t.id)} className={cn("-mb-4 border-b-2 pb-4 text-lg", tab === t.id ? "border-admin-blue font-semibold text-admin-blue" : "border-transparent")}>{t.l}</button>)}
